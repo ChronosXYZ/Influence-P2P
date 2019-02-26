@@ -1,4 +1,4 @@
-package com.github.joshuakissoon.kademlia.message;
+package io.github.chronosx88.influence.kademlia.message;
 
 public interface Message extends Streamable
 {

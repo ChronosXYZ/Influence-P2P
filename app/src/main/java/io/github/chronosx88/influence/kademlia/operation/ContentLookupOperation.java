@@ -1,6 +1,6 @@
-package com.github.joshuakissoon.kademlia.operation;
+package io.github.chronosx88.influence.kademlia.operation;
 
-import com.github.joshuakissoon.kademlia.message.Receiver;
+import io.github.chronosx88.influence.kademlia.message.Receiver;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,21 +10,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import com.github.joshuakissoon.kademlia.JKademliaNode;
-import com.github.joshuakissoon.kademlia.dht.GetParameter;
-import com.github.joshuakissoon.kademlia.KadConfiguration;
-import com.github.joshuakissoon.kademlia.KadServer;
-import com.github.joshuakissoon.kademlia.dht.JKademliaStorageEntry;
-import com.github.joshuakissoon.kademlia.exceptions.ContentNotFoundException;
-import com.github.joshuakissoon.kademlia.exceptions.RoutingException;
-import com.github.joshuakissoon.kademlia.exceptions.UnknownMessageException;
-import com.github.joshuakissoon.kademlia.message.ContentLookupMessage;
-import com.github.joshuakissoon.kademlia.message.ContentMessage;
-import com.github.joshuakissoon.kademlia.message.Message;
-import com.github.joshuakissoon.kademlia.message.NodeReplyMessage;
-import com.github.joshuakissoon.kademlia.node.KeyComparator;
-import com.github.joshuakissoon.kademlia.node.Node;
-import com.github.joshuakissoon.kademlia.util.RouteLengthChecker;
+import io.github.chronosx88.influence.kademlia.JKademliaNode;
+import io.github.chronosx88.influence.kademlia.dht.GetParameter;
+import io.github.chronosx88.influence.kademlia.KadConfiguration;
+import io.github.chronosx88.influence.kademlia.KadServer;
+import io.github.chronosx88.influence.kademlia.dht.JKademliaStorageEntry;
+import io.github.chronosx88.influence.kademlia.exceptions.ContentNotFoundException;
+import io.github.chronosx88.influence.kademlia.exceptions.RoutingException;
+import io.github.chronosx88.influence.kademlia.exceptions.UnknownMessageException;
+import io.github.chronosx88.influence.kademlia.message.ContentLookupMessage;
+import io.github.chronosx88.influence.kademlia.message.ContentMessage;
+import io.github.chronosx88.influence.kademlia.message.Message;
+import io.github.chronosx88.influence.kademlia.message.NodeReplyMessage;
+import io.github.chronosx88.influence.kademlia.node.KeyComparator;
+import io.github.chronosx88.influence.kademlia.node.Node;
+import io.github.chronosx88.influence.kademlia.util.RouteLengthChecker;
 
 /**
  * Looks up a specified identifier and returns the value associated with it
@@ -92,7 +92,7 @@ public class ContentLookupOperation implements Operation, Receiver
 
     /**
      * @throws java.io.IOException
-     * @throws com.github.joshuakissoon.kademlia.exceptions.RoutingException
+     * @throws RoutingException
      */
     @Override
     public synchronized void execute() throws IOException, RoutingException
@@ -318,7 +318,7 @@ public class ContentLookupOperation implements Operation, Receiver
     /**
      * @return The list of all content found during the lookup operation
      *
-     * @throws com.github.joshuakissoon.kademlia.exceptions.ContentNotFoundException
+     * @throws ContentNotFoundException
      */
     public JKademliaStorageEntry getContentFound() throws ContentNotFoundException
     {

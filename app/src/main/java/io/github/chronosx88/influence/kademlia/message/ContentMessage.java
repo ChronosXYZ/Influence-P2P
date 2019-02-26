@@ -1,11 +1,11 @@
-package com.github.joshuakissoon.kademlia.message;
+package io.github.chronosx88.influence.kademlia.message;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import com.github.joshuakissoon.kademlia.dht.JKademliaStorageEntry;
-import com.github.joshuakissoon.kademlia.node.Node;
-import com.github.joshuakissoon.kademlia.util.serializer.JsonSerializer;
+import io.github.chronosx88.influence.kademlia.dht.JKademliaStorageEntry;
+import io.github.chronosx88.influence.kademlia.node.Node;
+import io.github.chronosx88.influence.kademlia.util.serializer.JsonSerializer;
 
 /**
  * A Message used to send content between nodes

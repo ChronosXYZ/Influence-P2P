@@ -1,4 +1,4 @@
-package com.github.joshuakissoon.kademlia.util.serializer;
+package io.github.chronosx88.influence.kademlia.util.serializer;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -9,12 +9,12 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import com.github.joshuakissoon.kademlia.routing.JKademliaRoutingTable;
+import io.github.chronosx88.influence.kademlia.routing.JKademliaRoutingTable;
 import java.lang.reflect.Type;
 import java.util.List;
-import com.github.joshuakissoon.kademlia.KadConfiguration;
-import com.github.joshuakissoon.kademlia.routing.Contact;
-import com.github.joshuakissoon.kademlia.routing.KademliaRoutingTable;
+import io.github.chronosx88.influence.kademlia.KadConfiguration;
+import io.github.chronosx88.influence.kademlia.routing.Contact;
+import io.github.chronosx88.influence.kademlia.routing.KademliaRoutingTable;
 
 /**
  * A KadSerializer that serializes routing tables to JSON format

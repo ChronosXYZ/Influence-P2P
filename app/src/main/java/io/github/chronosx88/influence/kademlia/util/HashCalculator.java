@@ -1,4 +1,4 @@
-package com.github.joshuakissoon.kademlia.util;
+package io.github.chronosx88.influence.kademlia.util;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

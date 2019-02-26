@@ -1,7 +1,7 @@
-package com.github.joshuakissoon.kademlia.routing;
+package io.github.chronosx88.influence.kademlia.routing;
 
 import java.util.List;
-import com.github.joshuakissoon.kademlia.node.Node;
+import io.github.chronosx88.influence.kademlia.node.Node;
 
 /**
  * A bucket used to store Contacts in the routing table.

@@ -1,11 +1,11 @@
-package com.github.joshuakissoon.kademlia.message;
+package io.github.chronosx88.influence.kademlia.message;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import com.github.joshuakissoon.kademlia.KadConfiguration;
-import com.github.joshuakissoon.kademlia.KadServer;
-import com.github.joshuakissoon.kademlia.KademliaNode;
-import com.github.joshuakissoon.kademlia.dht.KademliaDHT;
+import io.github.chronosx88.influence.kademlia.KadConfiguration;
+import io.github.chronosx88.influence.kademlia.KadServer;
+import io.github.chronosx88.influence.kademlia.KademliaNode;
+import io.github.chronosx88.influence.kademlia.dht.KademliaDHT;
 
 /**
  * Handles creating messages and receivers

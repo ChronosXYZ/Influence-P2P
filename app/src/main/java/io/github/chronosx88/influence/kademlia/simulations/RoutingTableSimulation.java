@@ -1,8 +1,8 @@
-package com.github.joshuakissoon.kademlia.simulations;
+package io.github.chronosx88.influence.kademlia.simulations;
 
-import com.github.joshuakissoon.kademlia.JKademliaNode;
-import com.github.joshuakissoon.kademlia.node.KademliaId;
-import com.github.joshuakissoon.kademlia.routing.KademliaRoutingTable;
+import io.github.chronosx88.influence.kademlia.JKademliaNode;
+import io.github.chronosx88.influence.kademlia.node.KademliaId;
+import io.github.chronosx88.influence.kademlia.routing.KademliaRoutingTable;
 
 /**
  * Testing how the routing table works and checking if everything works properly

@@ -1,10 +1,10 @@
-package com.github.joshuakissoon.kademlia.operation;
+package io.github.chronosx88.influence.kademlia.operation;
 
 import java.io.IOException;
-import com.github.joshuakissoon.kademlia.KadConfiguration;
-import com.github.joshuakissoon.kademlia.KadServer;
-import com.github.joshuakissoon.kademlia.KademliaNode;
-import com.github.joshuakissoon.kademlia.node.KademliaId;
+import io.github.chronosx88.influence.kademlia.KadConfiguration;
+import io.github.chronosx88.influence.kademlia.KadServer;
+import io.github.chronosx88.influence.kademlia.KademliaNode;
+import io.github.chronosx88.influence.kademlia.node.KademliaId;
 
 /**
  * At each time interval t, nodes need to refresh their K-Buckets

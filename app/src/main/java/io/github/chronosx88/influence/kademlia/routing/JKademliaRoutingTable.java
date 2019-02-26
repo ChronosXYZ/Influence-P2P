@@ -1,12 +1,12 @@
-package com.github.joshuakissoon.kademlia.routing;
+package io.github.chronosx88.influence.kademlia.routing;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
-import com.github.joshuakissoon.kademlia.KadConfiguration;
-import com.github.joshuakissoon.kademlia.node.KeyComparator;
-import com.github.joshuakissoon.kademlia.node.Node;
-import com.github.joshuakissoon.kademlia.node.KademliaId;
+import io.github.chronosx88.influence.kademlia.KadConfiguration;
+import io.github.chronosx88.influence.kademlia.node.KeyComparator;
+import io.github.chronosx88.influence.kademlia.node.Node;
+import io.github.chronosx88.influence.kademlia.node.KademliaId;
 
 /**
  * Implementation of a Kademlia routing table

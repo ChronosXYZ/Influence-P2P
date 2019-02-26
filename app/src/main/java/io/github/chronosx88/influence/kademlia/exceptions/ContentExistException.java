@@ -1,4 +1,4 @@
-package com.github.joshuakissoon.kademlia.exceptions;
+package io.github.chronosx88.influence.kademlia.exceptions;
 
 /**
  * An exception used to indicate that a content already exist on the DHT

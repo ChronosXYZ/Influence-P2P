@@ -1,4 +1,4 @@
-package com.github.joshuakissoon.kademlia.simulations;
+package io.github.chronosx88.influence.kademlia.simulations;
 
 /**
  * A class that specifies the structure for simulations.

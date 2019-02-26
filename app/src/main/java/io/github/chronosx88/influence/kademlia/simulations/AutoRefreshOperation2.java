@@ -1,11 +1,11 @@
-package com.github.joshuakissoon.kademlia.simulations;
+package io.github.chronosx88.influence.kademlia.simulations;
 
 import java.util.Timer;
 import java.util.TimerTask;
-import com.github.joshuakissoon.kademlia.DefaultConfiguration;
-import com.github.joshuakissoon.kademlia.JKademliaNode;
-import com.github.joshuakissoon.kademlia.KadConfiguration;
-import com.github.joshuakissoon.kademlia.node.KademliaId;
+import io.github.chronosx88.influence.kademlia.DefaultConfiguration;
+import io.github.chronosx88.influence.kademlia.JKademliaNode;
+import io.github.chronosx88.influence.kademlia.KadConfiguration;
+import io.github.chronosx88.influence.kademlia.node.KademliaId;
 
 /**
  * Testing the Kademlia Auto Content and Node table refresh operations

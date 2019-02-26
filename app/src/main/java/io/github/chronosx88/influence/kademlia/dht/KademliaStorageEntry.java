@@ -1,4 +1,4 @@
-package com.github.joshuakissoon.kademlia.dht;
+package io.github.chronosx88.influence.kademlia.dht;
 
 /**
  * A StorageEntry interface for the storage entry class used to store a content on the DHT

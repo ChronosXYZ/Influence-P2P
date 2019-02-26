@@ -1,6 +1,6 @@
-package com.github.joshuakissoon.kademlia.operation;
+package io.github.chronosx88.influence.kademlia.operation;
 
-import com.github.joshuakissoon.kademlia.message.Receiver;
+import io.github.chronosx88.influence.kademlia.message.Receiver;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -8,16 +8,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import com.github.joshuakissoon.kademlia.KadConfiguration;
-import com.github.joshuakissoon.kademlia.KadServer;
-import com.github.joshuakissoon.kademlia.KademliaNode;
-import com.github.joshuakissoon.kademlia.exceptions.RoutingException;
-import com.github.joshuakissoon.kademlia.message.Message;
-import com.github.joshuakissoon.kademlia.message.NodeLookupMessage;
-import com.github.joshuakissoon.kademlia.message.NodeReplyMessage;
-import com.github.joshuakissoon.kademlia.node.KeyComparator;
-import com.github.joshuakissoon.kademlia.node.Node;
-import com.github.joshuakissoon.kademlia.node.KademliaId;
+import io.github.chronosx88.influence.kademlia.KadConfiguration;
+import io.github.chronosx88.influence.kademlia.KadServer;
+import io.github.chronosx88.influence.kademlia.KademliaNode;
+import io.github.chronosx88.influence.kademlia.exceptions.RoutingException;
+import io.github.chronosx88.influence.kademlia.message.Message;
+import io.github.chronosx88.influence.kademlia.message.NodeLookupMessage;
+import io.github.chronosx88.influence.kademlia.message.NodeReplyMessage;
+import io.github.chronosx88.influence.kademlia.node.KeyComparator;
+import io.github.chronosx88.influence.kademlia.node.Node;
+import io.github.chronosx88.influence.kademlia.node.KademliaId;
 
 /**
  * Finds the K closest nodes to a specified identifier
@@ -78,7 +78,7 @@ public class NodeLookupOperation implements Operation, Receiver
 
     /**
      * @throws java.io.IOException
-     * @throws com.github.joshuakissoon.kademlia.exceptions.RoutingException
+     * @throws RoutingException
      */
     @Override
     public synchronized void execute() throws IOException, RoutingException

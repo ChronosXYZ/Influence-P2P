@@ -1,4 +1,4 @@
-package com.github.joshuakissoon.kademlia;
+package io.github.chronosx88.influence.kademlia;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -11,26 +11,26 @@ import java.net.InetAddress;
 import java.util.NoSuchElementException;
 import java.util.Timer;
 import java.util.TimerTask;
-import com.github.joshuakissoon.kademlia.dht.GetParameter;
-import com.github.joshuakissoon.kademlia.dht.DHT;
-import com.github.joshuakissoon.kademlia.dht.KadContent;
-import com.github.joshuakissoon.kademlia.dht.KademliaDHT;
-import com.github.joshuakissoon.kademlia.dht.JKademliaStorageEntry;
-import com.github.joshuakissoon.kademlia.exceptions.ContentNotFoundException;
-import com.github.joshuakissoon.kademlia.exceptions.RoutingException;
-import com.github.joshuakissoon.kademlia.message.MessageFactory;
-import com.github.joshuakissoon.kademlia.node.Node;
-import com.github.joshuakissoon.kademlia.node.KademliaId;
-import com.github.joshuakissoon.kademlia.operation.ConnectOperation;
-import com.github.joshuakissoon.kademlia.operation.ContentLookupOperation;
-import com.github.joshuakissoon.kademlia.operation.Operation;
-import com.github.joshuakissoon.kademlia.operation.KadRefreshOperation;
-import com.github.joshuakissoon.kademlia.operation.StoreOperation;
-import com.github.joshuakissoon.kademlia.routing.JKademliaRoutingTable;
-import com.github.joshuakissoon.kademlia.routing.KademliaRoutingTable;
-import com.github.joshuakissoon.kademlia.util.serializer.JsonDHTSerializer;
-import com.github.joshuakissoon.kademlia.util.serializer.JsonRoutingTableSerializer;
-import com.github.joshuakissoon.kademlia.util.serializer.JsonSerializer;
+import io.github.chronosx88.influence.kademlia.dht.GetParameter;
+import io.github.chronosx88.influence.kademlia.dht.DHT;
+import io.github.chronosx88.influence.kademlia.dht.KadContent;
+import io.github.chronosx88.influence.kademlia.dht.KademliaDHT;
+import io.github.chronosx88.influence.kademlia.dht.JKademliaStorageEntry;
+import io.github.chronosx88.influence.kademlia.exceptions.ContentNotFoundException;
+import io.github.chronosx88.influence.kademlia.exceptions.RoutingException;
+import io.github.chronosx88.influence.kademlia.message.MessageFactory;
+import io.github.chronosx88.influence.kademlia.node.Node;
+import io.github.chronosx88.influence.kademlia.node.KademliaId;
+import io.github.chronosx88.influence.kademlia.operation.ConnectOperation;
+import io.github.chronosx88.influence.kademlia.operation.ContentLookupOperation;
+import io.github.chronosx88.influence.kademlia.operation.Operation;
+import io.github.chronosx88.influence.kademlia.operation.KadRefreshOperation;
+import io.github.chronosx88.influence.kademlia.operation.StoreOperation;
+import io.github.chronosx88.influence.kademlia.routing.JKademliaRoutingTable;
+import io.github.chronosx88.influence.kademlia.routing.KademliaRoutingTable;
+import io.github.chronosx88.influence.kademlia.util.serializer.JsonDHTSerializer;
+import io.github.chronosx88.influence.kademlia.util.serializer.JsonRoutingTableSerializer;
+import io.github.chronosx88.influence.kademlia.util.serializer.JsonSerializer;
 
 /**
  * The main Kademlia Node on the network, this node manages everything for this local system.

@@ -1,6 +1,6 @@
-package com.github.joshuakissoon.kademlia.dht;
+package io.github.chronosx88.influence.kademlia.dht;
 
-import com.github.joshuakissoon.kademlia.node.KademliaId;
+import io.github.chronosx88.influence.kademlia.node.KademliaId;
 
 /**
  * Any piece of content that needs to be stored on the DHT

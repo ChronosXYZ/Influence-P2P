@@ -1,4 +1,4 @@
-package com.github.joshuakissoon.kademlia.exceptions;
+package io.github.chronosx88.influence.kademlia.exceptions;
 
 import java.io.IOException;
 

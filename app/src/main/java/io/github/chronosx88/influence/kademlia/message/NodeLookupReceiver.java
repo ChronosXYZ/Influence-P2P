@@ -1,11 +1,11 @@
-package com.github.joshuakissoon.kademlia.message;
+package io.github.chronosx88.influence.kademlia.message;
 
 import java.io.IOException;
 import java.util.List;
-import com.github.joshuakissoon.kademlia.KadConfiguration;
-import com.github.joshuakissoon.kademlia.KadServer;
-import com.github.joshuakissoon.kademlia.KademliaNode;
-import com.github.joshuakissoon.kademlia.node.Node;
+import io.github.chronosx88.influence.kademlia.KadConfiguration;
+import io.github.chronosx88.influence.kademlia.KadServer;
+import io.github.chronosx88.influence.kademlia.KademliaNode;
+import io.github.chronosx88.influence.kademlia.node.Node;
 
 /**
  * Receives a NodeLookupMessage and sends a NodeReplyMessage as reply with the K-Closest nodes to the ID sent.

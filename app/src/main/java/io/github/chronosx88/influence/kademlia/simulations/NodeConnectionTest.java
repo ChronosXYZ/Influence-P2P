@@ -1,8 +1,8 @@
-package com.github.joshuakissoon.kademlia.simulations;
+package io.github.chronosx88.influence.kademlia.simulations;
 
 import java.io.IOException;
-import com.github.joshuakissoon.kademlia.JKademliaNode;
-import com.github.joshuakissoon.kademlia.node.KademliaId;
+import io.github.chronosx88.influence.kademlia.JKademliaNode;
+import io.github.chronosx88.influence.kademlia.node.KademliaId;
 
 /**
  * Testing connecting 2 nodes to each other

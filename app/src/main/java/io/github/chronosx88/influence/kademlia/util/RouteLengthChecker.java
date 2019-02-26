@@ -1,8 +1,8 @@
-package com.github.joshuakissoon.kademlia.util;
+package io.github.chronosx88.influence.kademlia.util;
 
 import java.util.Collection;
 import java.util.HashMap;
-import com.github.joshuakissoon.kademlia.node.Node;
+import io.github.chronosx88.influence.kademlia.node.Node;
 
 /**
  * Class that helps compute the route length taken to complete an operation.

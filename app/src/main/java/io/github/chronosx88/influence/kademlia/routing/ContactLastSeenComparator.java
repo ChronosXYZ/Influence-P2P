@@ -1,4 +1,4 @@
-package com.github.joshuakissoon.kademlia.routing;
+package io.github.chronosx88.influence.kademlia.routing;
 
 import java.util.Comparator;
 

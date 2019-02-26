@@ -3,19 +3,19 @@
  * @created 20140218
  * @desc Operation that handles connecting to an existing Kademlia network using a bootstrap node
  */
-package com.github.joshuakissoon.kademlia.operation;
+package io.github.chronosx88.influence.kademlia.operation;
 
-import com.github.joshuakissoon.kademlia.message.Receiver;
+import io.github.chronosx88.influence.kademlia.message.Receiver;
 import java.io.IOException;
-import com.github.joshuakissoon.kademlia.JKademliaNode;
-import com.github.joshuakissoon.kademlia.KadConfiguration;
-import com.github.joshuakissoon.kademlia.KadServer;
-import com.github.joshuakissoon.kademlia.KademliaNode;
-import com.github.joshuakissoon.kademlia.exceptions.RoutingException;
-import com.github.joshuakissoon.kademlia.message.AcknowledgeMessage;
-import com.github.joshuakissoon.kademlia.message.ConnectMessage;
-import com.github.joshuakissoon.kademlia.message.Message;
-import com.github.joshuakissoon.kademlia.node.Node;
+
+import io.github.chronosx88.influence.kademlia.KadConfiguration;
+import io.github.chronosx88.influence.kademlia.KadServer;
+import io.github.chronosx88.influence.kademlia.KademliaNode;
+import io.github.chronosx88.influence.kademlia.exceptions.RoutingException;
+import io.github.chronosx88.influence.kademlia.message.AcknowledgeMessage;
+import io.github.chronosx88.influence.kademlia.message.ConnectMessage;
+import io.github.chronosx88.influence.kademlia.message.Message;
+import io.github.chronosx88.influence.kademlia.node.Node;
 
 public class ConnectOperation implements Operation, Receiver
 {

@@ -1,15 +1,15 @@
-package com.github.joshuakissoon.kademlia;
+package io.github.chronosx88.influence.kademlia;
 
 import java.io.IOException;
 import java.util.NoSuchElementException;
-import com.github.joshuakissoon.kademlia.dht.GetParameter;
-import com.github.joshuakissoon.kademlia.dht.JKademliaStorageEntry;
-import com.github.joshuakissoon.kademlia.dht.KadContent;
-import com.github.joshuakissoon.kademlia.dht.KademliaDHT;
-import com.github.joshuakissoon.kademlia.exceptions.ContentNotFoundException;
-import com.github.joshuakissoon.kademlia.exceptions.RoutingException;
-import com.github.joshuakissoon.kademlia.node.Node;
-import com.github.joshuakissoon.kademlia.routing.KademliaRoutingTable;
+import io.github.chronosx88.influence.kademlia.dht.GetParameter;
+import io.github.chronosx88.influence.kademlia.dht.JKademliaStorageEntry;
+import io.github.chronosx88.influence.kademlia.dht.KadContent;
+import io.github.chronosx88.influence.kademlia.dht.KademliaDHT;
+import io.github.chronosx88.influence.kademlia.exceptions.ContentNotFoundException;
+import io.github.chronosx88.influence.kademlia.exceptions.RoutingException;
+import io.github.chronosx88.influence.kademlia.node.Node;
+import io.github.chronosx88.influence.kademlia.routing.KademliaRoutingTable;
 
 /**
  * The main Kademlia Node on the network, this node manages everything for this local system.
@@ -105,7 +105,7 @@ public interface KademliaNode
      * @return DHTContent The content
      *
      * @throws java.io.IOException
-     * @throws com.github.joshuakissoon.kademlia.exceptions.ContentNotFoundException
+     * @throws ContentNotFoundException
      */
     public JKademliaStorageEntry get(GetParameter param) throws NoSuchElementException, IOException, ContentNotFoundException;
 

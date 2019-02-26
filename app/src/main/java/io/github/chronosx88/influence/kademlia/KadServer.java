@@ -1,4 +1,4 @@
-package com.github.joshuakissoon.kademlia;
+package io.github.chronosx88.influence.kademlia;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -13,11 +13,11 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
-import com.github.joshuakissoon.kademlia.exceptions.KadServerDownException;
-import com.github.joshuakissoon.kademlia.message.KademliaMessageFactory;
-import com.github.joshuakissoon.kademlia.message.Message;
-import com.github.joshuakissoon.kademlia.node.Node;
-import com.github.joshuakissoon.kademlia.message.Receiver;
+import io.github.chronosx88.influence.kademlia.exceptions.KadServerDownException;
+import io.github.chronosx88.influence.kademlia.message.KademliaMessageFactory;
+import io.github.chronosx88.influence.kademlia.message.Message;
+import io.github.chronosx88.influence.kademlia.node.Node;
+import io.github.chronosx88.influence.kademlia.message.Receiver;
 
 /**
  * The server that handles sending and receiving messages between nodes on the Kad Network
@@ -104,7 +104,7 @@ public class KadServer
      * @return Integer The communication ID of this message
      *
      * @throws IOException
-     * @throws com.github.joshuakissoon.kademlia.exceptions.KadServerDownException
+     * @throws KadServerDownException
      */
     public synchronized int sendMessage(Node to, Message msg, Receiver recv) throws IOException, KadServerDownException
     {

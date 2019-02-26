@@ -1,11 +1,11 @@
-package com.github.joshuakissoon.kademlia.simulations;
+package io.github.chronosx88.influence.kademlia.simulations;
 
 import java.io.IOException;
-import com.github.joshuakissoon.kademlia.dht.GetParameter;
-import com.github.joshuakissoon.kademlia.JKademliaNode;
-import com.github.joshuakissoon.kademlia.dht.KademliaStorageEntry;
-import com.github.joshuakissoon.kademlia.exceptions.ContentNotFoundException;
-import com.github.joshuakissoon.kademlia.node.KademliaId;
+import io.github.chronosx88.influence.kademlia.dht.GetParameter;
+import io.github.chronosx88.influence.kademlia.JKademliaNode;
+import io.github.chronosx88.influence.kademlia.dht.KademliaStorageEntry;
+import io.github.chronosx88.influence.kademlia.exceptions.ContentNotFoundException;
+import io.github.chronosx88.influence.kademlia.node.KademliaId;
 
 /**
  * Testing sending and receiving content between 2 Nodes on a network

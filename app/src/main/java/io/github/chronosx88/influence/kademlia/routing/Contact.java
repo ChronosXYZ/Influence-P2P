@@ -1,6 +1,6 @@
-package com.github.joshuakissoon.kademlia.routing;
+package io.github.chronosx88.influence.kademlia.routing;
 
-import com.github.joshuakissoon.kademlia.node.Node;
+import io.github.chronosx88.influence.kademlia.node.Node;
 
 /**
  * Keeps information about contacts of the Node; Contacts are stored in the Buckets in the Routing Table.

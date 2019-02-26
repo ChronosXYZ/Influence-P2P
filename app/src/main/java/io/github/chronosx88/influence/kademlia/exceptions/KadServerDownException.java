@@ -1,4 +1,4 @@
-package com.github.joshuakissoon.kademlia.exceptions;
+package io.github.chronosx88.influence.kademlia.exceptions;
 
 /**
  * An exception to be thrown whenever the Kad Server is down

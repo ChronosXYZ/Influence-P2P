@@ -1,6 +1,6 @@
-package com.github.joshuakissoon.kademlia.dht;
+package io.github.chronosx88.influence.kademlia.dht;
 
-import com.github.joshuakissoon.kademlia.node.KademliaId;
+import io.github.chronosx88.influence.kademlia.node.KademliaId;
 
 /**
  * A GET request can get content based on Key, Owner, Type, etc

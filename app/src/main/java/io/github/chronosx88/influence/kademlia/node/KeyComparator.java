@@ -1,4 +1,4 @@
-package com.github.joshuakissoon.kademlia.node;
+package io.github.chronosx88.influence.kademlia.node;
 
 import java.math.BigInteger;
 import java.util.Comparator;

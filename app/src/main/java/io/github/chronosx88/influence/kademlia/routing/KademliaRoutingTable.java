@@ -1,9 +1,9 @@
-package com.github.joshuakissoon.kademlia.routing;
+package io.github.chronosx88.influence.kademlia.routing;
 
 import java.util.List;
-import com.github.joshuakissoon.kademlia.KadConfiguration;
-import com.github.joshuakissoon.kademlia.node.Node;
-import com.github.joshuakissoon.kademlia.node.KademliaId;
+import io.github.chronosx88.influence.kademlia.KadConfiguration;
+import io.github.chronosx88.influence.kademlia.node.Node;
+import io.github.chronosx88.influence.kademlia.node.KademliaId;
 
 /**
  * Specification for Kademlia's Routing Table

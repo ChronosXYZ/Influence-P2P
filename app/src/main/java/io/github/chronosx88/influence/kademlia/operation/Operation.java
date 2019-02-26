@@ -1,7 +1,7 @@
-package com.github.joshuakissoon.kademlia.operation;
+package io.github.chronosx88.influence.kademlia.operation;
 
 import java.io.IOException;
-import com.github.joshuakissoon.kademlia.exceptions.RoutingException;
+import io.github.chronosx88.influence.kademlia.exceptions.RoutingException;
 
 /**
  * An operation in the Kademlia routing protocol
@@ -15,7 +15,7 @@ public interface Operation
     /**
      * Starts an operation and returns when the operation is finished
      *
-     * @throws com.github.joshuakissoon.kademlia.exceptions.RoutingException
+     * @throws RoutingException
      */
     public void execute() throws IOException, RoutingException;
 }

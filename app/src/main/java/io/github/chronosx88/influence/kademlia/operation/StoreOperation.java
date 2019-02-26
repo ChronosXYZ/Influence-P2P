@@ -1,15 +1,15 @@
-package com.github.joshuakissoon.kademlia.operation;
+package io.github.chronosx88.influence.kademlia.operation;
 
 import java.io.IOException;
 import java.util.List;
-import com.github.joshuakissoon.kademlia.KadConfiguration;
-import com.github.joshuakissoon.kademlia.KadServer;
-import com.github.joshuakissoon.kademlia.KademliaNode;
-import com.github.joshuakissoon.kademlia.dht.JKademliaStorageEntry;
-import com.github.joshuakissoon.kademlia.dht.KademliaDHT;
-import com.github.joshuakissoon.kademlia.message.Message;
-import com.github.joshuakissoon.kademlia.message.StoreContentMessage;
-import com.github.joshuakissoon.kademlia.node.Node;
+import io.github.chronosx88.influence.kademlia.KadConfiguration;
+import io.github.chronosx88.influence.kademlia.KadServer;
+import io.github.chronosx88.influence.kademlia.KademliaNode;
+import io.github.chronosx88.influence.kademlia.dht.JKademliaStorageEntry;
+import io.github.chronosx88.influence.kademlia.dht.KademliaDHT;
+import io.github.chronosx88.influence.kademlia.message.Message;
+import io.github.chronosx88.influence.kademlia.message.StoreContentMessage;
+import io.github.chronosx88.influence.kademlia.node.Node;
 
 /**
  * Operation that stores a DHT Content onto the K closest nodes to the content Key

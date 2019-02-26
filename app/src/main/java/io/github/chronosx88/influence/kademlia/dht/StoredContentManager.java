@@ -1,13 +1,13 @@
-package com.github.joshuakissoon.kademlia.dht;
+package io.github.chronosx88.influence.kademlia.dht;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import com.github.joshuakissoon.kademlia.exceptions.ContentExistException;
-import com.github.joshuakissoon.kademlia.exceptions.ContentNotFoundException;
-import com.github.joshuakissoon.kademlia.node.KademliaId;
+import io.github.chronosx88.influence.kademlia.exceptions.ContentExistException;
+import io.github.chronosx88.influence.kademlia.exceptions.ContentNotFoundException;
+import io.github.chronosx88.influence.kademlia.node.KademliaId;
 
 /**
  * It would be infeasible to keep all content in memory to be send when requested
@@ -46,7 +46,7 @@ class StoredContentManager
     {
         if (!this.entries.containsKey(entry.getKey()))
         {
-            this.entries.put(entry.getKey(), new ArrayList<>());
+            this.entries.put(entry.getKey(), new ArrayList<KademliaStorageEntryMetadata>());
         }
 
         /* If this entry doesn't already exist, then we add it */

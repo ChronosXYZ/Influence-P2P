@@ -1,4 +1,4 @@
-package com.github.joshuakissoon.kademlia.util.serializer;
+package io.github.chronosx88.influence.kademlia.util.serializer;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

@@ -1,4 +1,4 @@
-package com.github.joshuakissoon.kademlia;
+package io.github.chronosx88.influence.kademlia;
 
 /**
  * Specification for class that keeps statistics for a Kademlia instance.

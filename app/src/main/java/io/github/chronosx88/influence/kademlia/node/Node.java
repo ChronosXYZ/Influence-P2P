@@ -1,4 +1,4 @@
-package com.github.joshuakissoon.kademlia.node;
+package io.github.chronosx88.influence.kademlia.node;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import com.github.joshuakissoon.kademlia.message.Streamable;
+import io.github.chronosx88.influence.kademlia.message.Streamable;
 
 /**
  * A Node in the Kademlia network - Contains basic node network information.

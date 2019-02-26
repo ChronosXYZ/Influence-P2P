@@ -1,9 +1,9 @@
-package com.github.joshuakissoon.kademlia.message;
+package io.github.chronosx88.influence.kademlia.message;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import com.github.joshuakissoon.kademlia.node.Node;
+import io.github.chronosx88.influence.kademlia.node.Node;
 
 /**
  * A message used to acknowledge a request from a node; can be used in many situations.

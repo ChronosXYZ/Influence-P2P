@@ -1,10 +1,10 @@
-package com.github.joshuakissoon.kademlia.simulations;
+package io.github.chronosx88.influence.kademlia.simulations;
 
 import java.io.IOException;
 import java.util.Scanner;
-import com.github.joshuakissoon.kademlia.JKademliaNode;
-import com.github.joshuakissoon.kademlia.dht.KadContent;
-import com.github.joshuakissoon.kademlia.node.KademliaId;
+import io.github.chronosx88.influence.kademlia.JKademliaNode;
+import io.github.chronosx88.influence.kademlia.dht.KadContent;
+import io.github.chronosx88.influence.kademlia.node.KademliaId;
 
 /**
  * Testing how the routing table works and it's state after different operations

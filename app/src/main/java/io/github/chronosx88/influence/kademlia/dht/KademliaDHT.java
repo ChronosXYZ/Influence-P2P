@@ -1,13 +1,13 @@
-package com.github.joshuakissoon.kademlia.dht;
+package io.github.chronosx88.influence.kademlia.dht;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
-import com.github.joshuakissoon.kademlia.KadConfiguration;
-import com.github.joshuakissoon.kademlia.exceptions.ContentNotFoundException;
-import com.github.joshuakissoon.kademlia.node.KademliaId;
-import com.github.joshuakissoon.kademlia.util.serializer.KadSerializer;
+import io.github.chronosx88.influence.kademlia.KadConfiguration;
+import io.github.chronosx88.influence.kademlia.exceptions.ContentNotFoundException;
+import io.github.chronosx88.influence.kademlia.node.KademliaId;
+import io.github.chronosx88.influence.kademlia.util.serializer.KadSerializer;
 
 /**
  * The main Distributed Hash Table interface that manages the entire DHT
@@ -100,7 +100,7 @@ public interface KademliaDHT
      * @param content The Content to Remove
      *
      *
-     * @throws com.github.joshuakissoon.kademlia.exceptions.ContentNotFoundException
+     * @throws ContentNotFoundException
      */
     public void remove(KadContent content) throws ContentNotFoundException;
 

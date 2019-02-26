@@ -3,7 +3,7 @@
  * @created 20140215
  * @desc Represents a Kademlia Node ID
  */
-package com.github.joshuakissoon.kademlia.node;
+package io.github.chronosx88.influence.kademlia.node;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -13,7 +13,7 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Random;
-import com.github.joshuakissoon.kademlia.message.Streamable;
+import io.github.chronosx88.influence.kademlia.message.Streamable;
 
 public class KademliaId implements Streamable, Serializable
 {

@@ -1,4 +1,4 @@
-package com.github.joshuakissoon.kademlia.util.serializer;
+package io.github.chronosx88.influence.kademlia.util.serializer;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -11,9 +11,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.util.List;
-import com.github.joshuakissoon.kademlia.dht.DHT;
-import com.github.joshuakissoon.kademlia.dht.KademliaDHT;
-import com.github.joshuakissoon.kademlia.dht.KademliaStorageEntryMetadata;
+import io.github.chronosx88.influence.kademlia.dht.DHT;
+import io.github.chronosx88.influence.kademlia.dht.KademliaDHT;
+import io.github.chronosx88.influence.kademlia.dht.KademliaStorageEntryMetadata;
 
 /**
  * A KadSerializer that serializes DHT to JSON format

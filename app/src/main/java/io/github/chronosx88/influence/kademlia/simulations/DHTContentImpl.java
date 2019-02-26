@@ -1,8 +1,8 @@
-package com.github.joshuakissoon.kademlia.simulations;
+package io.github.chronosx88.influence.kademlia.simulations;
 
 import com.google.gson.Gson;
-import com.github.joshuakissoon.kademlia.dht.KadContent;
-import com.github.joshuakissoon.kademlia.node.KademliaId;
+import io.github.chronosx88.influence.kademlia.dht.KadContent;
+import io.github.chronosx88.influence.kademlia.node.KademliaId;
 
 /**
  * A simple DHT Content object to test DHT storage

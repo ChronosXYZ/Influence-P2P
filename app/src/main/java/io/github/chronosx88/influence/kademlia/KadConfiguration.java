@@ -1,4 +1,4 @@
-package com.github.joshuakissoon.kademlia;
+package io.github.chronosx88.influence.kademlia;
 
 /**
  * Interface that defines a KadConfiguration object
