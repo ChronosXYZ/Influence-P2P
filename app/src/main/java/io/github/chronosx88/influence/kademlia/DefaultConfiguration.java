@@ -2,6 +2,8 @@ package io.github.chronosx88.influence.kademlia;
 
 import java.io.File;
 
+import io.github.chronosx88.influence.ExtendedApplication;
+
 /**
  * A set of Kademlia configuration parameters. Default values are
  * supplied and can be changed by the application as necessary.
@@ -17,7 +19,7 @@ public class DefaultConfiguration implements KadConfiguration
     private final static int K = 5;
     private final static int RCSIZE = 3;
     private final static int STALE = 1;
-    private final static String LOCAL_FOLDER = "com/github/joshuakissoon/kademlia";
+    private final static String LOCAL_FOLDER = "DHT_Data";
     
     private final static boolean IS_TESTING = true;
 
@@ -75,7 +77,7 @@ public class DefaultConfiguration implements KadConfiguration
     public String getNodeDataFolder(String ownerId)
     {
         /* Setup the main storage folder if it doesn't exist */
-        String path = System.getProperty("user.home") + File.separator + DefaultConfiguration.LOCAL_FOLDER;
+        String path = ExtendedApplication.getContext().getFilesDir() + File.separator + DefaultConfiguration.LOCAL_FOLDER;
         File folder = new File(path);
         if (!folder.isDirectory())
         {
