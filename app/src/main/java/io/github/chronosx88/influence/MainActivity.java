@@ -1,4 +1,4 @@
-package com.example.influence_android;
+package io.github.chronosx88.influence;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
