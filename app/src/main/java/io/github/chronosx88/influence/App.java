@@ -7,7 +7,7 @@ import android.content.Context;
  * Extended Application class which designed for getting Context from anywhere in the application.
  */
 
-public class ExtendedApplication extends Application {
+public class App extends Application {
     private static Application instance;
 
     @Override

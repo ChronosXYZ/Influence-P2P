@@ -2,7 +2,7 @@ package io.github.chronosx88.influence.kademlia;
 
 import java.io.File;
 
-import io.github.chronosx88.influence.ExtendedApplication;
+import io.github.chronosx88.influence.App;
 
 /**
  * A set of Kademlia configuration parameters. Default values are
@@ -77,7 +77,7 @@ public class DefaultConfiguration implements KadConfiguration
     public String getNodeDataFolder(String ownerId)
     {
         /* Setup the main storage folder if it doesn't exist */
-        String path = ExtendedApplication.getContext().getFilesDir() + File.separator + DefaultConfiguration.LOCAL_FOLDER;
+        String path = App.getContext().getFilesDir() + File.separator + DefaultConfiguration.LOCAL_FOLDER;
         File folder = new File(path);
         if (!folder.isDirectory())
         {
