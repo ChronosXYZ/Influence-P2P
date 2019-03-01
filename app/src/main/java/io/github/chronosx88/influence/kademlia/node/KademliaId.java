@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Random;
 import io.github.chronosx88.influence.kademlia.message.Streamable;
+import javax.xml.bind.DatatypeConverter;
 
 public class KademliaId implements Streamable, Serializable
 {
@@ -28,7 +29,7 @@ public class KademliaId implements Streamable, Serializable
      */
     public KademliaId(String data)
     {
-        keyBytes = data.getBytes();
+        keyBytes = DatatypeConverter.parseHexBinary(data);
         if (keyBytes.length != ID_LENGTH / 8)
         {
             throw new IllegalArgumentException("Specified Data need to be " + (ID_LENGTH / 8) + " characters long.");
@@ -249,9 +250,7 @@ public class KademliaId implements Streamable, Serializable
 
     public String hexRepresentation()
     {
-        /* Returns the hex format of this NodeId */
-        BigInteger bi = new BigInteger(1, this.keyBytes);
-        return String.format("%0" + (this.keyBytes.length << 1) + "X", bi);
+        return DatatypeConverter.printHexBinary(this.keyBytes);
     }
 
     @Override
