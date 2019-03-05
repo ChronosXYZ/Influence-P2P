@@ -26,8 +26,7 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    implementation 'com.google.code.gson:gson:2.8.5'
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
-    implementation 'javax.xml.bind:jaxb-api:2.4.0-b180830.0359'
+    implementation 'net.tomp2p:tomp2p-all:5.0-Beta8'
 }

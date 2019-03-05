@@ -4,7 +4,9 @@ buildscript {
     repositories {
         google()
         jcenter()
-        
+        maven {
+            url "http://tomp2p.net/dev/mvn/"
+        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.3.1'
@@ -18,7 +20,9 @@ allprojects {
     repositories {
         google()
         jcenter()
-        
+        maven {
+            url "http://tomp2p.net/dev/mvn/"
+        }
     }
 }
 
