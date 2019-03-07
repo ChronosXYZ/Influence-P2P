@@ -30,5 +30,4 @@ dependencies {
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
     implementation 'net.tomp2p:tomp2p-all:5.0-Beta8'
-    implementation 'net.tomp2p:tomp2p-android:5.0-Beta8'
 }
