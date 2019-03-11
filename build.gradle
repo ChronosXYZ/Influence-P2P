@@ -23,6 +23,8 @@ allprojects {
         maven {
             url "http://tomp2p.net/dev/mvn/"
         }
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
     }
 }
 

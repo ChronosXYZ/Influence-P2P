@@ -4,34 +4,20 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 
-import net.tomp2p.connection.RSASignatureFactory;
 import net.tomp2p.dht.PeerBuilderDHT;
 import net.tomp2p.dht.PeerDHT;
-import net.tomp2p.dht.Storage;
-import net.tomp2p.dht.StorageLayer;
-import net.tomp2p.dht.StorageMemory;
 import net.tomp2p.futures.FutureBootstrap;
 import net.tomp2p.futures.FutureDiscover;
 import net.tomp2p.p2p.PeerBuilder;
 import net.tomp2p.peers.Number160;
-import net.tomp2p.peers.Number320;
-import net.tomp2p.peers.Number480;
-import net.tomp2p.peers.Number640;
-import net.tomp2p.storage.Data;
-import net.tomp2p.storage.StorageDisk;
 
-import org.mapdb.DBMaker;
-
-import java.io.File;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
-import java.security.PublicKey;
-import java.util.Collection;
-import java.util.NavigableMap;
 import java.util.UUID;
 
 import androidx.appcompat.app.AppCompatActivity;
+import io.github.chronosx88.influence.helpers.StorageMVStore;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -42,17 +28,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        org.apache.log4j.BasicConfigurator.configure();
         setContentView(R.layout.activity_main);
 
-        preferences = getPreferences(MODE_PRIVATE);
+        preferences = getSharedPreferences("main_config", MODE_PRIVATE);
 
         if(checkFirstRun()) {
             SharedPreferences.Editor editor = preferences.edit();
-            editor.putString("peerID", UUID.randomUUID().toString());
+            String uuid = UUID.randomUUID().toString();
+            editor.putString("peerID", uuid);
             editor.apply();
-        } else {
-            peerID = Number160.createHash(preferences.getString("peerID", "0"));
         }
+
+        peerID = Number160.createHash(preferences.getString("peerID", "0"));
 
         try {
             peerDHT = new PeerBuilderDHT(
@@ -61,17 +49,17 @@ public class MainActivity extends AppCompatActivity {
                             .behindFirewall(true)
                             .start()
                     )
-                    .storage(new StorageDisk(peerID, getFilesDir(), new RSASignatureFactory()))
+                    .storage(new StorageMVStore(peerID, getFilesDir()))
                     .start();
-            InetAddress address = Inet4Address.getByName("192.168.0.82");
+            InetAddress address = Inet4Address.getByName("*IP*");
             FutureDiscover futureDiscover = peerDHT.peer().discover().inetAddress( address ).ports( 7243 ).start();
             futureDiscover.awaitUninterruptibly();
             FutureBootstrap futureBootstrap = peerDHT.peer().bootstrap().inetAddress( address ).ports( 7243 ).start();
             futureBootstrap.awaitUninterruptibly();
+            Log.d("", futureBootstrap.failedReason());
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     public boolean checkFirstRun() {
@@ -85,9 +73,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        Log.wtf("MainActivity", "onStop");
+    protected void onDestroy() {
+        super.onDestroy();
         peerDHT.shutdown();
     }
 }
