@@ -39,9 +39,7 @@ dependencies {
     implementation('net.tomp2p:tomp2p-all:5.0-Beta8') {
         exclude group: 'org.mapdb', module: 'mapdb'
     }
-    implementation 'io.paperdb:paperdb:2.6'
     implementation 'org.slf4j:slf4j-log4j12:+'
-    implementation 'com.github.nolia:Noodle:0.5'
     implementation group: 'com.h2database', name: 'h2-mvstore', version: '1.4.197'
     //implementation 'org.jboss:jdk-misc:2.Final'
     //implementation group: 'jboss', name: 'jboss-serialization', version: '4.2.2.GA'
