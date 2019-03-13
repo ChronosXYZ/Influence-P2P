@@ -1,5 +1,6 @@
 package io.github.chronosx88.influence.contracts;
 
-public interface MainActivityPresenterContract {
+public interface MainPresenterContract {
     void initPeer();
+    void onDestroy();
 }

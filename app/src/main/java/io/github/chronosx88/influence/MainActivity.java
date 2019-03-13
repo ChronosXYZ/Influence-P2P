@@ -1,80 +1,61 @@
 package io.github.chronosx88.influence;
 
-import android.content.SharedPreferences;
+import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.util.Log;
+import android.widget.Toast;
 
-import net.tomp2p.dht.PeerBuilderDHT;
-import net.tomp2p.dht.PeerDHT;
-import net.tomp2p.futures.FutureBootstrap;
-import net.tomp2p.futures.FutureDiscover;
-import net.tomp2p.p2p.PeerBuilder;
-import net.tomp2p.peers.Number160;
-
-import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.util.UUID;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import androidx.appcompat.app.AppCompatActivity;
-import io.github.chronosx88.influence.helpers.StorageMVStore;
+import io.github.chronosx88.influence.contracts.MainPresenterContract;
+import io.github.chronosx88.influence.contracts.MainViewContract;
+import io.github.chronosx88.influence.contracts.observer.Observer;
+import io.github.chronosx88.influence.helpers.AppHelper;
+import io.github.chronosx88.influence.helpers.MessageActions;
+import io.github.chronosx88.influence.presenters.MainPresenter;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Observer, MainViewContract {
 
-    private PeerDHT peerDHT;
-    private Number160 peerID;
-    private SharedPreferences preferences;
+    private MainPresenterContract presenter;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        org.apache.log4j.BasicConfigurator.configure();
         setContentView(R.layout.activity_main);
+        presenter = new MainPresenter(this);
+        AppHelper.getObservable().register(this);
 
-        preferences = getSharedPreferences("main_config", MODE_PRIVATE);
-
-        if(checkFirstRun()) {
-            SharedPreferences.Editor editor = preferences.edit();
-            String uuid = UUID.randomUUID().toString();
-            editor.putString("peerID", uuid);
-            editor.apply();
-        }
-
-        peerID = Number160.createHash(preferences.getString("peerID", "0"));
-
-        try {
-            peerDHT = new PeerBuilderDHT(
-                    new PeerBuilder(peerID)
-                            .ports(7243)
-                            .behindFirewall(true)
-                            .start()
-                    )
-                    .storage(new StorageMVStore(peerID, getFilesDir()))
-                    .start();
-            InetAddress address = Inet4Address.getByName("*IP*");
-            FutureDiscover futureDiscover = peerDHT.peer().discover().inetAddress( address ).ports( 7243 ).start();
-            futureDiscover.awaitUninterruptibly();
-            FutureBootstrap futureBootstrap = peerDHT.peer().bootstrap().inetAddress( address ).ports( 7243 ).start();
-            futureBootstrap.awaitUninterruptibly();
-            Log.d("", futureBootstrap.failedReason());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public boolean checkFirstRun() {
-        if (preferences.getBoolean("firstRun", true)) {
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putBoolean("firstRun", false);
-            editor.apply();
-            return true;
-        }
-        return false;
+        progressDialog = new ProgressDialog(MainActivity.this, R.style.AlertDialogTheme);
+        progressDialog.setCancelable(false);
+        progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Small);
+        progressDialog.show();
+        presenter.initPeer();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        peerDHT.shutdown();
+        presenter.onDestroy();
+        AppHelper.getObservable().unregister(this);
+    }
+
+    @Override
+    public void handleEvent(JSONObject object) {
+        try {
+            switch ((int) object.get("action")) {
+                case MessageActions.BOOTSTRAP_NOT_SPECIFIED: {
+                    runOnUiThread(() -> {
+                        progressDialog.dismiss();
+                        Toast.makeText(this, "Bootstrap-нода не указана. Прерываю подключение к сети...", Toast.LENGTH_LONG).show();
+                    });
+
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 }

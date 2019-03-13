@@ -1,5 +1,6 @@
 package io.github.chronosx88.influence.contracts;
 
-public interface MainActivityModelContact {
+public interface MainModelContract {
     void initPeer();
+    void shutdownPeer();
 }

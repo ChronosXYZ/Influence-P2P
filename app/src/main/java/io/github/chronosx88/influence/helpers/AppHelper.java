@@ -1,4 +1,4 @@
-package io.github.chronosx88.influence;
+package io.github.chronosx88.influence.helpers;
 
 import android.app.Application;
 import android.content.Context;
