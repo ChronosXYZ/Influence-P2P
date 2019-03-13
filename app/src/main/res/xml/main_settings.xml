@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <Preference
+        android:key="peerID"
+        android:title="Мой Peer ID"
+        android:summary=""/>
+    <EditTextPreference
+        android:key="bootstrapAddress"
+        android:title="Адрес Bootstrap-ноды"
+        android:summary="Bootstrap-нода необходима для подключения к сети" />
+    <CheckBoxPreference
+        android:key="allowWorkBackground"
+        android:title="Работать в фоне (not implemented)"
+        android:summary="Позволять узлу работать в фоне (может повысить потребление трафика и батареи)"/>
+    <Preference
+        android:key="exportEncryptionKeys"
+        android:title="Экспортировать ключи шифрования (not implemented)" />
+</PreferenceScreen>

@@ -4,4 +4,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"/>
+    tools:context=".views.MainActivity"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:id="@+id/main_fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="10"/>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/main_bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@android:color/white"
+        app:menu="@menu/main_bottom_nav_menu"
+        android:layout_weight="1"
+        android:layout_gravity="bottom"/>
+</LinearLayout>

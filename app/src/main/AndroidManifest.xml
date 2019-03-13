@@ -11,7 +11,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:name=".helpers.AppHelper">
-        <activity android:name=".MainActivity">
+        <activity android:name=".views.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
