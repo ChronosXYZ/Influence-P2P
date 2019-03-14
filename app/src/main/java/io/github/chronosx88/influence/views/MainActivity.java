@@ -96,7 +96,28 @@ public class MainActivity extends AppCompatActivity implements Observer, MainVie
                         progressDialog.dismiss();
                         Toast.makeText(this, "Bootstrap-нода не указана. Прерываю подключение к сети...", Toast.LENGTH_LONG).show();
                     });
-
+                    break;
+                }
+                case MessageActions.NETWORK_ERROR: {
+                    runOnUiThread(() -> {
+                        progressDialog.dismiss();
+                        Toast.makeText(this, "Ошибка сети. Возможно, нода недоступна, или у вас отсутствует Интернет.", Toast.LENGTH_LONG).show();
+                    });
+                    break;
+                }
+                case MessageActions.BOOTSTRAP_SUCCESS: {
+                    runOnUiThread(() -> {
+                        progressDialog.dismiss();
+                        Toast.makeText(this, "Нода успешно запущена!", Toast.LENGTH_LONG).show();
+                    });
+                    break;
+                }
+                case MessageActions.PORT_FORWARDING_ERROR: {
+                    runOnUiThread(() -> {
+                        progressDialog.dismiss();
+                        Toast.makeText(this, "Проблемы с пробросом портов. Возможно, у вас не настроен uPnP.", Toast.LENGTH_LONG).show();
+                    });
+                    break;
                 }
             }
         } catch (JSONException e) {

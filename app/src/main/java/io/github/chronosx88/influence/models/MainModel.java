@@ -18,6 +18,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -35,7 +36,7 @@ public class MainModel implements MainModelContract {
 
     public MainModel() {
         this.context = AppHelper.getContext();
-        this.preferences = context.getSharedPreferences("main_config", context.MODE_PRIVATE);
+        this.preferences = context.getSharedPreferences("io.github.chronosx88.influence_preferences", context.MODE_PRIVATE);
     }
 
     @Override
@@ -58,30 +59,61 @@ public class MainModel implements MainModelContract {
                 peerDHT = new PeerBuilderDHT(
                         new PeerBuilder(peerID)
                                 .ports(7243)
-                                .behindFirewall(true)
                                 .start()
                 )
                         .storage(new StorageMVStore(peerID, context.getFilesDir()))
                         .start();
                 try {
-                    String bootstrapIP = preferences.getString("bootstrapIP", null);
-                    bootstrapAddress = bootstrapIP == null ? null : Inet4Address.getByName(bootstrapIP);
-                    if(bootstrapAddress == null) {
-                        throw new Exception();
+                    String bootstrapIP = this.preferences.getString("bootstrapAddress", null);
+                    if(bootstrapIP == null) {
+                        throw new NullPointerException();
                     }
-                } catch (Exception e) {
+                    bootstrapAddress = Inet4Address.getByName(bootstrapIP);
+                } catch (NullPointerException e) {
                     try {
                         AppHelper.getObservable().notifyObservers(new JSONObject()
                                 .put("action", MessageActions.BOOTSTRAP_NOT_SPECIFIED));
+                        peerDHT.shutdown();
+                        return;
+                    } catch (JSONException ex) {
+                        ex.printStackTrace();
+                    }
+                } catch (UnknownHostException e) {
+                    try {
+                        AppHelper.getObservable().notifyObservers(new JSONObject()
+                                .put("action", MessageActions.NETWORK_ERROR));
+                        peerDHT.shutdown();
                         return;
                     } catch (JSONException ex) {
                         ex.printStackTrace();
                     }
                 }
 
-                FutureDiscover futureDiscover = peerDHT.peer().discover().inetAddress(bootstrapAddress).ports(7243).start().awaitUninterruptibly();
+                FutureDiscover futureDiscover = peerDHT.peer().discover().inetAddress(bootstrapAddress).ports(7243).start();
+                futureDiscover.awaitUninterruptibly();
+                if(futureDiscover.isSuccess()) {
+                    Log.d("MainModel", "Success discover! Your IP: " + futureDiscover.externalAddress().toString());
+                } else {
+                    try {
+                        AppHelper.getObservable().notifyObservers(new JSONObject()
+                                .put("action", MessageActions.PORT_FORWARDING_ERROR));
+                        peerDHT.shutdown();
+                        return;
+                    } catch (JSONException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+
                 FutureBootstrap futureBootstrap = peerDHT.peer().bootstrap().inetAddress(bootstrapAddress).ports(7243).start();
                 futureBootstrap.awaitUninterruptibly();
+                if(futureBootstrap.isSuccess()) {
+                    try {
+                        AppHelper.getObservable().notifyObservers(new JSONObject()
+                                .put("action", MessageActions.BOOTSTRAP_SUCCESS));
+                    } catch (JSONException ex) {
+                        ex.printStackTrace();
+                    }
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
