@@ -8,7 +8,6 @@ import net.tomp2p.dht.PeerBuilderDHT;
 import net.tomp2p.dht.PeerDHT;
 import net.tomp2p.futures.FutureBootstrap;
 import net.tomp2p.futures.FutureDiscover;
-import net.tomp2p.nat.FutureNAT;
 import net.tomp2p.nat.FutureRelayNAT;
 import net.tomp2p.nat.PeerBuilderNAT;
 import net.tomp2p.nat.PeerNAT;
@@ -24,8 +23,6 @@ import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.UUID;
 
 import io.github.chronosx88.influence.contracts.MainModelContract;
@@ -131,6 +128,8 @@ public class MainModel implements MainModelContract {
                 } catch (JSONException ex) {
                     ex.printStackTrace();
                 }
+                AppHelper.storePeerID(preferences.getString("peerID", null));
+                AppHelper.storePeerDHT(peerDHT);
             } catch (IOException e) {
                 e.printStackTrace();
             }
