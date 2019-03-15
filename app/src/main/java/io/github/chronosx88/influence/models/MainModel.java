@@ -14,6 +14,7 @@ import net.tomp2p.nat.PeerBuilderNAT;
 import net.tomp2p.nat.PeerNAT;
 import net.tomp2p.p2p.PeerBuilder;
 import net.tomp2p.peers.Number160;
+import net.tomp2p.peers.PeerAddress;
 import net.tomp2p.relay.tcp.TCPRelayClientConfig;
 
 import org.json.JSONException;
@@ -23,6 +24,8 @@ import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.UUID;
 
 import io.github.chronosx88.influence.contracts.MainModelContract;
@@ -31,10 +34,14 @@ import io.github.chronosx88.influence.helpers.MessageActions;
 import io.github.chronosx88.influence.helpers.StorageMVStore;
 
 public class MainModel implements MainModelContract {
+    private static final String LOG_TAG = "MainModel";
+
     private SharedPreferences preferences;
     private Number160 peerID;
     private PeerDHT peerDHT;
     private Context context;
+    private InetAddress bootstrapAddress = null;
+    private PeerAddress bootstrapPeerAddress = null;
 
     public MainModel() {
         this.context = AppHelper.getContext();
@@ -56,17 +63,13 @@ public class MainModel implements MainModelContract {
 
         new Thread(() -> {
             try {
-                InetAddress bootstrapAddress = null;
-
                 peerDHT = new PeerBuilderDHT(
                         new PeerBuilder(peerID)
                                 .ports(7243)
-                                .behindFirewall()
                                 .start()
                 )
                         .storage(new StorageMVStore(peerID, context.getFilesDir()))
                         .start();
-                PeerNAT peerNAT = new PeerBuilderNAT(peerDHT.peer()).start();
                 try {
                     String bootstrapIP = this.preferences.getString("bootstrapAddress", null);
                     if(bootstrapIP == null) {
@@ -93,67 +96,87 @@ public class MainModel implements MainModelContract {
                     }
                 }
 
-                FutureDiscover futureDiscover = peerDHT.peer().discover().inetAddress(bootstrapAddress).ports(7243).start();
-                FutureNAT futureNAT = peerNAT.startSetupPortforwarding(futureDiscover);
-                FutureRelayNAT futureRelayNAT = peerNAT.startRelay(new TCPRelayClientConfig(), futureDiscover, futureNAT);
-                futureRelayNAT.awaitUninterruptibly();
-
-                if(futureDiscover.isSuccess()) {
-                    Log.d("MainModel", "# Success discover! Your IP: " + futureDiscover.peerAddress());
-                } else {
-                    Log.d("MainModel", "# Error when discovering: " + futureDiscover.failedReason());
+                if(!discoverExternalAddress()) {
                     try {
                         AppHelper.getObservable().notifyObservers(new JSONObject()
                                 .put("action", MessageActions.PORT_FORWARDING_ERROR));
-                        peerDHT.shutdown();
+                    } catch (JSONException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+
+                if(!setupConnectionToRelay()) {
+                    try {
+                        AppHelper.getObservable().notifyObservers(new JSONObject()
+                                .put("action", MessageActions.RELAY_CONNECTION_ERROR));
                         return;
                     } catch (JSONException ex) {
                         ex.printStackTrace();
                     }
                 }
 
-                if(futureNAT.isSuccess()) {
-                    Log.d("MainModel", "# Success NAT discover! Your IP: " + futureNAT.peerAddress());
-                } else {
+                if(!bootstrapPeer()) {
                     try {
-                        Log.d("MainModel", "# Error when discovering: " + futureNAT.failedReason());
                         AppHelper.getObservable().notifyObservers(new JSONObject()
-                                .put("action", MessageActions.PORT_FORWARDING_ERROR));
-                        peerDHT.shutdown();
+                                .put("action", MessageActions.BOOTSTRAP_ERROR));
                         return;
                     } catch (JSONException ex) {
                         ex.printStackTrace();
                     }
                 }
 
-                if(futureRelayNAT.isSuccess()) {
-                    Log.d("MainModel", "# Success discover with relay!");
-                } else {
-                    try {
-                        Log.d("MainModel", "# Error when discovering: " + futureRelayNAT.failedReason());
-                        AppHelper.getObservable().notifyObservers(new JSONObject()
-                                .put("action", MessageActions.PORT_FORWARDING_ERROR));
-                        peerDHT.shutdown();
-                        return;
-                    } catch (JSONException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-
-                FutureBootstrap futureBootstrap = peerDHT.peer().bootstrap().inetAddress(bootstrapAddress).ports(7243).start();
-                futureBootstrap.awaitUninterruptibly();
-                if(futureBootstrap.isSuccess()) {
-                    try {
-                        AppHelper.getObservable().notifyObservers(new JSONObject()
-                                .put("action", MessageActions.BOOTSTRAP_SUCCESS));
-                    } catch (JSONException ex) {
-                        ex.printStackTrace();
-                    }
+                try {
+                    AppHelper.getObservable().notifyObservers(new JSONObject()
+                            .put("action", MessageActions.BOOTSTRAP_SUCCESS));
+                } catch (JSONException ex) {
+                    ex.printStackTrace();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }).start();
+    }
+
+    private boolean bootstrapPeer() {
+        FutureBootstrap futureBootstrap = peerDHT.peer().bootstrap().inetAddress(bootstrapAddress).ports(7243).start();
+        futureBootstrap.awaitUninterruptibly();
+        if(futureBootstrap.isSuccess()) {
+            Log.i("MainModel", "# Successfully bootstrapped to " + bootstrapAddress.toString());
+            return true;
+        } else {
+            Log.e("MainModel", "# Cannot bootstrap to " + bootstrapAddress.toString() + ". Reason: " + futureBootstrap.failedReason());
+            return false;
+        }
+    }
+
+    private boolean discoverExternalAddress() {
+        FutureDiscover futureDiscover = peerDHT
+                .peer()
+                .discover()
+                .inetAddress(bootstrapAddress)
+                .ports(7243)
+                .start();
+        futureDiscover.awaitUninterruptibly();
+        bootstrapPeerAddress = futureDiscover.reporter();
+        if(futureDiscover.isSuccess()) {
+            Log.i(LOG_TAG, "# Success discover! Your external IP: " + futureDiscover.peerAddress().toString());
+            return true;
+        } else {
+            Log.e(LOG_TAG, "# Failed to discover my external IP. Reason: " + futureDiscover.failedReason());
+            return false;
+        }
+    }
+
+    private boolean setupConnectionToRelay() {
+        PeerNAT peerNat = new PeerBuilderNAT(peerDHT.peer()).start();
+        FutureRelayNAT futureRelayNAT = peerNat.startRelay(new TCPRelayClientConfig(), bootstrapPeerAddress).awaitUninterruptibly();
+        if (futureRelayNAT.isSuccess()) {
+            Log.i(LOG_TAG, "# Successfully connected to relay node.");
+            return true;
+        } else {
+            Log.e(LOG_TAG, "# Cannot connect to relay node. Reason: " + futureRelayNAT.failedReason());
+            return false;
+        }
     }
 
     @Override

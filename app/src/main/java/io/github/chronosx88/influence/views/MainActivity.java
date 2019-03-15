@@ -114,8 +114,21 @@ public class MainActivity extends AppCompatActivity implements Observer, MainVie
                 }
                 case MessageActions.PORT_FORWARDING_ERROR: {
                     runOnUiThread(() -> {
-                        progressDialog.dismiss();
                         Toast.makeText(this, "Проблемы с пробросом портов. Возможно, у вас не настроен uPnP.", Toast.LENGTH_LONG).show();
+                    });
+                    break;
+                }
+                case MessageActions.BOOTSTRAP_ERROR: {
+                    runOnUiThread(() -> {
+                        progressDialog.dismiss();
+                        Toast.makeText(this, "Не удалось подключиться к бутстрап-ноде.", Toast.LENGTH_LONG).show();
+                    });
+                    break;
+                }
+                case MessageActions.RELAY_CONNECTION_ERROR: {
+                    runOnUiThread(() -> {
+                        progressDialog.dismiss();
+                        Toast.makeText(this, "Не удалось подключиться к relay-ноде.", Toast.LENGTH_LONG).show();
                     });
                     break;
                 }
