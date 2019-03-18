@@ -5,10 +5,11 @@ import android.content.Context;
 
 import net.tomp2p.dht.PeerDHT;
 
+import androidx.room.Room;
 import io.github.chronosx88.influence.observable.MainObservable;
 
 /**
- * Extended Application class which designed for getting Context from anywhere in the application.
+ * Extended Application class which designed for getting various objects from anywhere in the application.
  */
 
 public class AppHelper extends Application {
@@ -16,12 +17,17 @@ public class AppHelper extends Application {
     private static MainObservable observable;
     private static String peerID;
     private static PeerDHT peerDHT;
+    private static RoomHelper chatDB;
 
     @Override
     public void onCreate() {
         super.onCreate();
         instance = this;
         observable = new MainObservable();
+        chatDB = Room.databaseBuilder(getApplicationContext(), RoomHelper.class, "chatDB")
+                    .allowMainThreadQueries()
+                    .build();
+
     }
 
     public static void storePeerID(String peerID1) { peerID = peerID1; }
@@ -37,4 +43,6 @@ public class AppHelper extends Application {
     public static String getPeerID() { return peerID; }
 
     public static PeerDHT getPeerDHT() { return peerDHT; }
+
+    public static RoomHelper getChatDB() { return chatDB; }
 }
