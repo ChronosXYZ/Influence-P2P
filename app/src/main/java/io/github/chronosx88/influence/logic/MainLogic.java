@@ -1,4 +1,4 @@
-package io.github.chronosx88.influence.models;
+package io.github.chronosx88.influence.logic;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -25,13 +25,13 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.UUID;
 
-import io.github.chronosx88.influence.contracts.MainModelContract;
+import io.github.chronosx88.influence.contracts.MainLogicContract;
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.MessageActions;
 import io.github.chronosx88.influence.helpers.StorageMVStore;
 
-public class MainModel implements MainModelContract {
-    private static final String LOG_TAG = "MainModel";
+public class MainLogic implements MainLogicContract {
+    private static final String LOG_TAG = "MainLogic";
 
     private SharedPreferences preferences;
     private Number160 peerID;
@@ -40,7 +40,7 @@ public class MainModel implements MainModelContract {
     private InetAddress bootstrapAddress = null;
     private PeerAddress bootstrapPeerAddress = null;
 
-    public MainModel() {
+    public MainLogic() {
         this.context = AppHelper.getContext();
         this.preferences = context.getSharedPreferences("io.github.chronosx88.influence_preferences", context.MODE_PRIVATE);
     }
@@ -140,10 +140,10 @@ public class MainModel implements MainModelContract {
         FutureBootstrap futureBootstrap = peerDHT.peer().bootstrap().inetAddress(bootstrapAddress).ports(7243).start();
         futureBootstrap.awaitUninterruptibly();
         if(futureBootstrap.isSuccess()) {
-            Log.i("MainModel", "# Successfully bootstrapped to " + bootstrapAddress.toString());
+            Log.i("MainLogic", "# Successfully bootstrapped to " + bootstrapAddress.toString());
             return true;
         } else {
-            Log.e("MainModel", "# Cannot bootstrap to " + bootstrapAddress.toString() + ". Reason: " + futureBootstrap.failedReason());
+            Log.e("MainLogic", "# Cannot bootstrap to " + bootstrapAddress.toString() + ". Reason: " + futureBootstrap.failedReason());
             return false;
         }
     }
