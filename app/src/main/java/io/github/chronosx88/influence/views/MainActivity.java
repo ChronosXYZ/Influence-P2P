@@ -15,13 +15,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import io.github.chronosx88.influence.R;
-import io.github.chronosx88.influence.contracts.MainPresenterContract;
-import io.github.chronosx88.influence.contracts.MainViewContract;
+import io.github.chronosx88.influence.contracts.main.MainPresenterContract;
+import io.github.chronosx88.influence.contracts.main.MainViewContract;
 import io.github.chronosx88.influence.contracts.observer.Observer;
 import io.github.chronosx88.influence.helpers.AppHelper;
-import io.github.chronosx88.influence.helpers.MessageActions;
+import io.github.chronosx88.influence.helpers.UIActions;
+import io.github.chronosx88.influence.observable.MainObservable;
 import io.github.chronosx88.influence.presenters.MainPresenter;
-import io.github.chronosx88.influence.views.fragments.ChatFragment;
+import io.github.chronosx88.influence.views.fragments.ChatListFragment;
 import io.github.chronosx88.influence.views.fragments.SettingsFragment;
 import io.github.chronosx88.influence.views.fragments.StartChatFragment;
 
@@ -39,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements Observer, MainVie
 
             switch (item.getItemId()) {
                 case R.id.action_chats:
-                    selectedFragment = new ChatFragment();
+                    selectedFragment = new ChatListFragment();
                     break;
                 case R.id.action_settings:
                     selectedFragment = new SettingsFragment();
@@ -67,11 +68,11 @@ public class MainActivity extends AppCompatActivity implements Observer, MainVie
 
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.main_fragment_container, new ChatFragment())
+                .replace(R.id.main_fragment_container, new ChatListFragment())
                 .commit();
 
         presenter = new MainPresenter(this);
-        AppHelper.getObservable().register(this);
+        AppHelper.getObservable().register(this, MainObservable.UI_ACTIONS_CHANNEL);
 
         progressDialog = new ProgressDialog(MainActivity.this, R.style.AlertDialogTheme);
         progressDialog.setCancelable(false);
@@ -84,48 +85,48 @@ public class MainActivity extends AppCompatActivity implements Observer, MainVie
     protected void onDestroy() {
         super.onDestroy();
         presenter.onDestroy();
-        AppHelper.getObservable().unregister(this);
+        AppHelper.getObservable().unregister(this, MainObservable.UI_ACTIONS_CHANNEL);
     }
 
     @Override
     public void handleEvent(JSONObject object) {
         try {
             switch ((int) object.get("action")) {
-                case MessageActions.BOOTSTRAP_NOT_SPECIFIED: {
+                case UIActions.BOOTSTRAP_NOT_SPECIFIED: {
                     runOnUiThread(() -> {
                         progressDialog.dismiss();
                         Toast.makeText(this, "Bootstrap-нода не указана. Прерываю подключение к сети...", Toast.LENGTH_LONG).show();
                     });
                     break;
                 }
-                case MessageActions.NETWORK_ERROR: {
+                case UIActions.NETWORK_ERROR: {
                     runOnUiThread(() -> {
                         progressDialog.dismiss();
                         Toast.makeText(this, "Ошибка сети. Возможно, нода недоступна, или у вас отсутствует Интернет.", Toast.LENGTH_LONG).show();
                     });
                     break;
                 }
-                case MessageActions.BOOTSTRAP_SUCCESS: {
+                case UIActions.BOOTSTRAP_SUCCESS: {
                     runOnUiThread(() -> {
                         progressDialog.dismiss();
                         Toast.makeText(this, "Нода успешно запущена!", Toast.LENGTH_LONG).show();
                     });
                     break;
                 }
-                case MessageActions.PORT_FORWARDING_ERROR: {
+                case UIActions.PORT_FORWARDING_ERROR: {
                     runOnUiThread(() -> {
                         Toast.makeText(this, "Проблемы с пробросом портов. Возможно, у вас не настроен uPnP.", Toast.LENGTH_LONG).show();
                     });
                     break;
                 }
-                case MessageActions.BOOTSTRAP_ERROR: {
+                case UIActions.BOOTSTRAP_ERROR: {
                     runOnUiThread(() -> {
                         progressDialog.dismiss();
                         Toast.makeText(this, "Не удалось подключиться к бутстрап-ноде.", Toast.LENGTH_LONG).show();
                     });
                     break;
                 }
-                case MessageActions.RELAY_CONNECTION_ERROR: {
+                case UIActions.RELAY_CONNECTION_ERROR: {
                     runOnUiThread(() -> {
                         progressDialog.dismiss();
                         Toast.makeText(this, "Не удалось подключиться к relay-ноде.", Toast.LENGTH_LONG).show();

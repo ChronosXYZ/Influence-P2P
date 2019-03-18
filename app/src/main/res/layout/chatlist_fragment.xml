@@ -3,11 +3,8 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <TextView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/chatlist_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:text="Temporary placeholder #1"
-        android:textSize="34sp"/>
+        android:layout_height="match_parent"/>
 </LinearLayout>

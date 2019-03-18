@@ -25,10 +25,10 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.UUID;
 
-import io.github.chronosx88.influence.contracts.MainLogicContract;
+import io.github.chronosx88.influence.contracts.main.MainLogicContract;
 import io.github.chronosx88.influence.helpers.AppHelper;
-import io.github.chronosx88.influence.helpers.MessageActions;
 import io.github.chronosx88.influence.helpers.StorageMVStore;
+import io.github.chronosx88.influence.helpers.UIActions;
 import io.github.chronosx88.influence.observable.MainObservable;
 
 public class MainLogic implements MainLogicContract {
@@ -77,7 +77,7 @@ public class MainLogic implements MainLogicContract {
                 } catch (NullPointerException e) {
                     try {
                         AppHelper.getObservable().notifyObservers(new JSONObject()
-                                .put("action", MessageActions.BOOTSTRAP_NOT_SPECIFIED), MainObservable.UI_ACTIONS_CHANNEL);
+                                .put("action", UIActions.BOOTSTRAP_NOT_SPECIFIED), MainObservable.UI_ACTIONS_CHANNEL);
                         peerDHT.shutdown();
                         return;
                     } catch (JSONException ex) {
@@ -86,7 +86,7 @@ public class MainLogic implements MainLogicContract {
                 } catch (UnknownHostException e) {
                     try {
                         AppHelper.getObservable().notifyObservers(new JSONObject()
-                                .put("action", MessageActions.NETWORK_ERROR), MainObservable.UI_ACTIONS_CHANNEL);
+                                .put("action", UIActions.NETWORK_ERROR), MainObservable.UI_ACTIONS_CHANNEL);
                         peerDHT.shutdown();
                         return;
                     } catch (JSONException ex) {
@@ -97,7 +97,7 @@ public class MainLogic implements MainLogicContract {
                 if(!discoverExternalAddress()) {
                     try {
                         AppHelper.getObservable().notifyObservers(new JSONObject()
-                                .put("action", MessageActions.PORT_FORWARDING_ERROR), MainObservable.UI_ACTIONS_CHANNEL);
+                                .put("action", UIActions.PORT_FORWARDING_ERROR), MainObservable.UI_ACTIONS_CHANNEL);
                     } catch (JSONException ex) {
                         ex.printStackTrace();
                     }
@@ -106,7 +106,7 @@ public class MainLogic implements MainLogicContract {
                 if(!setupConnectionToRelay()) {
                     try {
                         AppHelper.getObservable().notifyObservers(new JSONObject()
-                                .put("action", MessageActions.RELAY_CONNECTION_ERROR), MainObservable.UI_ACTIONS_CHANNEL);
+                                .put("action", UIActions.RELAY_CONNECTION_ERROR), MainObservable.UI_ACTIONS_CHANNEL);
                         return;
                     } catch (JSONException ex) {
                         ex.printStackTrace();
@@ -116,7 +116,7 @@ public class MainLogic implements MainLogicContract {
                 if(!bootstrapPeer()) {
                     try {
                         AppHelper.getObservable().notifyObservers(new JSONObject()
-                                .put("action", MessageActions.BOOTSTRAP_ERROR), MainObservable.UI_ACTIONS_CHANNEL);
+                                .put("action", UIActions.BOOTSTRAP_ERROR), MainObservable.UI_ACTIONS_CHANNEL);
                         return;
                     } catch (JSONException ex) {
                         ex.printStackTrace();
@@ -125,12 +125,13 @@ public class MainLogic implements MainLogicContract {
 
                 try {
                     AppHelper.getObservable().notifyObservers(new JSONObject()
-                            .put("action", MessageActions.BOOTSTRAP_SUCCESS), MainObservable.UI_ACTIONS_CHANNEL);
+                            .put("action", UIActions.BOOTSTRAP_SUCCESS), MainObservable.UI_ACTIONS_CHANNEL);
                 } catch (JSONException ex) {
                     ex.printStackTrace();
                 }
                 AppHelper.storePeerID(preferences.getString("peerID", null));
                 AppHelper.storePeerDHT(peerDHT);
+                setReceiveHandler();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -177,6 +178,14 @@ public class MainLogic implements MainLogicContract {
             Log.e(LOG_TAG, "# Cannot connect to relay node. Reason: " + futureRelayNAT.failedReason());
             return false;
         }
+    }
+
+    private void setReceiveHandler() {
+        AppHelper.getPeerDHT().peer().objectDataReply((s, r) -> {
+            Log.i(LOG_TAG, "# Incoming message: " + r);
+            AppHelper.getObservable().notifyObservers(new JSONObject((String) r), MainObservable.OTHER_ACTIONS_CHANNEL);
+            return null;
+        });
     }
 
     @Override
