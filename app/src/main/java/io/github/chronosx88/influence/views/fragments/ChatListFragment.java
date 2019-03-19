@@ -5,8 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -58,15 +57,11 @@ public class ChatListFragment extends Fragment implements ChatListViewContract, 
     }
 
     @Override
-    public void handleEvent(JSONObject object) {
-        try {
-            switch (object.getInt("action")) {
-                case UIActions.NEW_CHAT: {
-                    presenter.updateChatList();
-                }
+    public void handleEvent(JsonObject object) {
+        switch (object.get("action").getAsInt()) {
+            case UIActions.NEW_CHAT: {
+                presenter.updateChatList();
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
     }
 }

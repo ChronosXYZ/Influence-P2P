@@ -1,7 +1,6 @@
 package io.github.chronosx88.influence.logic;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
 import java.util.List;
 
@@ -24,17 +23,15 @@ public class ChatListLogic implements ChatListLogicContract, Observer {
     }
 
     @Override
-    public void handleEvent(JSONObject object) {
-        try {
-            switch ((int) object.get("action")) {
-                case NetworkActions.START_CHAT: {
-                    createChatBySender(new ChatEntity(object.getString("chatID"), object.getString("name"), ""));
-                    AppHelper.getObservable().notifyObservers(new JSONObject().put("action", UIActions.NEW_CHAT), MainObservable.UI_ACTIONS_CHANNEL);
-                    break;
-                }
+    public void handleEvent(JsonObject object) {
+        switch (object.get("action").getAsInt()) {
+            case NetworkActions.START_CHAT: {
+                createChatBySender(new ChatEntity(object.get("chatID").getAsString(), object.get("name").getAsString(), ""));
+                JsonObject jsonObject = new JsonObject();
+                jsonObject.addProperty("action", UIActions.NEW_CHAT);
+                AppHelper.getObservable().notifyObservers(jsonObject, MainObservable.UI_ACTIONS_CHANNEL);
+                break;
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
     }
 

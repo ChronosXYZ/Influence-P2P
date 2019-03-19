@@ -6,9 +6,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -89,54 +87,49 @@ public class MainActivity extends AppCompatActivity implements Observer, MainVie
     }
 
     @Override
-    public void handleEvent(JSONObject object) {
-        try {
-            switch ((int) object.get("action")) {
-                case UIActions.BOOTSTRAP_NOT_SPECIFIED: {
-                    runOnUiThread(() -> {
-                        progressDialog.dismiss();
-                        Toast.makeText(this, "Bootstrap-нода не указана. Прерываю подключение к сети...", Toast.LENGTH_LONG).show();
-                    });
-                    break;
-                }
-                case UIActions.NETWORK_ERROR: {
-                    runOnUiThread(() -> {
-                        progressDialog.dismiss();
-                        Toast.makeText(this, "Ошибка сети. Возможно, нода недоступна, или у вас отсутствует Интернет.", Toast.LENGTH_LONG).show();
-                    });
-                    break;
-                }
-                case UIActions.BOOTSTRAP_SUCCESS: {
-                    runOnUiThread(() -> {
-                        progressDialog.dismiss();
-                        Toast.makeText(this, "Нода успешно запущена!", Toast.LENGTH_LONG).show();
-                    });
-                    break;
-                }
-                case UIActions.PORT_FORWARDING_ERROR: {
-                    runOnUiThread(() -> {
-                        Toast.makeText(this, "Проблемы с пробросом портов. Возможно, у вас не настроен uPnP.", Toast.LENGTH_LONG).show();
-                    });
-                    break;
-                }
-                case UIActions.BOOTSTRAP_ERROR: {
-                    runOnUiThread(() -> {
-                        progressDialog.dismiss();
-                        Toast.makeText(this, "Не удалось подключиться к бутстрап-ноде.", Toast.LENGTH_LONG).show();
-                    });
-                    break;
-                }
-                case UIActions.RELAY_CONNECTION_ERROR: {
-                    runOnUiThread(() -> {
-                        progressDialog.dismiss();
-                        Toast.makeText(this, "Не удалось подключиться к relay-ноде.", Toast.LENGTH_LONG).show();
-                    });
-                    break;
-                }
+    public void handleEvent(JsonObject object) {
+        switch (object.get("action").getAsInt()) {
+            case UIActions.BOOTSTRAP_NOT_SPECIFIED: {
+                runOnUiThread(() -> {
+                    progressDialog.dismiss();
+                    Toast.makeText(this, "Bootstrap-нода не указана. Прерываю подключение к сети...", Toast.LENGTH_LONG).show();
+                });
+                break;
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
+            case UIActions.NETWORK_ERROR: {
+                runOnUiThread(() -> {
+                    progressDialog.dismiss();
+                    Toast.makeText(this, "Ошибка сети. Возможно, нода недоступна, или у вас отсутствует Интернет.", Toast.LENGTH_LONG).show();
+                });
+                break;
+            }
+            case UIActions.BOOTSTRAP_SUCCESS: {
+                runOnUiThread(() -> {
+                    progressDialog.dismiss();
+                    Toast.makeText(this, "Нода успешно запущена!", Toast.LENGTH_LONG).show();
+                });
+                break;
+            }
+            case UIActions.PORT_FORWARDING_ERROR: {
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Проблемы с пробросом портов. Возможно, у вас не настроен uPnP.", Toast.LENGTH_LONG).show();
+                });
+                break;
+            }
+            case UIActions.BOOTSTRAP_ERROR: {
+                runOnUiThread(() -> {
+                    progressDialog.dismiss();
+                    Toast.makeText(this, "Не удалось подключиться к бутстрап-ноде.", Toast.LENGTH_LONG).show();
+                });
+                break;
+            }
+            case UIActions.RELAY_CONNECTION_ERROR: {
+                runOnUiThread(() -> {
+                    progressDialog.dismiss();
+                    Toast.makeText(this, "Не удалось подключиться к relay-ноде.", Toast.LENGTH_LONG).show();
+                });
+                break;
+            }
         }
-
     }
 }

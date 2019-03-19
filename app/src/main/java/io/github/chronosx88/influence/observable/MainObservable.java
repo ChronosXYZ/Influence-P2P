@@ -1,6 +1,6 @@
 package io.github.chronosx88.influence.observable;
 
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
 
@@ -55,7 +55,7 @@ public class MainObservable implements Observable {
     }
 
     @Override
-    public void notifyObservers(JSONObject jsonObject, int channelID) {
+    public void notifyObservers(JsonObject jsonObject, int channelID) {
         switch (channelID) {
             case UI_ACTIONS_CHANNEL: {
                 for (Observer observer : uiObservers) {

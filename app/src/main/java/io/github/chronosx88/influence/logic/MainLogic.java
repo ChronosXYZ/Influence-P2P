@@ -4,6 +4,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import net.tomp2p.dht.PeerBuilderDHT;
 import net.tomp2p.dht.PeerDHT;
 import net.tomp2p.futures.FutureBootstrap;
@@ -16,7 +20,6 @@ import net.tomp2p.peers.Number160;
 import net.tomp2p.peers.PeerAddress;
 import net.tomp2p.relay.tcp.TCPRelayClientConfig;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -27,6 +30,7 @@ import java.util.UUID;
 
 import io.github.chronosx88.influence.contracts.main.MainLogicContract;
 import io.github.chronosx88.influence.helpers.AppHelper;
+import io.github.chronosx88.influence.helpers.NetworkActions;
 import io.github.chronosx88.influence.helpers.StorageMVStore;
 import io.github.chronosx88.influence.helpers.UIActions;
 import io.github.chronosx88.influence.observable.MainObservable;
@@ -40,10 +44,12 @@ public class MainLogic implements MainLogicContract {
     private Context context;
     private InetAddress bootstrapAddress = null;
     private PeerAddress bootstrapPeerAddress = null;
+    private Gson gson;
 
     public MainLogic() {
         this.context = AppHelper.getContext();
         this.preferences = context.getSharedPreferences("io.github.chronosx88.influence_preferences", context.MODE_PRIVATE);
+        gson = new Gson();
     }
 
     @Override
@@ -75,60 +81,42 @@ public class MainLogic implements MainLogicContract {
                     }
                     bootstrapAddress = Inet4Address.getByName(bootstrapIP);
                 } catch (NullPointerException e) {
-                    try {
-                        AppHelper.getObservable().notifyObservers(new JSONObject()
-                                .put("action", UIActions.BOOTSTRAP_NOT_SPECIFIED), MainObservable.UI_ACTIONS_CHANNEL);
-                        peerDHT.shutdown();
-                        return;
-                    } catch (JSONException ex) {
-                        ex.printStackTrace();
-                    }
+                    JsonObject jsonObject = new JsonObject();
+                    jsonObject.addProperty("action", UIActions.BOOTSTRAP_NOT_SPECIFIED);
+                    AppHelper.getObservable().notifyObservers(jsonObject, MainObservable.UI_ACTIONS_CHANNEL);
+                    peerDHT.shutdown();
+                    return;
                 } catch (UnknownHostException e) {
-                    try {
-                        AppHelper.getObservable().notifyObservers(new JSONObject()
-                                .put("action", UIActions.NETWORK_ERROR), MainObservable.UI_ACTIONS_CHANNEL);
-                        peerDHT.shutdown();
-                        return;
-                    } catch (JSONException ex) {
-                        ex.printStackTrace();
-                    }
+                    JsonObject jsonObject = new JsonObject();
+                    jsonObject.addProperty("action", UIActions.NETWORK_ERROR);
+                    AppHelper.getObservable().notifyObservers(jsonObject, MainObservable.UI_ACTIONS_CHANNEL);
+                    peerDHT.shutdown();
+                    return;
                 }
 
                 if(!discoverExternalAddress()) {
-                    try {
-                        AppHelper.getObservable().notifyObservers(new JSONObject()
-                                .put("action", UIActions.PORT_FORWARDING_ERROR), MainObservable.UI_ACTIONS_CHANNEL);
-                    } catch (JSONException ex) {
-                        ex.printStackTrace();
-                    }
+                    JsonObject jsonObject = new JsonObject();
+                    jsonObject.addProperty("action", UIActions.PORT_FORWARDING_ERROR);
+                    AppHelper.getObservable().notifyObservers(jsonObject, MainObservable.UI_ACTIONS_CHANNEL);
                 }
 
                 if(!setupConnectionToRelay()) {
-                    try {
-                        AppHelper.getObservable().notifyObservers(new JSONObject()
-                                .put("action", UIActions.RELAY_CONNECTION_ERROR), MainObservable.UI_ACTIONS_CHANNEL);
-                        return;
-                    } catch (JSONException ex) {
-                        ex.printStackTrace();
-                    }
+                    JsonObject jsonObject = new JsonObject();
+                    jsonObject.addProperty("action", UIActions.RELAY_CONNECTION_ERROR);
+                    AppHelper.getObservable().notifyObservers(jsonObject, MainObservable.UI_ACTIONS_CHANNEL);
+                    return;
                 }
 
                 if(!bootstrapPeer()) {
-                    try {
-                        AppHelper.getObservable().notifyObservers(new JSONObject()
-                                .put("action", UIActions.BOOTSTRAP_ERROR), MainObservable.UI_ACTIONS_CHANNEL);
-                        return;
-                    } catch (JSONException ex) {
-                        ex.printStackTrace();
-                    }
+                    JsonObject jsonObject = new JsonObject();
+                    jsonObject.addProperty("action", UIActions.BOOTSTRAP_ERROR);
+                    AppHelper.getObservable().notifyObservers(jsonObject, MainObservable.UI_ACTIONS_CHANNEL);
+                    return;
                 }
 
-                try {
-                    AppHelper.getObservable().notifyObservers(new JSONObject()
-                            .put("action", UIActions.BOOTSTRAP_SUCCESS), MainObservable.UI_ACTIONS_CHANNEL);
-                } catch (JSONException ex) {
-                    ex.printStackTrace();
-                }
+                JsonObject jsonObject = new JsonObject();
+                jsonObject.addProperty("action", UIActions.BOOTSTRAP_SUCCESS);
+                AppHelper.getObservable().notifyObservers(jsonObject, MainObservable.UI_ACTIONS_CHANNEL);
                 AppHelper.storePeerID(preferences.getString("peerID", null));
                 AppHelper.storePeerDHT(peerDHT);
                 setReceiveHandler();
@@ -183,7 +171,13 @@ public class MainLogic implements MainLogicContract {
     private void setReceiveHandler() {
         AppHelper.getPeerDHT().peer().objectDataReply((s, r) -> {
             Log.i(LOG_TAG, "# Incoming message: " + r);
-            AppHelper.getObservable().notifyObservers(new JSONObject((String) r), MainObservable.OTHER_ACTIONS_CHANNEL);
+            JSONObject incomingObject = new JSONObject((String) r);
+            if(incomingObject.getInt("action") == NetworkActions.PING) {
+                JsonObject jsonObject = new JsonObject();
+                jsonObject.addProperty("action", NetworkActions.PONG);
+                return gson.toJson(jsonObject);
+            }
+            AppHelper.getObservable().notifyObservers(new JsonParser().parse((String) r).getAsJsonObject(), MainObservable.OTHER_ACTIONS_CHANNEL);
             return null;
         });
     }
