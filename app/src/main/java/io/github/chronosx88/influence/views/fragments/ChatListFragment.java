@@ -28,7 +28,6 @@ public class ChatListFragment extends Fragment implements ChatListViewContract, 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        presenter = new ChatListPresenter(this);
         AppHelper.getObservable().register(this, MainObservable.UI_ACTIONS_CHANNEL);
     }
 
@@ -42,6 +41,7 @@ public class ChatListFragment extends Fragment implements ChatListViewContract, 
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         chatList = view.findViewById(R.id.chatlist_container);
+        presenter = new ChatListPresenter(this);
         presenter.updateChatList();
     }
 

@@ -14,8 +14,8 @@ public class ChatListPresenter implements ChatListPresenterContract {
     public ChatListPresenter(ChatListViewContract view) {
         this.view = view;
         chatListAdapter = new ChatListAdapter();
-        this.view.setRecycleAdapter(chatListAdapter);
         this.logic = new ChatListLogic();
+        this.view.setRecycleAdapter(chatListAdapter);
     }
 
     @Override
