@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey;
 
 @Entity(tableName = "messages")
 public class MessageEntity {
-    @PrimaryKey String id;
+    @NonNull @PrimaryKey String id;
     @ColumnInfo String chatID;
     @ColumnInfo String sender;
     @ColumnInfo String text;

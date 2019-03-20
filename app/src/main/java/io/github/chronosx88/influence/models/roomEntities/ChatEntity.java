@@ -1,12 +1,13 @@
 package io.github.chronosx88.influence.models.roomEntities;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "chats")
 public class ChatEntity {
-    @PrimaryKey String id;
+    @NonNull @PrimaryKey String id;
     @ColumnInfo  String name;
     @ColumnInfo String keyPairID;
 
