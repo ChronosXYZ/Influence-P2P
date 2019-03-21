@@ -17,7 +17,7 @@ import io.github.chronosx88.influence.contracts.main.MainPresenterContract;
 import io.github.chronosx88.influence.contracts.main.MainViewContract;
 import io.github.chronosx88.influence.contracts.observer.Observer;
 import io.github.chronosx88.influence.helpers.AppHelper;
-import io.github.chronosx88.influence.helpers.UIActions;
+import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.observable.MainObservable;
 import io.github.chronosx88.influence.presenters.MainPresenter;
 import io.github.chronosx88.influence.views.fragments.ChatListFragment;

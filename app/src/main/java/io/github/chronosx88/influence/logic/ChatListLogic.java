@@ -7,8 +7,8 @@ import java.util.List;
 import io.github.chronosx88.influence.contracts.chatlist.ChatListLogicContract;
 import io.github.chronosx88.influence.contracts.observer.Observer;
 import io.github.chronosx88.influence.helpers.AppHelper;
-import io.github.chronosx88.influence.helpers.NetworkActions;
-import io.github.chronosx88.influence.helpers.UIActions;
+import io.github.chronosx88.influence.helpers.actions.NetworkActions;
+import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.models.roomEntities.ChatEntity;
 import io.github.chronosx88.influence.observable.MainObservable;
 

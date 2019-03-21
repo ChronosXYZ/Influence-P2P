@@ -2,6 +2,7 @@ package io.github.chronosx88.influence.logic;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Base64;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -19,20 +20,30 @@ import net.tomp2p.p2p.PeerBuilder;
 import net.tomp2p.peers.Number160;
 import net.tomp2p.peers.PeerAddress;
 import net.tomp2p.relay.tcp.TCPRelayClientConfig;
+import net.tomp2p.replication.AutoReplication;
+import net.tomp2p.storage.Data;
 
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
 import io.github.chronosx88.influence.contracts.main.MainLogicContract;
 import io.github.chronosx88.influence.helpers.AppHelper;
-import io.github.chronosx88.influence.helpers.NetworkActions;
+import io.github.chronosx88.influence.helpers.Serializer;
 import io.github.chronosx88.influence.helpers.StorageMVStore;
-import io.github.chronosx88.influence.helpers.UIActions;
+import io.github.chronosx88.influence.helpers.actions.NetworkActions;
+import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.observable.MainObservable;
 
 public class MainLogic implements MainLogicContract {
@@ -45,6 +56,7 @@ public class MainLogic implements MainLogicContract {
     private InetAddress bootstrapAddress = null;
     private PeerAddress bootstrapPeerAddress = null;
     private Gson gson;
+    private AutoReplication replication;
 
     public MainLogic() {
         this.context = AppHelper.getContext();
@@ -120,6 +132,11 @@ public class MainLogic implements MainLogicContract {
                 AppHelper.storePeerID(preferences.getString("peerID", null));
                 AppHelper.storePeerDHT(peerDHT);
                 setReceiveHandler();
+                Gson gson = new Gson();
+                JsonObject publicProfile = new JsonObject();
+                publicProfile.addProperty("peerAddress", Base64.encodeToString(Serializer.serializeObject(peerDHT.peerAddress()).getBytes(StandardCharsets.UTF_8), Base64.URL_SAFE));
+                peerDHT.put(Number160.createHash(preferences.getString("peerID", null) + "_profile")).data(new Data(gson.toJson(publicProfile)).protectEntry(createMainKeyPair())).start().awaitUninterruptibly();
+                replication = new AutoReplication(peerDHT.peer()).start();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -184,7 +201,8 @@ public class MainLogic implements MainLogicContract {
 
     @Override
     public void shutdownPeer() {
-        peerDHT.shutdown();
+        replication.shutdown().start();
+        peerDHT.peer().announceShutdown().start().awaitUninterruptibly();
     }
 
     private boolean checkFirstRun() {
@@ -195,5 +213,35 @@ public class MainLogic implements MainLogicContract {
             return true;
         }
         return false;
+    }
+
+    private KeyPair createMainKeyPair() {
+        KeyPair kp = null;
+        try {
+            File keyPairDir = new File(AppHelper.getContext().getFilesDir().getAbsoluteFile(), "keyPairs");
+            if (!keyPairDir.exists())
+                keyPairDir.mkdir();
+            File mainKeyPairFile = new File(keyPairDir, "mainKeyPair.kp");
+            if (!mainKeyPairFile.exists()) {
+                mainKeyPairFile.createNewFile();
+                try {
+                    kp = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                }
+                FileOutputStream outputStream = new FileOutputStream(mainKeyPairFile);
+                outputStream.write(Serializer.serializeObject(kp).getBytes(StandardCharsets.UTF_8));
+                outputStream.close();
+                return kp;
+            }
+            FileInputStream inputStream = new FileInputStream(mainKeyPairFile);
+            byte[] serializedKeyPair = new byte[(int) mainKeyPairFile.length()];
+            inputStream.read(serializedKeyPair);
+            inputStream.close();
+            kp = Serializer.deserializeObject(new String(serializedKeyPair, StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return kp;
     }
 }

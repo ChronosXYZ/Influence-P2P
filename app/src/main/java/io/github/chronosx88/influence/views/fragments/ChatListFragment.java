@@ -17,7 +17,7 @@ import io.github.chronosx88.influence.contracts.chatlist.ChatListViewContract;
 import io.github.chronosx88.influence.contracts.observer.Observer;
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.ChatListAdapter;
-import io.github.chronosx88.influence.helpers.UIActions;
+import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.observable.MainObservable;
 import io.github.chronosx88.influence.presenters.ChatListPresenter;
 

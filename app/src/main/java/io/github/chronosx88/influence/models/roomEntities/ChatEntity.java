@@ -9,11 +9,13 @@ import androidx.room.PrimaryKey;
 public class ChatEntity {
     @NonNull @PrimaryKey String id;
     @ColumnInfo  String name;
+    @ColumnInfo String peerAddresses;
     @ColumnInfo String keyPairID;
 
-    public ChatEntity(String id, String name, String keyPairID) {
+    public ChatEntity(String id, String name, String peerAddresses, String keyPairID) {
         this.id = id;
         this.name = name;
+        this.peerAddresses = peerAddresses;
         this.keyPairID = keyPairID;
     }
 
@@ -24,6 +26,8 @@ public class ChatEntity {
     public String getKeyPairID() {
         return keyPairID;
     }
+
+    public String getPeerAddress() { return  peerAddresses; }
 
     public String getName() {
         return name;
