@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import io.github.chronosx88.influence.R;
 import io.github.chronosx88.influence.contracts.chatlist.ChatListPresenterContract;
@@ -41,6 +42,7 @@ public class ChatListFragment extends Fragment implements ChatListViewContract, 
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         chatList = view.findViewById(R.id.chatlist_container);
+        chatList.setLayoutManager(new LinearLayoutManager(getContext()));
         presenter = new ChatListPresenter(this);
         presenter.updateChatList();
     }

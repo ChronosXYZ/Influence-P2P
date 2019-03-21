@@ -23,7 +23,7 @@ public class StartChatPresenter implements StartChatPresenterContract, Observer 
 
     @Override
     public void startChatWithPeer(String peerID) {
-        // TODO
+        logic.sendStartChatMessage(peerID);
     }
 
     @Override

@@ -8,9 +8,9 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "chats")
 public class ChatEntity {
     @NonNull @PrimaryKey String id;
-    @ColumnInfo  String name;
-    @ColumnInfo String peerAddresses;
-    @ColumnInfo String keyPairID;
+    @ColumnInfo public String name;
+    @ColumnInfo public String peerAddresses;
+    @ColumnInfo public String keyPairID;
 
     public ChatEntity(String id, String name, String peerAddresses, String keyPairID) {
         this.id = id;
@@ -27,7 +27,7 @@ public class ChatEntity {
         return keyPairID;
     }
 
-    public String getPeerAddress() { return  peerAddresses; }
+    public String getPeerAddress() { return peerAddresses; }
 
     public String getName() {
         return name;
