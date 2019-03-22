@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import net.tomp2p.dht.FuturePut;
 import net.tomp2p.dht.PeerBuilderDHT;
 import net.tomp2p.dht.PeerDHT;
 import net.tomp2p.futures.FutureBootstrap;
@@ -30,15 +31,25 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.DSAPublicKeySpec;
+import java.security.spec.InvalidKeySpecException;
 import java.util.UUID;
 
 import io.github.chronosx88.influence.contracts.main.MainLogicContract;
 import io.github.chronosx88.influence.helpers.AppHelper;
+import io.github.chronosx88.influence.helpers.DSAKey;
 import io.github.chronosx88.influence.helpers.KeyPairManager;
+import io.github.chronosx88.influence.helpers.PrepareData;
 import io.github.chronosx88.influence.helpers.Serializer;
 import io.github.chronosx88.influence.helpers.StorageMVStore;
 import io.github.chronosx88.influence.helpers.actions.NetworkActions;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
+import io.github.chronosx88.influence.models.BasicNetworkMessage;
+import io.github.chronosx88.influence.models.NewChatRequestMessage;
+import io.github.chronosx88.influence.models.PublicUserProfile;
 import io.github.chronosx88.influence.observable.MainObservable;
 
 public class MainLogic implements MainLogicContract {
@@ -92,47 +103,52 @@ public class MainLogic implements MainLogicContract {
                 } catch (NullPointerException e) {
                     JsonObject jsonObject = new JsonObject();
                     jsonObject.addProperty("action", UIActions.BOOTSTRAP_NOT_SPECIFIED);
-                    AppHelper.getObservable().notifyObservers(jsonObject, MainObservable.UI_ACTIONS_CHANNEL);
+                    AppHelper.getObservable().notifyUIObservers(jsonObject);
                     peerDHT.shutdown();
                     return;
                 } catch (UnknownHostException e) {
                     JsonObject jsonObject = new JsonObject();
                     jsonObject.addProperty("action", UIActions.NETWORK_ERROR);
-                    AppHelper.getObservable().notifyObservers(jsonObject, MainObservable.UI_ACTIONS_CHANNEL);
+                    AppHelper.getObservable().notifyUIObservers(jsonObject);
                     peerDHT.shutdown();
                     return;
                 }
 
+                boolean discoveredExternalAddress = false;
+
                 if(!discoverExternalAddress()) {
                     JsonObject jsonObject = new JsonObject();
                     jsonObject.addProperty("action", UIActions.PORT_FORWARDING_ERROR);
-                    AppHelper.getObservable().notifyObservers(jsonObject, MainObservable.UI_ACTIONS_CHANNEL);
+                    AppHelper.getObservable().notifyUIObservers(jsonObject);
+                } else {
+                    discoveredExternalAddress = true;
                 }
 
-                if(!setupConnectionToRelay()) {
-                    JsonObject jsonObject = new JsonObject();
-                    jsonObject.addProperty("action", UIActions.RELAY_CONNECTION_ERROR);
-                    AppHelper.getObservable().notifyObservers(jsonObject, MainObservable.UI_ACTIONS_CHANNEL);
-                    return;
+                if(!discoveredExternalAddress) {
+                    if(!setupConnectionToRelay()) {
+                        JsonObject jsonObject = new JsonObject();
+                        jsonObject.addProperty("action", UIActions.RELAY_CONNECTION_ERROR);
+                        AppHelper.getObservable().notifyUIObservers(jsonObject);
+                        return;
+                    }
                 }
 
                 if(!bootstrapPeer()) {
                     JsonObject jsonObject = new JsonObject();
                     jsonObject.addProperty("action", UIActions.BOOTSTRAP_ERROR);
-                    AppHelper.getObservable().notifyObservers(jsonObject, MainObservable.UI_ACTIONS_CHANNEL);
+                    AppHelper.getObservable().notifyUIObservers(jsonObject);
                     return;
                 }
 
                 JsonObject jsonObject = new JsonObject();
                 jsonObject.addProperty("action", UIActions.BOOTSTRAP_SUCCESS);
-                AppHelper.getObservable().notifyObservers(jsonObject, MainObservable.UI_ACTIONS_CHANNEL);
+                AppHelper.getObservable().notifyUIObservers(jsonObject);
                 AppHelper.storePeerID(preferences.getString("peerID", null));
                 AppHelper.storePeerDHT(peerDHT);
+                AppHelper.initNetworkHandler();
                 setReceiveHandler();
-                Gson gson = new Gson();
-                JsonObject publicProfile = new JsonObject();
-                publicProfile.addProperty("peerAddress", Base64.encodeToString(Serializer.serializeObject(peerDHT.peerAddress()).getBytes(StandardCharsets.UTF_8), Base64.URL_SAFE));
-                peerDHT.put(Number160.createHash(preferences.getString("peerID", null) + "_profile")).data(new Data(gson.toJson(publicProfile)).protectEntry(keyPairManager.openMainKeyPair())).start().awaitUninterruptibly();
+                gson = new Gson();
+                publicProfileToDHT();
                 replication = new AutoReplication(peerDHT.peer()).start();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -185,21 +201,20 @@ public class MainLogic implements MainLogicContract {
     private void setReceiveHandler() {
         AppHelper.getPeerDHT().peer().objectDataReply((s, r) -> {
             Log.i(LOG_TAG, "# Incoming message: " + r);
-            JSONObject incomingObject = new JSONObject((String) r);
-            if(incomingObject.getInt("action") == NetworkActions.PING) {
-                JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("action", NetworkActions.PONG);
-                return gson.toJson(jsonObject);
-            }
-            AppHelper.getObservable().notifyObservers(new JsonParser().parse((String) r).getAsJsonObject(), MainObservable.OTHER_ACTIONS_CHANNEL);
+            AppHelper.getObservable().notifyNetworkObservers(r);
             return null;
         });
     }
 
     @Override
     public void shutdownPeer() {
-        replication.shutdown().start();
-        peerDHT.peer().announceShutdown().start().awaitUninterruptibly();
+        new Thread(() -> {
+            if(replication != null) {
+                replication.shutdown().start();
+            }
+            peerDHT.peer().announceShutdown().start().awaitUninterruptibly();
+            peerDHT.peer().shutdown();
+        }).start();
     }
 
     private boolean checkFirstRun() {
@@ -210,5 +225,35 @@ public class MainLogic implements MainLogicContract {
             return true;
         }
         return false;
+    }
+
+    private void publicProfileToDHT() {
+        KeyPair mainKeyPair = keyPairManager.openMainKeyPair();
+        KeyFactory factory = null;
+        try {
+            factory = KeyFactory.getInstance("DSA");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        PublicUserProfile userProfile = null;
+        try {
+            DSAPublicKeySpec dsaKey = factory.getKeySpec(mainKeyPair.getPublic(), DSAPublicKeySpec.class);
+            userProfile = new PublicUserProfile(AppHelper.getPeerID(), peerDHT.peerAddress(), new DSAKey(dsaKey.getQ(), dsaKey.getP(), dsaKey.getY(), dsaKey.getG()));
+        } catch (InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+        Data serializedUserProfile = null;
+        try {
+            serializedUserProfile = new Data(gson.toJson(userProfile))
+                    .protectEntry(mainKeyPair.getPrivate())
+                    .sign(keyPairManager.getKeyPair("mainSigningKeyPair"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        FuturePut futurePut = peerDHT.put(Number160.createHash(AppHelper.getPeerID() + "_profile"))
+                .data(serializedUserProfile)
+                .start()
+                .awaitUninterruptibly();
+        Log.i(LOG_TAG, futurePut.isSuccess() ? "# Profile successfully published!" : "# Profile publishing failed!");
     }
 }

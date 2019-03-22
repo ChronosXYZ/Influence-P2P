@@ -22,13 +22,12 @@ public class ChatListPresenter implements ChatListPresenterContract, Observer {
         chatListAdapter = new ChatListAdapter();
         this.logic = new ChatListLogic();
         this.view.setRecycleAdapter(chatListAdapter);
-        AppHelper.getObservable().register(this, MainObservable.UI_ACTIONS_CHANNEL);
+        AppHelper.getObservable().register(this);
     }
 
     @Override
     public void updateChatList() {
-        chatListAdapter.setChatList(logic.loadAllChats());
-        chatListAdapter.notifyDataSetChanged();
+        view.updateChatList(chatListAdapter, logic.loadAllChats());
     }
 
     @Override

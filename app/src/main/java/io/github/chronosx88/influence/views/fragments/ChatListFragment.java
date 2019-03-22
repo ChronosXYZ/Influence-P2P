@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 
 import com.google.gson.JsonObject;
 
+import java.util.List;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -19,6 +21,7 @@ import io.github.chronosx88.influence.contracts.observer.Observer;
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.ChatListAdapter;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
+import io.github.chronosx88.influence.models.roomEntities.ChatEntity;
 import io.github.chronosx88.influence.observable.MainObservable;
 import io.github.chronosx88.influence.presenters.ChatListPresenter;
 
@@ -29,7 +32,7 @@ public class ChatListFragment extends Fragment implements ChatListViewContract, 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        AppHelper.getObservable().register(this, MainObservable.UI_ACTIONS_CHANNEL);
+        AppHelper.getObservable().register(this);
     }
 
     @Override
@@ -65,5 +68,13 @@ public class ChatListFragment extends Fragment implements ChatListViewContract, 
                 presenter.updateChatList();
             }
         }
+    }
+
+    @Override
+    public void updateChatList(ChatListAdapter adapter, List<ChatEntity> chats) {
+        getActivity().runOnUiThread(() -> {
+            adapter.setChatList(chats);
+            adapter.notifyDataSetChanged();
+        });
     }
 }

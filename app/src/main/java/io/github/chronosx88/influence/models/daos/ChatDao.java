@@ -18,6 +18,9 @@ public interface ChatDao {
     @Query("SELECT * FROM chats")
     List<ChatEntity> getAllChats();
 
-    @Query("SELECT * FROM chats WHERE id = :chatID")
-    List<ChatEntity> getChatByID(String chatID);
+    @Query("SELECT * FROM chats WHERE chatID = :chatID")
+    List<ChatEntity> getChatByChatID(String chatID);
+
+    @Query("SELECT * FROM chats WHERE id = :id")
+    List<ChatEntity> getChatByID(String id);
 }

@@ -1,5 +1,10 @@
 package io.github.chronosx88.influence.models.roomEntities;
 
+import net.tomp2p.peers.PeerAddress;
+
+import java.util.ArrayList;
+import java.util.Collections;
+
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -7,19 +12,20 @@ import androidx.room.PrimaryKey;
 
 @Entity(tableName = "chats")
 public class ChatEntity {
-    @NonNull @PrimaryKey String id;
+    @PrimaryKey(autoGenerate = true) public int id;
+    @ColumnInfo public String chatID;
     @ColumnInfo public String name;
-    @ColumnInfo public String peerAddresses;
+    @ColumnInfo public byte[] peerAddresses;
     @ColumnInfo public String keyPairID;
 
-    public ChatEntity(String id, String name, String peerAddresses, String keyPairID) {
-        this.id = id;
+    public ChatEntity(String chatID, String name, String keyPairID, byte[] peerAddresses) {
+        this.chatID = chatID;
         this.name = name;
         this.peerAddresses = peerAddresses;
         this.keyPairID = keyPairID;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
@@ -27,9 +33,13 @@ public class ChatEntity {
         return keyPairID;
     }
 
-    public String getPeerAddress() { return peerAddresses; }
+    public byte[] getPeerAddress() { return peerAddresses; }
 
     public String getName() {
         return name;
+    }
+
+    public String getChatID() {
+        return chatID;
     }
 }

@@ -9,6 +9,11 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
     }
     buildTypes {
         release {
@@ -44,5 +49,5 @@ dependencies {
     implementation 'com.google.android.material:material:1.1.0-alpha04'
     implementation 'androidx.preference:preference:1.1.0-alpha03'
     implementation 'com.google.code.gson:gson:2.8.5'
-    //implementation group: 'com.github.demidenko05', name: 'a-javabeans', version: '1.0.4'
+    implementation group: 'org.springframework.security', name: 'spring-security-crypto', version: '3.1.0.RELEASE'
 }

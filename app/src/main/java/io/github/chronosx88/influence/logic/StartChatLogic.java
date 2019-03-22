@@ -1,6 +1,5 @@
 package io.github.chronosx88.influence.logic;
 
-import android.util.Base64;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -16,16 +15,16 @@ import net.tomp2p.peers.PeerAddress;
 import net.tomp2p.storage.Data;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 import io.github.chronosx88.influence.contracts.startchat.StartChatLogicContract;
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.KeyPairManager;
 import io.github.chronosx88.influence.helpers.PrepareData;
-import io.github.chronosx88.influence.helpers.Serializer;
 import io.github.chronosx88.influence.helpers.actions.NetworkActions;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
+import io.github.chronosx88.influence.models.NewChatRequestMessage;
+import io.github.chronosx88.influence.models.PublicUserProfile;
 import io.github.chronosx88.influence.observable.MainObservable;
 
 public class StartChatLogic implements StartChatLogicContract {
@@ -43,35 +42,27 @@ public class StartChatLogic implements StartChatLogicContract {
     @Override
     public void sendStartChatMessage(String peerID) {
         new Thread(() -> {
-            JsonObject recipientPublicProfile = getPublicProfile(peerID);
+            PublicUserProfile recipientPublicProfile = getPublicProfile(peerID);
             if(recipientPublicProfile == null) {
                 JsonObject jsonObject = new JsonObject();
                 jsonObject.addProperty("action", UIActions.PEER_NOT_EXIST);
-                AppHelper.getObservable().notifyObservers(jsonObject, MainObservable.UI_ACTIONS_CHANNEL);
+                AppHelper.getObservable().notifyUIObservers(jsonObject);
                 return;
             }
-            String peerAddressString = recipientPublicProfile.get("peerAddress").getAsString();
-            PeerAddress peerAddress = Serializer.deserializeObject(new String(Base64.decode(peerAddressString, Base64.URL_SAFE), StandardCharsets.UTF_8));
-            String chatID = UUID.randomUUID().toString();
+            PeerAddress recipientPeerAddress = getPublicProfile(peerID).getPeerAddress();
 
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("action", NetworkActions.START_CHAT);
-            jsonObject.addProperty("chatID", chatID);
-            jsonObject.addProperty("senderID", AppHelper.getPeerID());
-            // TODO: Append public key to new chat request (for encryption)
-            jsonObject.addProperty("senderAddress", PrepareData.prepareToStore(peerDHT.peerAddress()));
-
-            FuturePing ping = peerDHT.peer().ping().peerAddress(peerAddress).start().awaitUninterruptibly();
+            FuturePing ping = peerDHT.peer().ping().peerAddress(recipientPeerAddress).start().awaitUninterruptibly();
             if(ping.isSuccess()) {
-                peerDHT.peer().sendDirect(peerAddress).object(gson.toJson(jsonObject)).start();
+                peerDHT.peer().sendDirect(recipientPeerAddress).object(gson.toJson(new NewChatRequestMessage(AppHelper.getPeerID(), peerDHT.peerAddress()))).start();
             } else {
                 try {
+                    NewChatRequestMessage newChatRequestMessage = new NewChatRequestMessage(AppHelper.getPeerID(), peerDHT.peerAddress());
                     FuturePut futurePut = peerDHT
                             .put(Number160.createHash(peerID))
-                            .data(Number160.createHash(UUID.randomUUID().toString()), new Data(gson.toJson(jsonObject))
+                            .data(Number160.createHash(UUID.randomUUID().toString()), new Data(gson.toJson(newChatRequestMessage))
                                     .protectEntry(keyPairManager.openMainKeyPair())).start().awaitUninterruptibly();
                     if(futurePut.isSuccess()) {
-                        Log.i(LOG_TAG, "# Create new offline chat request is successful! ChatID: " + chatID);
+                        Log.i(LOG_TAG, "# Create new offline chat request is successful! ChatID: " + newChatRequestMessage.getChatID());
                     } else {
                         Log.e(LOG_TAG, "# Failed to create chat: " + futurePut.failedReason());
                     }
@@ -82,8 +73,8 @@ public class StartChatLogic implements StartChatLogicContract {
         }).start();
     }
 
-    private JsonObject getPublicProfile(String peerID) {
-        JsonObject publicProfile;
+    private PublicUserProfile getPublicProfile(String peerID) {
+        PublicUserProfile publicProfile = null;
         FutureGet futureGetProfile = peerDHT.get(Number160.createHash(peerID + "_profile")).start().awaitUninterruptibly();
         if (futureGetProfile.isSuccess()) {
             String jsonString = null;
@@ -94,7 +85,13 @@ public class StartChatLogic implements StartChatLogicContract {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            publicProfile = new JsonParser().parse(jsonString).getAsJsonObject();
+            try {
+                publicProfile = gson.fromJson((String) futureGetProfile.data().object(), PublicUserProfile.class);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             return publicProfile;
         }
         return null;

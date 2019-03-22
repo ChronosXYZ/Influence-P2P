@@ -14,6 +14,9 @@ public class KeyPairManager {
 
     public KeyPairManager() {
         this.keyPairDir = new File(AppHelper.getContext().getFilesDir().getAbsoluteFile(), "keyPairs");
+        if(!this.keyPairDir.exists()) {
+            this.keyPairDir.mkdir();
+        }
     }
 
     public KeyPair openMainKeyPair() {
@@ -37,7 +40,7 @@ public class KeyPairManager {
             byte[] serializedKeyPair = new byte[(int) keyPairFile.length()];
             inputStream.read(serializedKeyPair);
             inputStream.close();
-            keyPair = Serializer.deserializeObject(new String(serializedKeyPair, StandardCharsets.UTF_8));
+            keyPair = (KeyPair) Serializer.deserialize(serializedKeyPair);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -48,9 +51,9 @@ public class KeyPairManager {
         KeyPair keyPair = null;
         try {
             keyPairFile.createNewFile();
-            keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+            keyPair = KeyPairGenerator.getInstance("DSA").generateKeyPair();
             FileOutputStream outputStream = new FileOutputStream(keyPairFile);
-            outputStream.write(Serializer.serializeObject(keyPair).getBytes(StandardCharsets.UTF_8));
+            outputStream.write(Serializer.serialize(keyPair));
             outputStream.close();
         } catch (IOException | NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -63,7 +66,7 @@ public class KeyPairManager {
         if(!keyPairFile.exists()) {
             try {
                 FileOutputStream outputStream = new FileOutputStream(keyPairFile);
-                outputStream.write(Serializer.serializeObject(keyPair).getBytes(StandardCharsets.UTF_8));
+                outputStream.write(Serializer.serialize(keyPair));
                 outputStream.close();
             } catch (IOException e) {
                 e.printStackTrace();

@@ -1,62 +1,77 @@
 package io.github.chronosx88.influence.helpers;
 
+import android.util.Log;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import net.tomp2p.dht.PeerDHT;
 import net.tomp2p.peers.PeerAddress;
 
-import io.github.chronosx88.influence.contracts.observer.Observer;
+import java.util.List;
+
+import io.github.chronosx88.influence.contracts.observer.NetworkObserver;
 import io.github.chronosx88.influence.helpers.actions.NetworkActions;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
+import io.github.chronosx88.influence.models.NewChatRequestMessage;
 import io.github.chronosx88.influence.models.roomEntities.ChatEntity;
-import io.github.chronosx88.influence.observable.MainObservable;
 
-public class NetworkHandler implements Observer {
+public class NetworkHandler implements NetworkObserver {
+    private final static String LOG_TAG = "NetworkHandler";
     private Gson gson;
     private PeerDHT peerDHT;
 
     public NetworkHandler() {
         gson = new Gson();
         peerDHT = AppHelper.getPeerDHT();
-        AppHelper.getObservable().register(this, MainObservable.OTHER_ACTIONS_CHANNEL);
+        AppHelper.getObservable().register(this);
     }
 
     @Override
-    public void handleEvent(JsonObject object) {
+    public void handleEvent(Object object) {
         new Thread(() -> {
-            switch (object.get("action").getAsInt()) {
-                case NetworkActions.START_CHAT: {
-                    String chatStarterPlainAddress = object.get("senderAddress").getAsString();
-                    createChatEntry(object.get("chatID").getAsString(), object.get("senderID").getAsString(), chatStarterPlainAddress);
-                    handleIncomingChat(object.get("chatID").getAsString(), PrepareData.prepareFromStore(chatStarterPlainAddress));
+            switch (getMessageAction((String) object)) {
+                case NetworkActions.CREATE_CHAT: {
+                    NewChatRequestMessage newChatRequestMessage = gson.fromJson((String) object, NewChatRequestMessage.class);
+                    createChatEntry(newChatRequestMessage.getChatID(), newChatRequestMessage.getChatID(), newChatRequestMessage.getSenderPeerAddress());
+                    handleIncomingChat(newChatRequestMessage.getChatID(), newChatRequestMessage.getSenderPeerAddress());
                     JsonObject jsonObject = new JsonObject();
                     jsonObject.addProperty("action", UIActions.NEW_CHAT);
-                    AppHelper.getObservable().notifyObservers(jsonObject, MainObservable.UI_ACTIONS_CHANNEL);
+                    AppHelper.getObservable().notifyUIObservers(jsonObject);
                     break;
                 }
 
                 case NetworkActions.SUCCESSFULL_CREATE_CHAT: {
-                    createChatEntry(object.get("chatID").getAsString(), object.get("senderID").getAsString(), object.get("senderAddress").getAsString());
+                    NewChatRequestMessage newChatRequestMessage = gson.fromJson((String) object, NewChatRequestMessage.class);
+                    createChatEntry(newChatRequestMessage.getChatID(), newChatRequestMessage.getSenderID(), newChatRequestMessage.getSenderPeerAddress());
                     JsonObject jsonObject = new JsonObject();
                     jsonObject.addProperty("action", UIActions.NEW_CHAT);
-                    AppHelper.getObservable().notifyObservers(jsonObject, MainObservable.UI_ACTIONS_CHANNEL);
+                    AppHelper.getObservable().notifyUIObservers(jsonObject);
                     break;
                 }
             }
         }).start();
     }
 
-    private void createChatEntry(String chatID, String name, String peerAddress) {
-        AppHelper.getChatDB().chatDao().addChat(new ChatEntity(chatID, name, peerAddress, ""));
+    private int getMessageAction(String json) {
+        JsonObject jsonObject = new JsonParser().parse(json).getAsJsonObject();
+        return jsonObject.get("action").getAsInt();
+    }
+
+    private void createChatEntry(String chatID, String name, PeerAddress peerAddress) {
+        List<ChatEntity> chatEntities = AppHelper.getChatDB().chatDao().getChatByChatID(chatID);
+        if (chatEntities.size() > 0) {
+            Log.e(LOG_TAG, "Failed to create chat " + chatID + " because chat exists!");
+            return;
+        }
+        AppHelper.getChatDB().chatDao().addChat(new ChatEntity(chatID, name, "", Serializer.serialize(peerAddress)));
     }
 
     private void handleIncomingChat(String chatID, PeerAddress chatStarterAddress) {
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("action", NetworkActions.SUCCESSFULL_CREATE_CHAT);
-        jsonObject.addProperty("chatID", chatID);
-        jsonObject.addProperty("senderID", AppHelper.getPeerID());
-        jsonObject.addProperty("senderAddress", PrepareData.prepareToStore(peerDHT.peerAddress()));
-        AppHelper.getPeerDHT().peer().sendDirect(chatStarterAddress).object(gson.toJson(jsonObject)).start().awaitUninterruptibly();
+        NewChatRequestMessage newChatRequestMessage = new NewChatRequestMessage(AppHelper.getPeerID(), peerDHT.peerAddress());
+        newChatRequestMessage.setChatID(chatID);
+        newChatRequestMessage.setAction(NetworkActions.SUCCESSFULL_CREATE_CHAT);
+        AppHelper.getPeerDHT().peer().sendDirect(chatStarterAddress).object(gson.toJson(newChatRequestMessage)).start().awaitUninterruptibly();
     }
 }

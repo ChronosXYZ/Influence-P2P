@@ -18,6 +18,7 @@ public class AppHelper extends Application {
     private static String peerID;
     private static PeerDHT peerDHT;
     private static RoomHelper chatDB;
+    private static NetworkHandler networkHandler;
 
     @Override
     public void onCreate() {
@@ -27,7 +28,6 @@ public class AppHelper extends Application {
         chatDB = Room.databaseBuilder(getApplicationContext(), RoomHelper.class, "chatDB")
                     .allowMainThreadQueries()
                     .build();
-
     }
 
     public static void storePeerID(String peerID1) { peerID = peerID1; }
@@ -45,4 +45,6 @@ public class AppHelper extends Application {
     public static PeerDHT getPeerDHT() { return peerDHT; }
 
     public static RoomHelper getChatDB() { return chatDB; }
+
+    public static void initNetworkHandler() { networkHandler = new NetworkHandler(); }
 }

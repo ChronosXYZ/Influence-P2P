@@ -8,14 +8,16 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "messages")
 public class MessageEntity {
     @NonNull @PrimaryKey String id;
-    @ColumnInfo String chatID;
-    @ColumnInfo String sender;
-    @ColumnInfo String text;
+    @ColumnInfo public String chatID;
+    @ColumnInfo public String sender;
+    @ColumnInfo public String date;
+    @ColumnInfo public String text;
 
-    public MessageEntity(String id, String chatID, String sender, String text) {
+    public MessageEntity(String id, String chatID, String sender, String date, String text) {
         this.id = id;
         this.chatID = chatID;
         this.sender = sender;
+        this.date = date;
         this.text = text;
     }
 

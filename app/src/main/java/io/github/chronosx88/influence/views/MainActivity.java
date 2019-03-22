@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements Observer, MainVie
                 .commit();
 
         presenter = new MainPresenter(this);
-        AppHelper.getObservable().register(this, MainObservable.UI_ACTIONS_CHANNEL);
+        AppHelper.getObservable().register(this);
 
         progressDialog = new ProgressDialog(MainActivity.this, R.style.AlertDialogTheme);
         progressDialog.setCancelable(false);
@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements Observer, MainVie
     protected void onDestroy() {
         super.onDestroy();
         presenter.onDestroy();
-        AppHelper.getObservable().unregister(this, MainObservable.UI_ACTIONS_CHANNEL);
+        AppHelper.getObservable().unregister(this);
     }
 
     @Override

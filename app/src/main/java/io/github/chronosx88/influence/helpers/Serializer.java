@@ -1,45 +1,48 @@
 package io.github.chronosx88.influence.helpers;
 
-import org.jboss.serial.io.JBossObjectInputStream;
-import org.jboss.serial.io.JBossObjectOutputStream;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.charset.StandardCharsets;
 
 public class Serializer {
-    public static <T> String serializeObject(T t) {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    public static byte[] serialize(Object object) {
+        ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
         try {
-            JBossObjectOutputStream out = new JBossObjectOutputStream(outputStream);
-            out.writeObject(t);
-            out.close();
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArray);
+            objectOutputStream.writeObject(object);;
+            objectOutputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        try {
-            return outputStream.toString("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return byteArray.toByteArray();
     }
 
-    public static <T> T deserializeObject(String str) {
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(str.getBytes(StandardCharsets.UTF_8));
-        T obj = null;
+    public static Object deserialize(String serializedObject) {
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(serializedObject.getBytes());
+        Object object = null;
         try {
-            JBossObjectInputStream in = new JBossObjectInputStream(inputStream);
-            obj = (T) in.readObject();
-            in.close();
-            inputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+            ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+            object = objectInputStream.readObject();
+        } catch (ClassNotFoundException | IOException e) {
             e.printStackTrace();
         }
-        return obj;
+        return object;
+    }
+
+    public static Object deserialize(byte[] serializedObject) {
+        if(serializedObject == null)
+            return null;
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(serializedObject);
+        Object object = null;
+        try {
+            ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+            object = objectInputStream.readObject();
+        } catch (ClassNotFoundException | IOException e) {
+            e.printStackTrace();
+        }
+        return object;
     }
 }

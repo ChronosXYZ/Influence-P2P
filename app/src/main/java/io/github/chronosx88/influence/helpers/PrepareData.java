@@ -1,17 +1,19 @@
 package io.github.chronosx88.influence.helpers;
 
-import android.util.Base64;
+import org.springframework.security.crypto.codec.Base64;
 
-import java.nio.charset.StandardCharsets;
+import java.io.Serializable;
 
 public class PrepareData {
     public static <T> String prepareToStore(T object) {
-        String serializedObject = Serializer.serializeObject(object);
-        return Base64.encodeToString(serializedObject.getBytes(StandardCharsets.UTF_8), Base64.URL_SAFE);
+        if(object instanceof Serializable) {
+            byte[] serializedObject = Serializer.serialize(object);
+            return new String(Base64.encode(serializedObject));
+        }
+        return null;
     }
 
-    public static <T> T prepareFromStore(String object) {
-        String decodedString = new String(Base64.decode(object, Base64.URL_SAFE), StandardCharsets.UTF_8);
-        return Serializer.deserializeObject(decodedString);
+    public static Object prepareFromStore(String object) {
+        return Serializer.deserialize(Base64.decode(object.getBytes()));
     }
 }

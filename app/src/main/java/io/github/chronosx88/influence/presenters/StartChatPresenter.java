@@ -18,7 +18,7 @@ public class StartChatPresenter implements StartChatPresenterContract, Observer 
     public StartChatPresenter(StartChatViewContract view) {
         this.view = view;
         this.logic = new StartChatLogic();
-        AppHelper.getObservable().register(this, MainObservable.UI_ACTIONS_CHANNEL);
+        AppHelper.getObservable().register(this);
     }
 
     @Override
