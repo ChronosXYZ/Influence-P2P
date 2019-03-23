@@ -22,6 +22,7 @@ public class StartChatPresenter implements StartChatPresenterContract, Observer 
 
     @Override
     public void startChatWithPeer(String peerID) {
+        view.showProgressDialog(true);
         logic.sendStartChatMessage(peerID);
     }
 
@@ -37,6 +38,11 @@ public class StartChatPresenter implements StartChatPresenterContract, Observer 
             case UIActions.SUCCESSFULL_CREATE_CHAT: {
                 view.showProgressDialog(false);
                 view.showMessage("Чат успешно создан");
+                break;
+            }
+            case UIActions.SUCCESSFULL_CREATE_OFFLINE_CHAT: {
+                view.showProgressDialog(false);
+                view.showMessage("В сеть отправлен запрос на создание чата, так как получатель не в сети.");
                 break;
             }
         }

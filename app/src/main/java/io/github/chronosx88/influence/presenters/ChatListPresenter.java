@@ -2,18 +2,18 @@ package io.github.chronosx88.influence.presenters;
 
 import android.view.MenuItem;
 
-import com.google.gson.JsonObject;
+import net.tomp2p.dht.FutureRemove;
+import net.tomp2p.peers.Number160;
 
 import io.github.chronosx88.influence.contracts.chatlist.ChatListLogicContract;
 import io.github.chronosx88.influence.contracts.chatlist.ChatListPresenterContract;
 import io.github.chronosx88.influence.contracts.chatlist.ChatListViewContract;
-import io.github.chronosx88.influence.contracts.observer.Observer;
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.ChatListAdapter;
-import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.logic.ChatListLogic;
+import io.github.chronosx88.influence.models.roomEntities.ChatEntity;
 
-public class ChatListPresenter implements ChatListPresenterContract, Observer {
+public class ChatListPresenter implements ChatListPresenterContract {
     private ChatListViewContract view;
     private ChatListLogicContract logic;
     private ChatListAdapter chatListAdapter;
@@ -23,7 +23,6 @@ public class ChatListPresenter implements ChatListPresenterContract, Observer {
         chatListAdapter = new ChatListAdapter();
         this.logic = new ChatListLogic();
         this.view.setRecycleAdapter(chatListAdapter);
-        AppHelper.getObservable().register(this);
     }
 
     @Override
@@ -41,18 +40,12 @@ public class ChatListPresenter implements ChatListPresenterContract, Observer {
         switch(item.getItemId()) {
             case 0: {
                 if(chatListAdapter.onClickPosition != -1) {
-                    AppHelper.getChatDB().chatDao().deleteChat(chatListAdapter.getItem(chatListAdapter.onClickPosition).chatID);
-                    view.updateChatList(chatListAdapter, logic.loadAllChats());
+                    new Thread(() -> {
+                        ChatEntity chat = chatListAdapter.getItem(chatListAdapter.onClickPosition);
+                        AppHelper.getChatDB().chatDao().deleteChat(chat.chatID);
+                        view.updateChatList(chatListAdapter, logic.loadAllChats());
+                    }).start();
                 }
-            }
-        }
-    }
-
-    @Override
-    public void handleEvent(JsonObject object) {
-        switch (object.get("action").getAsInt()) {
-            case UIActions.NEW_CHAT: {
-                updateChatList();
             }
         }
     }

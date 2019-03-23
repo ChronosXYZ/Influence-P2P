@@ -1,6 +1,7 @@
 package io.github.chronosx88.influence.views.fragments;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,11 +29,13 @@ import io.github.chronosx88.influence.presenters.ChatListPresenter;
 public class ChatListFragment extends Fragment implements ChatListViewContract, Observer {
     private ChatListPresenterContract presenter;
     private RecyclerView chatList;
+    private Handler mainThreadHandler;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AppHelper.getObservable().register(this);
+        this.mainThreadHandler = new Handler(getContext().getMainLooper());
     }
 
     @Override
@@ -73,7 +76,7 @@ public class ChatListFragment extends Fragment implements ChatListViewContract, 
 
     @Override
     public void updateChatList(ChatListAdapter adapter, List<ChatEntity> chats) {
-        requireActivity().runOnUiThread(() -> {
+        mainThreadHandler.post(() -> {
             adapter.setChatList(chats);
             adapter.notifyDataSetChanged();
         });

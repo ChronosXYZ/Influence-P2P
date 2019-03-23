@@ -19,6 +19,7 @@ import java.util.UUID;
 import io.github.chronosx88.influence.contracts.startchat.StartChatLogicContract;
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.KeyPairManager;
+import io.github.chronosx88.influence.helpers.ObservableUtils;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.models.NewChatRequestMessage;
 import io.github.chronosx88.influence.models.PublicUserProfile;
@@ -54,14 +55,17 @@ public class StartChatLogic implements StartChatLogicContract {
                 try {
                     NewChatRequestMessage newChatRequestMessage = new NewChatRequestMessage(AppHelper.getPeerID(), peerDHT.peerAddress());
                     FuturePut futurePut = peerDHT
-                            .put(Number160.createHash(peerID))
-                            .data(Number160.createHash(UUID.randomUUID().toString()), new Data(gson.toJson(newChatRequestMessage))
-                                    .protectEntry(keyPairManager.openMainKeyPair())).start().awaitUninterruptibly();
+                            .put(Number160.createHash(peerID + "_pendingChats"))
+                            .data(Number160.createHash(newChatRequestMessage.getChatID()), new Data(gson.toJson(newChatRequestMessage))
+                                    .protectEntry(keyPairManager.openMainKeyPair()))
+                            .start()
+                            .awaitUninterruptibly();
                     if(futurePut.isSuccess()) {
                         Log.i(LOG_TAG, "# Create new offline chat request is successful! ChatID: " + newChatRequestMessage.getChatID());
                     } else {
                         Log.e(LOG_TAG, "# Failed to create chat: " + futurePut.failedReason());
                     }
+                    ObservableUtils.notifyUI(UIActions.SUCCESSFULL_CREATE_OFFLINE_CHAT);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

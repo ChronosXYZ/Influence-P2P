@@ -52,11 +52,14 @@ public class StartChatFragment extends Fragment implements StartChatViewContract
 
     @Override
     public void showProgressDialog(boolean enabled) {
-        if(enabled) {
-            progressDialog.show();
-        } else {
-            progressDialog.dismiss();
-        }
+        // TODO: make run on mainHandlerThread
+        requireActivity().runOnUiThread(() -> {
+            if(enabled) {
+                progressDialog.show();
+            } else {
+                progressDialog.dismiss();
+            }
+        });
     }
 
     // TODO: clear text input

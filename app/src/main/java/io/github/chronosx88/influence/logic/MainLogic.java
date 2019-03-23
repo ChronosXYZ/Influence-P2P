@@ -37,6 +37,7 @@ import io.github.chronosx88.influence.contracts.main.MainLogicContract;
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.DSAKey;
 import io.github.chronosx88.influence.helpers.KeyPairManager;
+import io.github.chronosx88.influence.helpers.NetworkHandler;
 import io.github.chronosx88.influence.helpers.StorageMVStore;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.models.PublicUserProfile;
@@ -138,6 +139,8 @@ public class MainLogic implements MainLogicContract {
                 setReceiveHandler();
                 gson = new Gson();
                 publicProfileToDHT();
+                NetworkHandler.handlePendingChats();
+                NetworkHandler.handlePendingAcceptedChats();
                 replication = new AutoReplication(peerDHT.peer()).start();
             } catch (IOException e) {
                 e.printStackTrace();
