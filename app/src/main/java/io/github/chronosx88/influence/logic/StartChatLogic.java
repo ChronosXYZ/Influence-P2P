@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import net.tomp2p.dht.FutureGet;
 import net.tomp2p.dht.FuturePut;
@@ -20,12 +19,9 @@ import java.util.UUID;
 import io.github.chronosx88.influence.contracts.startchat.StartChatLogicContract;
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.KeyPairManager;
-import io.github.chronosx88.influence.helpers.PrepareData;
-import io.github.chronosx88.influence.helpers.actions.NetworkActions;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.models.NewChatRequestMessage;
 import io.github.chronosx88.influence.models.PublicUserProfile;
-import io.github.chronosx88.influence.observable.MainObservable;
 
 public class StartChatLogic implements StartChatLogicContract {
     private PeerDHT peerDHT;

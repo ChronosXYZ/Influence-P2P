@@ -2,12 +2,10 @@ package io.github.chronosx88.influence.logic;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Base64;
 import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import net.tomp2p.dht.FuturePut;
 import net.tomp2p.dht.PeerBuilderDHT;
@@ -24,13 +22,10 @@ import net.tomp2p.relay.tcp.TCPRelayClientConfig;
 import net.tomp2p.replication.AutoReplication;
 import net.tomp2p.storage.Data;
 
-import org.json.JSONObject;
-
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
@@ -42,15 +37,9 @@ import io.github.chronosx88.influence.contracts.main.MainLogicContract;
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.DSAKey;
 import io.github.chronosx88.influence.helpers.KeyPairManager;
-import io.github.chronosx88.influence.helpers.PrepareData;
-import io.github.chronosx88.influence.helpers.Serializer;
 import io.github.chronosx88.influence.helpers.StorageMVStore;
-import io.github.chronosx88.influence.helpers.actions.NetworkActions;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
-import io.github.chronosx88.influence.models.BasicNetworkMessage;
-import io.github.chronosx88.influence.models.NewChatRequestMessage;
 import io.github.chronosx88.influence.models.PublicUserProfile;
-import io.github.chronosx88.influence.observable.MainObservable;
 
 public class MainLogic implements MainLogicContract {
     private static final String LOG_TAG = "MainLogic";

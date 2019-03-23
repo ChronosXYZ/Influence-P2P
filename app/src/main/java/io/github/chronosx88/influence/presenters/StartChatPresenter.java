@@ -9,7 +9,6 @@ import io.github.chronosx88.influence.contracts.startchat.StartChatViewContract;
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.logic.StartChatLogic;
-import io.github.chronosx88.influence.observable.MainObservable;
 
 public class StartChatPresenter implements StartChatPresenterContract, Observer {
     private StartChatViewContract view;

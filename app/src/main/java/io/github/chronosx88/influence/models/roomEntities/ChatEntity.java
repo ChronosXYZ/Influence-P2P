@@ -1,11 +1,5 @@
 package io.github.chronosx88.influence.models.roomEntities;
 
-import net.tomp2p.peers.PeerAddress;
-
-import java.util.ArrayList;
-import java.util.Collections;
-
-import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
