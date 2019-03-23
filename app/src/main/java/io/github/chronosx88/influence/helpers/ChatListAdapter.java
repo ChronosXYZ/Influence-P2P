@@ -1,5 +1,6 @@
 package io.github.chronosx88.influence.helpers;
 
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import io.github.chronosx88.influence.models.roomEntities.ChatEntity;
 
 public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatListViewHolder> {
     List<ChatEntity> chatList = new ArrayList<>();
+    public int onClickPosition = -1;
 
     @NonNull
     @Override
@@ -29,9 +31,14 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatLi
         chatList.addAll(entities);
     }
 
+    public ChatEntity getItem(int position) {
+        return chatList.get(position);
+    }
+
     @Override
     public void onBindViewHolder(@NonNull ChatListViewHolder holder, int position) {
         holder.chatName.setText(chatList.get(position).getName());
+        holder.onLongClick(position);
     }
 
     @Override
@@ -39,12 +46,26 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatLi
         return chatList.size();
     }
 
-    class ChatListViewHolder extends RecyclerView.ViewHolder {
+    class ChatListViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
         TextView chatName;
 
         public ChatListViewHolder(View itemView) {
             super(itemView);
             chatName = itemView.findViewById(R.id.chat_name);
+            itemView.setOnCreateContextMenuListener(this);
+        }
+
+        public void onLongClick(int position) {
+            itemView.setOnLongClickListener((v) -> {
+                onClickPosition = position;
+                itemView.showContextMenu();
+                return true;
+            });
+        }
+
+        @Override
+        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+            menu.add(0, 0, 0, "Remove chat");
         }
     }
 }

@@ -1,5 +1,7 @@
 package io.github.chronosx88.influence.presenters;
 
+import android.view.MenuItem;
+
 import com.google.gson.JsonObject;
 
 import io.github.chronosx88.influence.contracts.chatlist.ChatListLogicContract;
@@ -10,7 +12,6 @@ import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.ChatListAdapter;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.logic.ChatListLogic;
-import io.github.chronosx88.influence.observable.MainObservable;
 
 public class ChatListPresenter implements ChatListPresenterContract, Observer {
     private ChatListViewContract view;
@@ -33,6 +34,18 @@ public class ChatListPresenter implements ChatListPresenterContract, Observer {
     @Override
     public void openChat(String chatID) {
         // TODO
+    }
+
+    @Override
+    public void onContextItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case 0: {
+                if(chatListAdapter.onClickPosition != -1) {
+                    AppHelper.getChatDB().chatDao().deleteChat(chatListAdapter.getItem(chatListAdapter.onClickPosition).chatID);
+                    view.updateChatList(chatListAdapter, logic.loadAllChats());
+                }
+            }
+        }
     }
 
     @Override

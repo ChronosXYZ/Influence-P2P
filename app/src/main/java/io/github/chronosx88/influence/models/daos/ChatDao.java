@@ -12,7 +12,7 @@ public interface ChatDao {
     @Insert
     void addChat(ChatEntity chatEntity);
 
-    @Query("DELETE FROM chats WHERE id = :chatID")
+    @Query("DELETE FROM chats WHERE chatID = :chatID")
     void deleteChat(String chatID);
 
     @Query("SELECT * FROM chats")

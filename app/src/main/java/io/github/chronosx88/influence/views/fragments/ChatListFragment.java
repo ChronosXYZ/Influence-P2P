@@ -2,6 +2,7 @@ package io.github.chronosx88.influence.views.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -22,7 +23,6 @@ import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.ChatListAdapter;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.models.roomEntities.ChatEntity;
-import io.github.chronosx88.influence.observable.MainObservable;
 import io.github.chronosx88.influence.presenters.ChatListPresenter;
 
 public class ChatListFragment extends Fragment implements ChatListViewContract, Observer {
@@ -48,6 +48,7 @@ public class ChatListFragment extends Fragment implements ChatListViewContract, 
         chatList.setLayoutManager(new LinearLayoutManager(getContext()));
         presenter = new ChatListPresenter(this);
         presenter.updateChatList();
+        registerForContextMenu(chatList);
     }
 
     @Override
@@ -72,9 +73,15 @@ public class ChatListFragment extends Fragment implements ChatListViewContract, 
 
     @Override
     public void updateChatList(ChatListAdapter adapter, List<ChatEntity> chats) {
-        getActivity().runOnUiThread(() -> {
+        requireActivity().runOnUiThread(() -> {
             adapter.setChatList(chats);
             adapter.notifyDataSetChanged();
         });
+    }
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        presenter.onContextItemSelected(item);
+        return super.onContextItemSelected(item);
     }
 }
