@@ -34,8 +34,8 @@ public class NetworkHandler implements NetworkObserver {
             switch (getMessageAction((String) object)) {
                 case NetworkActions.CREATE_CHAT: {
                     NewChatRequestMessage newChatRequestMessage = gson.fromJson((String) object, NewChatRequestMessage.class);
-                    createChatEntry(newChatRequestMessage.getChatID(), newChatRequestMessage.getChatID(), newChatRequestMessage.getSenderPeerAddress());
-                    handleIncomingChat(newChatRequestMessage.getChatID(), newChatRequestMessage.getSenderPeerAddress());
+                    createChatEntry(newChatRequestMessage.getChatID(), newChatRequestMessage.getSenderID(), newChatRequestMessage.getSenderPeerAddress());
+                    handleIncomingChatRequest(newChatRequestMessage.getChatID(), newChatRequestMessage.getSenderPeerAddress());
                     JsonObject jsonObject = new JsonObject();
                     jsonObject.addProperty("action", UIActions.NEW_CHAT);
                     AppHelper.getObservable().notifyUIObservers(jsonObject);
@@ -68,7 +68,7 @@ public class NetworkHandler implements NetworkObserver {
         AppHelper.getChatDB().chatDao().addChat(new ChatEntity(chatID, name, "", Serializer.serialize(peerAddress)));
     }
 
-    private void handleIncomingChat(String chatID, PeerAddress chatStarterAddress) {
+    private void handleIncomingChatRequest(String chatID, PeerAddress chatStarterAddress) {
         NewChatRequestMessage newChatRequestMessage = new NewChatRequestMessage(AppHelper.getPeerID(), peerDHT.peerAddress());
         newChatRequestMessage.setChatID(chatID);
         newChatRequestMessage.setAction(NetworkActions.SUCCESSFULL_CREATE_CHAT);
