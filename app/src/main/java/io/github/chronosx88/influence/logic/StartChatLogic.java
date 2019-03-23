@@ -76,7 +76,7 @@ public class StartChatLogic implements StartChatLogicContract {
     private PublicUserProfile getPublicProfile(String peerID) {
         PublicUserProfile publicProfile = null;
         FutureGet futureGetProfile = peerDHT.get(Number160.createHash(peerID + "_profile")).start().awaitUninterruptibly();
-        if (futureGetProfile.isSuccess()) {
+        if (!futureGetProfile.isEmpty()) {
             String jsonString = null;
             try {
                 jsonString = (String) futureGetProfile.data().object();
