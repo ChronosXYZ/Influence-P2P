@@ -45,7 +45,9 @@ public class StartChatFragment extends Fragment implements StartChatViewContract
 
     @Override
     public void showMessage(String message) {
-        Snackbar.make(getView().findViewById(R.id.start_chat_coordinator), message, Snackbar.LENGTH_SHORT).show();
+        requireActivity().runOnUiThread(() -> {
+            Snackbar.make(getView().findViewById(R.id.start_chat_coordinator), message, Snackbar.LENGTH_SHORT).show();
+        });
     }
 
     @Override
