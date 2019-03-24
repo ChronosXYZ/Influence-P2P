@@ -10,16 +10,12 @@ import io.github.chronosx88.influence.helpers.actions.NetworkActions;
 public class NewChatRequestMessage extends BasicNetworkMessage implements Serializable {
     private String chatID;
 
-    public NewChatRequestMessage(String senderID, PeerAddress senderPeerAddress) {
+    public NewChatRequestMessage(String chatID, String senderID, PeerAddress senderPeerAddress) {
         super(NetworkActions.CREATE_CHAT, senderID, senderPeerAddress);
-        this.chatID = UUID.randomUUID().toString();
+        this.chatID = chatID;
     }
 
     public String getChatID() {
         return chatID;
-    }
-
-    public void setChatID(String chatID) {
-        this.chatID = chatID;
     }
 }

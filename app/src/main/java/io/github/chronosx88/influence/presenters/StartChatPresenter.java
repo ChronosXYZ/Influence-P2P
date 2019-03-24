@@ -35,14 +35,9 @@ public class StartChatPresenter implements StartChatPresenterContract, Observer 
                 break;
             }
 
-            case UIActions.SUCCESSFULL_CREATE_CHAT: {
+            case UIActions.NEW_CHAT: {
                 view.showProgressDialog(false);
-                view.showMessage("Чат успешно создан");
-                break;
-            }
-            case UIActions.SUCCESSFULL_CREATE_OFFLINE_CHAT: {
-                view.showProgressDialog(false);
-                view.showMessage("В сеть отправлен запрос на создание чата, так как получатель не в сети.");
+                view.showMessage("Чат успешно создан!");
                 break;
             }
         }

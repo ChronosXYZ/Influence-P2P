@@ -325,9 +325,8 @@ public class StorageMVStore implements Storage {
 
 
     private byte[] serializeData(Data data) {
-        KeyPair mainKeyPair = keyPairManager.openMainKeyPair();
         KeyPair forSigningKP = keyPairManager.getKeyPair("mainSigningKeyPair");
-        data.sign(forSigningKP).protectEntry(mainKeyPair);
+        data.sign(forSigningKP);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         AlternativeCompositeByteBuf acb = AlternativeCompositeByteBuf.compBuffer(AlternativeCompositeByteBuf.UNPOOLED_HEAP);
         try {

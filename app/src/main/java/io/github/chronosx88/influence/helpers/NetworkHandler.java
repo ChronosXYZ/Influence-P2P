@@ -8,6 +8,7 @@ import com.google.gson.JsonParser;
 
 import net.tomp2p.dht.FutureGet;
 import net.tomp2p.dht.FuturePut;
+import net.tomp2p.dht.FutureRemove;
 import net.tomp2p.dht.PeerDHT;
 import net.tomp2p.futures.FuturePing;
 import net.tomp2p.peers.Number160;
@@ -18,7 +19,6 @@ import net.tomp2p.storage.Data;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import io.github.chronosx88.influence.contracts.observer.NetworkObserver;
 import io.github.chronosx88.influence.helpers.actions.NetworkActions;
@@ -44,32 +44,26 @@ public class NetworkHandler implements NetworkObserver {
                     NewChatRequestMessage newChatRequestMessage = gson.fromJson((String) object, NewChatRequestMessage.class);
                     createChatEntry(newChatRequestMessage.getChatID(), newChatRequestMessage.getSenderID(), newChatRequestMessage.getSenderPeerAddress());
                     handleIncomingChatRequest(newChatRequestMessage.getChatID(), newChatRequestMessage.getSenderPeerAddress());
-                    JsonObject jsonObject = new JsonObject();
-                    jsonObject.addProperty("action", UIActions.NEW_CHAT);
-                    AppHelper.getObservable().notifyUIObservers(jsonObject);
+                    ObservableUtils.notifyUI(UIActions.NEW_CHAT);
                     break;
                 }
 
                 case NetworkActions.SUCCESSFULL_CREATE_CHAT: {
                     NewChatRequestMessage newChatRequestMessage = gson.fromJson((String) object, NewChatRequestMessage.class);
                     createChatEntry(newChatRequestMessage.getChatID(), newChatRequestMessage.getSenderID(), newChatRequestMessage.getSenderPeerAddress());
-                    ObservableUtils.notifyUI(UIActions.SUCCESSFULL_CREATE_CHAT);
-                    peerDHT.remove(Number160.createHash(newChatRequestMessage.getSenderID() + "_pendingChats"))
-                            .contentKey(Number160.createHash(newChatRequestMessage.getChatID()))
-                            .start()
-                            .awaitUninterruptibly();
+                    ObservableUtils.notifyUI(UIActions.SUCCESSFUL_CREATE_CHAT);
                     break;
                 }
             }
         }).start();
     }
 
-    private int getMessageAction(String json) {
+    public static int getMessageAction(String json) {
         JsonObject jsonObject = new JsonParser().parse(json).getAsJsonObject();
         return jsonObject.get("action").getAsInt();
     }
 
-    private static void createChatEntry(String chatID, String name, PeerAddress peerAddress) {
+    public static void createChatEntry(String chatID, String name, PeerAddress peerAddress) {
         List<ChatEntity> chatEntities = AppHelper.getChatDB().chatDao().getChatByChatID(chatID);
         if (chatEntities.size() > 0) {
             Log.e(LOG_TAG, "Failed to create chat " + chatID + " because chat exists!");
@@ -79,8 +73,7 @@ public class NetworkHandler implements NetworkObserver {
     }
 
     private void handleIncomingChatRequest(String chatID, PeerAddress chatStarterAddress) {
-        NewChatRequestMessage newChatRequestMessage = new NewChatRequestMessage(AppHelper.getPeerID(), peerDHT.peerAddress());
-        newChatRequestMessage.setChatID(chatID);
+        NewChatRequestMessage newChatRequestMessage = new NewChatRequestMessage(chatID, AppHelper.getPeerID(), peerDHT.peerAddress());
         newChatRequestMessage.setAction(NetworkActions.SUCCESSFULL_CREATE_CHAT);
         AppHelper.getPeerDHT().peer().sendDirect(chatStarterAddress).object(gson.toJson(newChatRequestMessage)).start().awaitUninterruptibly();
     }
@@ -108,15 +101,9 @@ public class NetworkHandler implements NetworkObserver {
                         newChatRequestMessage.getSenderPeerAddress()
                 );
 
-                FuturePing ping = peerDHT
-                        .peer()
-                        .ping()
-                        .peerAddress(newChatRequestMessage.getSenderPeerAddress())
-                        .start()
-                        .awaitUninterruptibly();
-                NewChatRequestMessage newChatRequestReply = new NewChatRequestMessage(AppHelper.getPeerID(), peerDHT.peerAddress());
+                NewChatRequestMessage newChatRequestReply = new NewChatRequestMessage(newChatRequestMessage.getChatID(), AppHelper.getPeerID(), peerDHT.peerAddress());
                 newChatRequestReply.setAction(NetworkActions.SUCCESSFULL_CREATE_CHAT);
-                if(ping.isSuccess()) {
+                if(P2PUtils.ping(newChatRequestMessage.getSenderPeerAddress())) {
                     peerDHT
                             .peer()
                             .sendDirect(newChatRequestMessage.getSenderPeerAddress())
@@ -126,8 +113,7 @@ public class NetworkHandler implements NetworkObserver {
                 } else {
                     try {
                         FuturePut put = peerDHT.put(Number160.createHash(newChatRequestMessage.getSenderID() + "_pendingAcceptedChats"))
-                                .data(Number160.createHash(UUID.randomUUID().toString()), new Data(gson.toJson(newChatRequestReply))
-                                        .protectEntry(keyPairManager.openMainKeyPair()))
+                                .data(Number160.createHash(newChatRequestReply.getChatID()), new Data(gson.toJson(newChatRequestReply)))
                                 .start()
                                 .awaitUninterruptibly();
                         if(put.isSuccess()) {
@@ -138,6 +124,10 @@ public class NetworkHandler implements NetworkObserver {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                    peerDHT.remove(Number160.createHash(AppHelper.getPeerID() + "_pendingChats"))
+                            .contentKey(Number160.createHash(newChatRequestMessage.getChatID()))
+                            .start()
+                            .awaitUninterruptibly();
                 }
 
                 ObservableUtils.notifyUI(UIActions.NEW_CHAT);
@@ -162,16 +152,18 @@ public class NetworkHandler implements NetworkObserver {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                peerDHT.remove(Number160.createHash(newChatRequestMessage.getSenderID() + "_pendingChats"))
-                        .contentKey(Number160.createHash(newChatRequestMessage.getChatID()))
-                        .start()
-                        .awaitUninterruptibly();
 
                 createChatEntry(
                         newChatRequestMessage.getChatID(),
                         newChatRequestMessage.getSenderID(),
                         newChatRequestMessage.getSenderPeerAddress()
                 );
+
+                FutureRemove remove = peerDHT.remove(Number160.createHash(AppHelper.getPeerID() + "_pendingAcceptedChats"))
+                        .contentKey(Number160.createHash(newChatRequestMessage.getChatID()))
+                        .start()
+                        .awaitUninterruptibly();
+
                 ObservableUtils.notifyUI(UIActions.NEW_CHAT);
             }
         }

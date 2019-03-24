@@ -19,7 +19,9 @@ import java.util.UUID;
 import io.github.chronosx88.influence.contracts.startchat.StartChatLogicContract;
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.KeyPairManager;
+import io.github.chronosx88.influence.helpers.NetworkHandler;
 import io.github.chronosx88.influence.helpers.ObservableUtils;
+import io.github.chronosx88.influence.helpers.P2PUtils;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.models.NewChatRequestMessage;
 import io.github.chronosx88.influence.models.PublicUserProfile;
@@ -41,23 +43,19 @@ public class StartChatLogic implements StartChatLogicContract {
         new Thread(() -> {
             PublicUserProfile recipientPublicProfile = getPublicProfile(peerID);
             if(recipientPublicProfile == null) {
-                JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("action", UIActions.PEER_NOT_EXIST);
-                AppHelper.getObservable().notifyUIObservers(jsonObject);
+                ObservableUtils.notifyUI(UIActions.PEER_NOT_EXIST);
                 return;
             }
             PeerAddress recipientPeerAddress = getPublicProfile(peerID).getPeerAddress();
 
-            FuturePing ping = peerDHT.peer().ping().peerAddress(recipientPeerAddress).start().awaitUninterruptibly();
-            if(ping.isSuccess()) {
-                peerDHT.peer().sendDirect(recipientPeerAddress).object(gson.toJson(new NewChatRequestMessage(AppHelper.getPeerID(), peerDHT.peerAddress()))).start();
+            NewChatRequestMessage newChatRequestMessage = new NewChatRequestMessage(UUID.randomUUID().toString(), AppHelper.getPeerID(), peerDHT.peerAddress());
+            if(P2PUtils.ping(recipientPeerAddress)) {
+                peerDHT.peer().sendDirect(recipientPeerAddress).object(gson.toJson(newChatRequestMessage)).start().awaitUninterruptibly();
             } else {
                 try {
-                    NewChatRequestMessage newChatRequestMessage = new NewChatRequestMessage(AppHelper.getPeerID(), peerDHT.peerAddress());
                     FuturePut futurePut = peerDHT
                             .put(Number160.createHash(peerID + "_pendingChats"))
-                            .data(Number160.createHash(newChatRequestMessage.getChatID()), new Data(gson.toJson(newChatRequestMessage))
-                                    .protectEntry(keyPairManager.openMainKeyPair()))
+                            .data(Number160.createHash(newChatRequestMessage.getChatID()), new Data(gson.toJson(newChatRequestMessage)))
                             .start()
                             .awaitUninterruptibly();
                     if(futurePut.isSuccess()) {
@@ -65,11 +63,12 @@ public class StartChatLogic implements StartChatLogicContract {
                     } else {
                         Log.e(LOG_TAG, "# Failed to create chat: " + futurePut.failedReason());
                     }
-                    ObservableUtils.notifyUI(UIActions.SUCCESSFULL_CREATE_OFFLINE_CHAT);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
+            NetworkHandler.createChatEntry(newChatRequestMessage.getChatID(), peerID, recipientPeerAddress);
+            ObservableUtils.notifyUI(UIActions.NEW_CHAT);
         }).start();
     }
 

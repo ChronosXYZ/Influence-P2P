@@ -2,6 +2,8 @@ package io.github.chronosx88.influence.views.fragments;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +14,7 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import io.github.chronosx88.influence.R;
 import io.github.chronosx88.influence.contracts.startchat.StartChatViewContract;
@@ -22,6 +25,8 @@ public class StartChatFragment extends Fragment implements StartChatViewContract
     private ProgressDialog progressDialog;
     private Button createChatButton;
     private StartChatPresenter presenter;
+    private Handler mainThreadHandler;
+    private CoordinatorLayout coordinatorLayout;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -41,19 +46,20 @@ public class StartChatFragment extends Fragment implements StartChatViewContract
         createChatButton.setOnClickListener((v) -> {
             presenter.startChatWithPeer(textInputPeerID.getEditText().getText().toString());
         });
+        mainThreadHandler = new Handler(getContext().getMainLooper());
+        coordinatorLayout = getView().findViewById(R.id.start_chat_coordinator);
     }
 
     @Override
     public void showMessage(String message) {
-        requireActivity().runOnUiThread(() -> {
-            Snackbar.make(getView().findViewById(R.id.start_chat_coordinator), message, Snackbar.LENGTH_SHORT).show();
+        mainThreadHandler.post(() -> {
+            Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_SHORT).show();
         });
     }
 
     @Override
     public void showProgressDialog(boolean enabled) {
-        // TODO: make run on mainHandlerThread
-        requireActivity().runOnUiThread(() -> {
+        mainThreadHandler.post(() -> {
             if(enabled) {
                 progressDialog.show();
             } else {
