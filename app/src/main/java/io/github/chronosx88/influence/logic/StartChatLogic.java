@@ -19,6 +19,7 @@ import java.util.UUID;
 import io.github.chronosx88.influence.contracts.startchat.StartChatLogicContract;
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.KeyPairManager;
+import io.github.chronosx88.influence.helpers.LocalDBWrapper;
 import io.github.chronosx88.influence.helpers.NetworkHandler;
 import io.github.chronosx88.influence.helpers.ObservableUtils;
 import io.github.chronosx88.influence.helpers.P2PUtils;
@@ -67,7 +68,7 @@ public class StartChatLogic implements StartChatLogicContract {
                     e.printStackTrace();
                 }
             }
-            NetworkHandler.createChatEntry(newChatRequestMessage.getChatID(), peerID, recipientPeerAddress);
+            LocalDBWrapper.createChatEntry(newChatRequestMessage.getChatID(), peerID, recipientPeerAddress);
             ObservableUtils.notifyUI(UIActions.NEW_CHAT);
         }).start();
     }

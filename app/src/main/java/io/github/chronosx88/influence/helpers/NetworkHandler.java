@@ -42,7 +42,7 @@ public class NetworkHandler implements NetworkObserver {
             switch (getMessageAction((String) object)) {
                 case NetworkActions.CREATE_CHAT: {
                     NewChatRequestMessage newChatRequestMessage = gson.fromJson((String) object, NewChatRequestMessage.class);
-                    createChatEntry(newChatRequestMessage.getChatID(), newChatRequestMessage.getSenderID(), newChatRequestMessage.getSenderPeerAddress());
+                    LocalDBWrapper.createChatEntry(newChatRequestMessage.getChatID(), newChatRequestMessage.getSenderID(), newChatRequestMessage.getSenderPeerAddress());
                     handleIncomingChatRequest(newChatRequestMessage.getChatID(), newChatRequestMessage.getSenderPeerAddress());
                     ObservableUtils.notifyUI(UIActions.NEW_CHAT);
                     break;
@@ -50,7 +50,7 @@ public class NetworkHandler implements NetworkObserver {
 
                 case NetworkActions.SUCCESSFULL_CREATE_CHAT: {
                     NewChatRequestMessage newChatRequestMessage = gson.fromJson((String) object, NewChatRequestMessage.class);
-                    createChatEntry(newChatRequestMessage.getChatID(), newChatRequestMessage.getSenderID(), newChatRequestMessage.getSenderPeerAddress());
+                    LocalDBWrapper.createChatEntry(newChatRequestMessage.getChatID(), newChatRequestMessage.getSenderID(), newChatRequestMessage.getSenderPeerAddress());
                     ObservableUtils.notifyUI(UIActions.SUCCESSFUL_CREATE_CHAT);
                     break;
                 }
@@ -63,14 +63,7 @@ public class NetworkHandler implements NetworkObserver {
         return jsonObject.get("action").getAsInt();
     }
 
-    public static void createChatEntry(String chatID, String name, PeerAddress peerAddress) {
-        List<ChatEntity> chatEntities = AppHelper.getChatDB().chatDao().getChatByChatID(chatID);
-        if (chatEntities.size() > 0) {
-            Log.e(LOG_TAG, "Failed to create chat " + chatID + " because chat exists!");
-            return;
-        }
-        AppHelper.getChatDB().chatDao().addChat(new ChatEntity(chatID, name, "", Serializer.serialize(peerAddress)));
-    }
+
 
     private void handleIncomingChatRequest(String chatID, PeerAddress chatStarterAddress) {
         NewChatRequestMessage newChatRequestMessage = new NewChatRequestMessage(chatID, AppHelper.getPeerID(), peerDHT.peerAddress());
@@ -95,7 +88,7 @@ public class NetworkHandler implements NetworkObserver {
                     e.printStackTrace();
                 }
 
-                createChatEntry(
+                LocalDBWrapper.createChatEntry(
                         newChatRequestMessage.getChatID(),
                         newChatRequestMessage.getSenderID(),
                         newChatRequestMessage.getSenderPeerAddress()
@@ -153,13 +146,13 @@ public class NetworkHandler implements NetworkObserver {
                     e.printStackTrace();
                 }
 
-                createChatEntry(
+                LocalDBWrapper.createChatEntry(
                         newChatRequestMessage.getChatID(),
                         newChatRequestMessage.getSenderID(),
                         newChatRequestMessage.getSenderPeerAddress()
                 );
 
-                FutureRemove remove = peerDHT.remove(Number160.createHash(AppHelper.getPeerID() + "_pendingAcceptedChats"))
+                peerDHT.remove(Number160.createHash(AppHelper.getPeerID() + "_pendingAcceptedChats"))
                         .contentKey(Number160.createHash(newChatRequestMessage.getChatID()))
                         .start()
                         .awaitUninterruptibly();

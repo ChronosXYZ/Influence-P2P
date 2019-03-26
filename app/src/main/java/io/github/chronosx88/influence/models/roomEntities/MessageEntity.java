@@ -7,17 +7,18 @@ import androidx.room.PrimaryKey;
 
 @Entity(tableName = "messages")
 public class MessageEntity {
-    @NonNull @PrimaryKey String id;
+    @PrimaryKey(autoGenerate = true) String id;
+    @ColumnInfo public int type;
     @ColumnInfo public String chatID;
     @ColumnInfo public String sender;
-    @ColumnInfo public String date;
+    @ColumnInfo public String timestamp;
     @ColumnInfo public String text;
 
-    public MessageEntity(String id, String chatID, String sender, String date, String text) {
-        this.id = id;
+    public MessageEntity(int type, String chatID, String sender, String timestamp, String text) {
+        this.type = type;
         this.chatID = chatID;
         this.sender = sender;
-        this.date = date;
+        this.timestamp = timestamp;
         this.text = text;
     }
 
@@ -25,8 +26,14 @@ public class MessageEntity {
         return id;
     }
 
+    public int getType() { return type; }
+
     public String getChatID() {
         return chatID;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
     }
 
     public String getSender() {
@@ -40,6 +47,6 @@ public class MessageEntity {
     @NonNull
     @Override
     public String toString() {
-        return id + "/" + chatID + "/" + sender + "/" + text;
+        return id + "/" + chatID + "/" + type + "/" + sender + "/" + text;
     }
 }
