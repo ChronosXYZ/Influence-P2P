@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey;
 
 @Entity(tableName = "messages")
 public class MessageEntity {
-    @PrimaryKey(autoGenerate = true) String id;
+    @PrimaryKey(autoGenerate = true) public int id;
     @ColumnInfo public int type;
     @ColumnInfo public String chatID;
     @ColumnInfo public String sender;
@@ -22,7 +22,7 @@ public class MessageEntity {
         this.text = text;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
