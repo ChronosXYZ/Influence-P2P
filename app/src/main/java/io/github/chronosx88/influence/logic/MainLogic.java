@@ -38,6 +38,7 @@ import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.DSAKey;
 import io.github.chronosx88.influence.helpers.KeyPairManager;
 import io.github.chronosx88.influence.helpers.NetworkHandler;
+import io.github.chronosx88.influence.helpers.P2PUtils;
 import io.github.chronosx88.influence.helpers.StorageMVStore;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.models.PublicUserProfile;
@@ -242,10 +243,6 @@ public class MainLogic implements MainLogicContract {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        FuturePut futurePut = peerDHT.put(Number160.createHash(AppHelper.getPeerID() + "_profile"))
-                .data(serializedUserProfile)
-                .start()
-                .awaitUninterruptibly();
-        Log.i(LOG_TAG, futurePut.isSuccess() ? "# Profile successfully published!" : "# Profile publishing failed!");
+        Log.i(LOG_TAG, P2PUtils.put(AppHelper.getPeerID() + "_profile", null, serializedUserProfile) ? "# Profile successfully published!" : "# Profile publishing failed!");
     }
 }

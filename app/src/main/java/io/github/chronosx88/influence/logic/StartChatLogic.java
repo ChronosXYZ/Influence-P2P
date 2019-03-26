@@ -10,10 +10,12 @@ import net.tomp2p.dht.FuturePut;
 import net.tomp2p.dht.PeerDHT;
 import net.tomp2p.futures.FuturePing;
 import net.tomp2p.peers.Number160;
+import net.tomp2p.peers.Number640;
 import net.tomp2p.peers.PeerAddress;
 import net.tomp2p.storage.Data;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 
 import io.github.chronosx88.influence.contracts.startchat.StartChatLogicContract;
@@ -54,15 +56,10 @@ public class StartChatLogic implements StartChatLogicContract {
                 peerDHT.peer().sendDirect(recipientPeerAddress).object(gson.toJson(newChatRequestMessage)).start().awaitUninterruptibly();
             } else {
                 try {
-                    FuturePut futurePut = peerDHT
-                            .put(Number160.createHash(peerID + "_pendingChats"))
-                            .data(Number160.createHash(newChatRequestMessage.getChatID()), new Data(gson.toJson(newChatRequestMessage)))
-                            .start()
-                            .awaitUninterruptibly();
-                    if(futurePut.isSuccess()) {
+                    if(P2PUtils.put(peerID + "_pendingChats", newChatRequestMessage.getChatID(), new Data(gson.toJson(newChatRequestMessage)))) {
                         Log.i(LOG_TAG, "# Create new offline chat request is successful! ChatID: " + newChatRequestMessage.getChatID());
                     } else {
-                        Log.e(LOG_TAG, "# Failed to create chat: " + futurePut.failedReason());
+                        Log.e(LOG_TAG, "# Failed to create offline chat request. ChatID: " + newChatRequestMessage.getChatID());
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -75,21 +72,11 @@ public class StartChatLogic implements StartChatLogicContract {
 
     private PublicUserProfile getPublicProfile(String peerID) {
         PublicUserProfile publicProfile = null;
-        FutureGet futureGetProfile = peerDHT.get(Number160.createHash(peerID + "_profile")).start().awaitUninterruptibly();
-        if (!futureGetProfile.isEmpty()) {
-            String jsonString = null;
+        Map<Number640, Data> data = P2PUtils.get(peerID + "_profile");
+        if (data != null && data.size() == 1) {
             try {
-                jsonString = (String) futureGetProfile.data().object();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            try {
-                publicProfile = gson.fromJson((String) futureGetProfile.data().object(), PublicUserProfile.class);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
+                publicProfile = gson.fromJson((String) data.values().iterator().next().object(), PublicUserProfile.class);
+            } catch (ClassNotFoundException | IOException e) {
                 e.printStackTrace();
             }
             return publicProfile;

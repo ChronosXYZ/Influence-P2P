@@ -72,13 +72,9 @@ public class NetworkHandler implements NetworkObserver {
     }
 
     public static void handlePendingChats() {
-        FutureGet futureGetPendingChats = peerDHT
-                .get(Number160.createHash(AppHelper.getPeerID() + "_pendingChats"))
-                .all()
-                .start()
-                .awaitUninterruptibly();
-        if(!futureGetPendingChats.isEmpty()) {
-            for(Map.Entry<Number640, Data> entry : futureGetPendingChats.dataMap().entrySet()) {
+        Map<Number640, Data> pendingChats = P2PUtils.get(AppHelper.getPeerID() + "_pendingChats");
+        if(pendingChats != null) {
+            for(Map.Entry<Number640, Data> entry : pendingChats.entrySet()) {
                 NewChatRequestMessage newChatRequestMessage = null;
                 try {
                     newChatRequestMessage = gson.fromJson((String) entry.getValue().object(), NewChatRequestMessage.class);
@@ -105,14 +101,10 @@ public class NetworkHandler implements NetworkObserver {
                             .awaitUninterruptibly();
                 } else {
                     try {
-                        FuturePut put = peerDHT.put(Number160.createHash(newChatRequestMessage.getSenderID() + "_pendingAcceptedChats"))
-                                .data(Number160.createHash(newChatRequestReply.getChatID()), new Data(gson.toJson(newChatRequestReply)))
-                                .start()
-                                .awaitUninterruptibly();
-                        if(put.isSuccess()) {
+                        if(P2PUtils.put(newChatRequestMessage.getSenderID() + "_pendingAcceptedChats", newChatRequestReply.getChatID(), new Data(gson.toJson(newChatRequestReply)))) {
                             Log.i(LOG_TAG, "# Successfully put message SUCCESSFULLY_CREATE_CHAT in " + newChatRequestMessage.getSenderID() + "_pendingAcceptedChats, because receiver is offline.");
                         } else {
-                            Log.e(LOG_TAG, "# Failed to put message SUCCESSFULLY_CREATE_CHAT in " + newChatRequestMessage.getSenderID() + "_pendingAcceptedChats. Reason: " + put.failedReason());
+                            Log.e(LOG_TAG, "# Failed to put message SUCCESSFULLY_CREATE_CHAT in " + newChatRequestMessage.getSenderID() + "_pendingAcceptedChats.");
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -129,20 +121,14 @@ public class NetworkHandler implements NetworkObserver {
     }
 
     public static void handlePendingAcceptedChats() {
-        FutureGet futureGetPendingAcceptedChats = peerDHT
-                .get(Number160.createHash(AppHelper.getPeerID() + "_pendingAcceptedChats"))
-                .all()
-                .start()
-                .awaitUninterruptibly();
-        if(!futureGetPendingAcceptedChats.isEmpty()) {
-            for(Map.Entry<Number640, Data> entry : futureGetPendingAcceptedChats.dataMap().entrySet()) {
+       Map<Number640, Data> pendingAcceptedChats = P2PUtils.get(AppHelper.getPeerID() + "_pendingAcceptedChats");
+        if(pendingAcceptedChats != null) {
+            for(Map.Entry<Number640, Data> entry : pendingAcceptedChats.entrySet()) {
                 NewChatRequestMessage newChatRequestMessage = null;
 
                 try {
                     newChatRequestMessage = gson.fromJson((String) entry.getValue().object(), NewChatRequestMessage.class);
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
+                } catch (ClassNotFoundException | IOException e) {
                     e.printStackTrace();
                 }
 
