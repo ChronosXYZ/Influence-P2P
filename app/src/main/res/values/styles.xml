@@ -12,7 +12,8 @@
         <item name="alertDialogStyle">@style/CustomAlertStyle</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:textColorPrimary">#FFFFFF</item>
-        <item name="android:backgroundDimEnabled">false</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:backgroundDimEnabled">true</item>
         <item name="android:textColor">#FFFFFF</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">12sp</item>
