@@ -11,10 +11,10 @@ public class MessageEntity {
     @ColumnInfo public int type;
     @ColumnInfo public String chatID;
     @ColumnInfo public String sender;
-    @ColumnInfo public String timestamp;
+    @ColumnInfo public long timestamp;
     @ColumnInfo public String text;
 
-    public MessageEntity(int type, String chatID, String sender, String timestamp, String text) {
+    public MessageEntity(int type, String chatID, String sender, long timestamp, String text) {
         this.type = type;
         this.chatID = chatID;
         this.sender = sender;
@@ -32,7 +32,7 @@ public class MessageEntity {
         return chatID;
     }
 
-    public String getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
