@@ -12,11 +12,17 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import io.github.chronosx88.influence.R;
+import io.github.chronosx88.influence.contracts.ItemClickListener;
 import io.github.chronosx88.influence.models.roomEntities.ChatEntity;
 
 public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatListViewHolder> {
     List<ChatEntity> chatList = new ArrayList<>();
     public int onClickPosition = -1;
+    private ItemClickListener itemClickListener;
+
+    public ChatListAdapter(ItemClickListener itemClickListener) {
+        this.itemClickListener = itemClickListener;
+    }
 
     @NonNull
     @Override
@@ -41,6 +47,10 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatLi
         holder.onLongClick(position);
     }
 
+    public ChatEntity getChatEntity(int position) {
+        return chatList.get(position);
+    }
+
     @Override
     public int getItemCount() {
         return chatList.size();
@@ -53,6 +63,9 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatLi
             super(itemView);
             chatName = itemView.findViewById(R.id.chat_name);
             itemView.setOnCreateContextMenuListener(this);
+            itemView.setOnClickListener((v) -> {
+                itemClickListener.onItemClick(v, getAdapterPosition());
+            });
         }
 
         public void onLongClick(int position) {

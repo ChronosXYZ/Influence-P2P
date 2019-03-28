@@ -37,15 +37,43 @@ public class LocalDBWrapper {
      * @param chatID ID of the chat in which need to create a message
      * @param sender Message sender (username)
      * @param text Message text (or technical info if technical message type)
-     * @return
+     * @return Message ID (in local DB)
      */
-    public static boolean createMessageEntry(int type, String chatID, String sender, String text) {
+    public static long createMessageEntry(int type, String chatID, String sender, String text) {
         List<ChatEntity> chatEntities = AppHelper.getChatDB().chatDao().getChatByChatID(chatID);
         if(chatEntities.size() < 1) {
             Log.e(LOG_TAG, "Failed to create message entry because chat " + chatID + " doesn't exists!");
-            return false;
+            return -1;
         }
-        dbInstance.messageDao().insertMessage(new MessageEntity(type, chatID, sender, new Date().getTime(), text));
-        return true;
+        MessageEntity message = new MessageEntity(type, chatID, sender, new Date().getTime(), text, false, false);
+        return dbInstance.messageDao().insertMessage(message);
+    }
+
+    public static MessageEntity getMessageByID(long id) {
+        List<MessageEntity> messages = dbInstance.messageDao().getMessageByID(id);
+        if(messages.isEmpty()) {
+            return null;
+        }
+        return messages.get(0);
+    }
+
+    public static List<MessageEntity> getMessagesByChatID(String chatID) {
+        List<MessageEntity> messages = dbInstance.messageDao().getMessagesByChatID(chatID);
+        if(messages.isEmpty()) {
+            return null;
+        }
+        return messages;
+    }
+
+    public static ChatEntity getChatByChatID(String chatID) {
+        List<ChatEntity> chats = dbInstance.chatDao().getChatByChatID(chatID);
+        if(chats.isEmpty()) {
+            return null;
+        }
+        return chats.get(0);
+    }
+
+    public static void updateChatEntry(long id, boolean isSent) {
+        dbInstance.messageDao().updateMessage(id, isSent);
     }
 }

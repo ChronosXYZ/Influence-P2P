@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import net.tomp2p.dht.FutureGet;
 import net.tomp2p.dht.FuturePut;
 import net.tomp2p.dht.PeerDHT;
+import net.tomp2p.futures.FutureDirect;
 import net.tomp2p.futures.FuturePing;
 import net.tomp2p.peers.Number160;
 import net.tomp2p.peers.Number640;
@@ -58,5 +59,15 @@ public class P2PUtils {
             return futureGet.dataMap();
         }
         return null;
+    }
+
+    public static boolean send(PeerAddress address, String data) {
+        FutureDirect futureDirect = peerDHT
+                .peer()
+                .sendDirect(address)
+                .object(data)
+                .start()
+                .awaitUninterruptibly();
+        return futureDirect.isSuccess();
     }
 }

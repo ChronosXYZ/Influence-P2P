@@ -10,10 +10,10 @@ import io.github.chronosx88.influence.models.roomEntities.MessageEntity;
 @Dao
 public interface MessageDao {
     @Insert
-    void insertMessage(MessageEntity chatModel);
+    long insertMessage(MessageEntity chatModel);
 
     @Query("DELETE FROM messages WHERE id = :msgID")
-    void deleteMessage(String msgID);
+    void deleteMessage(long msgID);
 
     @Query("DELETE FROM messages WHERE chatID = :chatID")
     void deleteMessagesByChatID(String chatID);
@@ -22,5 +22,11 @@ public interface MessageDao {
     List<MessageEntity> getMessagesByChatID(String chatID);
 
     @Query("SELECT * FROM messages WHERE id = :id")
-    List<MessageEntity> getMessageByID(String id);
+    List<MessageEntity> getMessageByID(long id);
+
+    @Query("UPDATE messages SET isSent = :isSent WHERE id = :msgID")
+    void updateMessage(long msgID, boolean isSent);
+
+    @Query("UPDATE messages SET text = :text WHERE id = :msgID")
+    void updateMessage(long msgID, String text);
 }

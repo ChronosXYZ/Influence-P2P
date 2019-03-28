@@ -68,8 +68,10 @@ public class ChatListFragment extends Fragment implements ChatListViewContract, 
     @Override
     public void handleEvent(JsonObject object) {
         switch (object.get("action").getAsInt()) {
+            case UIActions.SUCCESSFUL_CREATE_CHAT:
             case UIActions.NEW_CHAT: {
                 presenter.updateChatList();
+                break;
             }
         }
     }

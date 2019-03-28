@@ -32,4 +32,12 @@
         <item name="android:topDark">@android:color/transparent</item>
     </style>
 
+    <style name="MenuStyle" parent="Theme.AppCompat.Light">
+        <item name="android:background">@android:color/white</item>
+    </style>
+
+    <style name="NoWindowActionBar" parent="AppTheme">
+        <item name="windowNoTitle">true</item>
+    </style>
+
 </resources>

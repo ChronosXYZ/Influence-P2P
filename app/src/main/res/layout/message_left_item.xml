@@ -11,27 +11,27 @@
         <de.hdodenhof.circleimageview.CircleImageView
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:id="@+id/contact_profile_image"
+            android:id="@+id/profile_image"
             android:src="@mipmap/ic_launcher"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/message_item_left_background"
-            android:layout_toRightOf="@id/contact_profile_image"
+            android:layout_toRightOf="@id/profile_image"
             android:text="Null"
             android:paddingEnd="50dp"
             android:layout_marginStart="4dp"
             android:layout_marginTop="7dp"
-            android:id="@+id/message_text_left"
+            android:id="@+id/message_text"
             android:textSize="18sp"
             android:padding="8dp"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/message_time_left"
-            android:layout_alignBottom="@+id/message_text_left"
-            android:layout_alignRight="@+id/message_text_left"
+            android:id="@+id/message_time"
+            android:layout_alignBottom="@+id/message_text"
+            android:layout_alignRight="@+id/message_text"
             android:paddingBottom="3dp"
             android:paddingRight="4dp"
             android:text="12:00"/>

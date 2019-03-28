@@ -10,4 +10,5 @@ public class UIActions {
     public static final int NEW_CHAT = 0x6;
     public static final int PEER_NOT_EXIST = 0x7;
     public static final int SUCCESSFUL_CREATE_CHAT = 0x8;
+    public static final int MESSAGE_RECEIVED = 0x9;
 }

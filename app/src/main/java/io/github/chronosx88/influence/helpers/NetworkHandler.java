@@ -6,25 +6,21 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import net.tomp2p.dht.FutureGet;
-import net.tomp2p.dht.FuturePut;
-import net.tomp2p.dht.FutureRemove;
 import net.tomp2p.dht.PeerDHT;
-import net.tomp2p.futures.FuturePing;
 import net.tomp2p.peers.Number160;
 import net.tomp2p.peers.Number640;
 import net.tomp2p.peers.PeerAddress;
 import net.tomp2p.storage.Data;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 import io.github.chronosx88.influence.contracts.observer.NetworkObserver;
 import io.github.chronosx88.influence.helpers.actions.NetworkActions;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.models.NewChatRequestMessage;
-import io.github.chronosx88.influence.models.roomEntities.ChatEntity;
+import io.github.chronosx88.influence.models.SendMessage;
+import io.github.chronosx88.influence.models.SuccessfullySentMessage;
 
 public class NetworkHandler implements NetworkObserver {
     private final static String LOG_TAG = "NetworkHandler";
@@ -54,6 +50,19 @@ public class NetworkHandler implements NetworkObserver {
                     ObservableUtils.notifyUI(UIActions.SUCCESSFUL_CREATE_CHAT);
                     break;
                 }
+
+                case NetworkActions.NEW_MESSAGE: {
+                    SendMessage sendMessage = gson.fromJson((String) object, SendMessage.class);
+                    long messageID = LocalDBWrapper.createMessageEntry(sendMessage.getMessageType(), sendMessage.getChatID(), sendMessage.getSenderID(), sendMessage.getText());
+                    ObservableUtils.notifyUI(UIActions.MESSAGE_RECEIVED, messageID);
+                    sendMessageReceived(sendMessage);
+                    break;
+                }
+
+                case NetworkActions.MESSAGE_SENT: {
+                    SuccessfullySentMessage successfullySentMessage = gson.fromJson((String) object, SuccessfullySentMessage.class);
+                    LocalDBWrapper.updateChatEntry(successfullySentMessage.getMessageID(), true);
+                }
             }
         }).start();
     }
@@ -62,7 +71,6 @@ public class NetworkHandler implements NetworkObserver {
         JsonObject jsonObject = new JsonParser().parse(json).getAsJsonObject();
         return jsonObject.get("action").getAsInt();
     }
-
 
 
     private void handleIncomingChatRequest(String chatID, PeerAddress chatStarterAddress) {
@@ -115,7 +123,7 @@ public class NetworkHandler implements NetworkObserver {
                             .awaitUninterruptibly();
                 }
 
-                ObservableUtils.notifyUI(UIActions.NEW_CHAT);
+                ObservableUtils.notifyUI(UIActions.SUCCESSFUL_CREATE_CHAT);
             }
         }
     }
@@ -132,19 +140,25 @@ public class NetworkHandler implements NetworkObserver {
                     e.printStackTrace();
                 }
 
-                LocalDBWrapper.createChatEntry(
-                        newChatRequestMessage.getChatID(),
+                /*LocalDBWrapper.createChatEntry(
+                        newChatRequestMessage.getMessageID(),
                         newChatRequestMessage.getSenderID(),
                         newChatRequestMessage.getSenderPeerAddress()
-                );
+                );*/
+
+                Log.i(LOG_TAG, "Chat " + newChatRequestMessage.getChatID() + " successfully accepted!");
 
                 peerDHT.remove(Number160.createHash(AppHelper.getPeerID() + "_pendingAcceptedChats"))
                         .contentKey(Number160.createHash(newChatRequestMessage.getChatID()))
                         .start()
                         .awaitUninterruptibly();
 
-                ObservableUtils.notifyUI(UIActions.NEW_CHAT);
+                ObservableUtils.notifyUI(UIActions.SUCCESSFUL_CREATE_CHAT);
             }
         }
+    }
+
+    private void sendMessageReceived(SendMessage sendMessage) {
+        P2PUtils.send(sendMessage.getSenderPeerAddress(), gson.toJson(new SuccessfullySentMessage(AppHelper.getPeerID(), AppHelper.getPeerDHT().peerAddress(), sendMessage.getMessageID())));
     }
 }
