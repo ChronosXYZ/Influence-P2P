@@ -20,11 +20,10 @@ public class P2PUtils {
 
     public static boolean ping(PeerAddress recipientPeerAddress) {
         // For connection opening
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 5; i++) {
             peerDHT
                     .peer()
                     .ping()
-                    .tcpPing(true)
                     .peerAddress(recipientPeerAddress)
                     .start()
                     .awaitUninterruptibly();
@@ -33,7 +32,6 @@ public class P2PUtils {
         FuturePing ping = peerDHT
                 .peer()
                 .ping()
-                .tcpPing(true)
                 .peerAddress(recipientPeerAddress)
                 .start()
                 .awaitUninterruptibly();
