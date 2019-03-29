@@ -24,6 +24,7 @@
             android:layout_marginStart="4dp"
             android:layout_marginTop="7dp"
             android:id="@+id/message_text"
+            android:textColor="#000000"
             android:textSize="18sp"
             android:padding="8dp"/>
         <TextView
@@ -34,6 +35,7 @@
             android:layout_alignRight="@+id/message_text"
             android:paddingBottom="3dp"
             android:paddingRight="4dp"
+            android:textColor="#000000"
             android:text="12:00"/>
 
     </RelativeLayout>
