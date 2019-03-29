@@ -15,14 +15,14 @@ import net.tomp2p.storage.Data;
 import java.io.IOException;
 import java.util.Map;
 
-import io.github.chronosx88.influence.contracts.observer.NetworkObserver;
+import io.github.chronosx88.influence.contracts.observer.INetworkObserver;
 import io.github.chronosx88.influence.helpers.actions.NetworkActions;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.models.NewChatRequestMessage;
 import io.github.chronosx88.influence.models.SendMessage;
 import io.github.chronosx88.influence.models.SuccessfullySentMessage;
 
-public class NetworkHandler implements NetworkObserver {
+public class NetworkHandler implements INetworkObserver {
     private final static String LOG_TAG = "NetworkHandler";
     private static Gson gson = new Gson();
     private static PeerDHT peerDHT = AppHelper.getPeerDHT();

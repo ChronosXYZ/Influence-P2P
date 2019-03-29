@@ -3,12 +3,9 @@ package io.github.chronosx88.influence.presenters;
 import android.content.Intent;
 import android.view.MenuItem;
 
-import net.tomp2p.dht.FutureRemove;
-import net.tomp2p.peers.Number160;
-
-import io.github.chronosx88.influence.contracts.chatlist.ChatListLogicContract;
-import io.github.chronosx88.influence.contracts.chatlist.ChatListPresenterContract;
-import io.github.chronosx88.influence.contracts.chatlist.ChatListViewContract;
+import io.github.chronosx88.influence.contracts.chatlist.IChatListLogicContract;
+import io.github.chronosx88.influence.contracts.chatlist.IChatListPresenterContract;
+import io.github.chronosx88.influence.contracts.chatlist.IChatListViewContract;
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.ChatListAdapter;
 import io.github.chronosx88.influence.helpers.LocalDBWrapper;
@@ -16,12 +13,12 @@ import io.github.chronosx88.influence.logic.ChatListLogic;
 import io.github.chronosx88.influence.models.roomEntities.ChatEntity;
 import io.github.chronosx88.influence.views.ChatActivity;
 
-public class ChatListPresenter implements ChatListPresenterContract {
-    private ChatListViewContract view;
-    private ChatListLogicContract logic;
+public class ChatListPresenter implements IChatListPresenterContract {
+    private IChatListViewContract view;
+    private IChatListLogicContract logic;
     private ChatListAdapter chatListAdapter;
 
-    public ChatListPresenter(ChatListViewContract view) {
+    public ChatListPresenter(IChatListViewContract view) {
         this.view = view;
         chatListAdapter = new ChatListAdapter((v, p)-> {
             openChat(chatListAdapter.getChatEntity(p).chatID);

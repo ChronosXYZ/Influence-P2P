@@ -7,7 +7,7 @@ import java.util.List;
 import io.github.chronosx88.influence.helpers.ChatListAdapter;
 import io.github.chronosx88.influence.models.roomEntities.ChatEntity;
 
-public interface ChatListViewContract {
+public interface IChatListViewContract {
     void setRecycleAdapter(ChatListAdapter adapter);
     void startActivity(Intent intent);
     void updateChatList(ChatListAdapter adapter, List<ChatEntity> chats);

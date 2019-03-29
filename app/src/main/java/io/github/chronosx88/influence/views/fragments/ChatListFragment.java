@@ -17,17 +17,17 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import io.github.chronosx88.influence.R;
-import io.github.chronosx88.influence.contracts.chatlist.ChatListPresenterContract;
-import io.github.chronosx88.influence.contracts.chatlist.ChatListViewContract;
-import io.github.chronosx88.influence.contracts.observer.Observer;
+import io.github.chronosx88.influence.contracts.chatlist.IChatListPresenterContract;
+import io.github.chronosx88.influence.contracts.chatlist.IChatListViewContract;
+import io.github.chronosx88.influence.contracts.observer.IObserver;
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.ChatListAdapter;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.models.roomEntities.ChatEntity;
 import io.github.chronosx88.influence.presenters.ChatListPresenter;
 
-public class ChatListFragment extends Fragment implements ChatListViewContract, Observer {
-    private ChatListPresenterContract presenter;
+public class ChatListFragment extends Fragment implements IChatListViewContract, IObserver {
+    private IChatListPresenterContract presenter;
     private RecyclerView chatList;
     private Handler mainThreadHandler;
 

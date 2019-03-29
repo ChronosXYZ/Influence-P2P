@@ -8,10 +8,10 @@ import net.tomp2p.peers.PeerAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.chronosx88.influence.contracts.chatactivity.ChatLogicContract;
-import io.github.chronosx88.influence.contracts.chatactivity.ChatPresenterContract;
-import io.github.chronosx88.influence.contracts.chatactivity.ChatViewContract;
-import io.github.chronosx88.influence.contracts.observer.Observer;
+import io.github.chronosx88.influence.contracts.chatactivity.IChatLogicContract;
+import io.github.chronosx88.influence.contracts.chatactivity.IChatPresenterContract;
+import io.github.chronosx88.influence.contracts.chatactivity.IChatViewContract;
+import io.github.chronosx88.influence.contracts.observer.IObserver;
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.LocalDBWrapper;
 import io.github.chronosx88.influence.helpers.MessageTypes;
@@ -20,14 +20,14 @@ import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.logic.ChatLogic;
 import io.github.chronosx88.influence.models.roomEntities.MessageEntity;
 
-public class ChatPresenter implements ChatPresenterContract, Observer {
-    private ChatLogicContract logic;
-    private ChatViewContract view;
+public class ChatPresenter implements IChatPresenterContract, IObserver {
+    private IChatLogicContract logic;
+    private IChatViewContract view;
     private PeerAddress receiverAddress;
     private String chatID;
     private Gson gson;
 
-    public ChatPresenter(ChatViewContract view, String chatID) {
+    public ChatPresenter(IChatViewContract view, String chatID) {
         this.logic = new ChatLogic();
         this.view = view;
         this.chatID = chatID;

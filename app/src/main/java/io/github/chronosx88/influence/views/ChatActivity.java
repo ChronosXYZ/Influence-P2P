@@ -14,12 +14,12 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import io.github.chronosx88.influence.R;
-import io.github.chronosx88.influence.contracts.chatactivity.ChatViewContract;
+import io.github.chronosx88.influence.contracts.chatactivity.IChatViewContract;
 import io.github.chronosx88.influence.helpers.ChatAdapter;
 import io.github.chronosx88.influence.models.roomEntities.MessageEntity;
 import io.github.chronosx88.influence.presenters.ChatPresenter;
 
-public class ChatActivity extends AppCompatActivity implements ChatViewContract {
+public class ChatActivity extends AppCompatActivity implements IChatViewContract {
     private ChatAdapter chatAdapter;
     private RecyclerView messageList;
     private ImageButton sendMessageButton;

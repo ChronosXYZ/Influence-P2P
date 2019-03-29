@@ -4,16 +4,16 @@ import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
 
-import io.github.chronosx88.influence.contracts.observer.NetworkObserver;
-import io.github.chronosx88.influence.contracts.observer.Observable;
-import io.github.chronosx88.influence.contracts.observer.Observer;
+import io.github.chronosx88.influence.contracts.observer.INetworkObserver;
+import io.github.chronosx88.influence.contracts.observer.IObservable;
+import io.github.chronosx88.influence.contracts.observer.IObserver;
 
-public class MainObservable implements Observable {
+public class MainObservable implements IObservable {
     public static final int UI_ACTIONS_CHANNEL = 0;
     public static final int OTHER_ACTIONS_CHANNEL = 1;
 
-    private ArrayList<Observer> uiObservers;
-    private ArrayList<NetworkObserver> networkObservers;
+    private ArrayList<IObserver> uiObservers;
+    private ArrayList<INetworkObserver> networkObservers;
 
     public MainObservable() {
         this.uiObservers = new ArrayList<>();
@@ -21,35 +21,35 @@ public class MainObservable implements Observable {
     }
 
     @Override
-    public void register(Observer observer) {
+    public void register(IObserver observer) {
         uiObservers.add(observer);
     }
 
     @Override
-    public void register(NetworkObserver observer) {
+    public void register(INetworkObserver observer) {
         networkObservers.add(observer);
     }
 
     @Override
-    public void unregister(Observer observer) {
+    public void unregister(IObserver observer) {
         uiObservers.remove(observer);
     }
 
     @Override
-    public void unregister(NetworkObserver observer) {
+    public void unregister(INetworkObserver observer) {
         networkObservers.remove(observer);
     }
 
     @Override
     public void notifyUIObservers(JsonObject jsonObject) {
-        for (Observer observer : uiObservers) {
+        for (IObserver observer : uiObservers) {
             observer.handleEvent(jsonObject);
         }
     }
 
     @Override
     public void notifyNetworkObservers(Object object) {
-        for (NetworkObserver observer : networkObservers) {
+        for (INetworkObserver observer : networkObservers) {
             observer.handleEvent(object);
         }
     }

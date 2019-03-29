@@ -32,7 +32,7 @@ import java.security.spec.DSAPublicKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.util.UUID;
 
-import io.github.chronosx88.influence.contracts.mainactivity.MainLogicContract;
+import io.github.chronosx88.influence.contracts.mainactivity.IMainLogicContract;
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.DSAKey;
 import io.github.chronosx88.influence.helpers.KeyPairManager;
@@ -42,7 +42,7 @@ import io.github.chronosx88.influence.helpers.StorageMVStore;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.models.PublicUserProfile;
 
-public class MainLogic implements MainLogicContract {
+public class MainLogic implements IMainLogicContract {
     private static final String LOG_TAG = "MainLogic";
 
     private SharedPreferences preferences;

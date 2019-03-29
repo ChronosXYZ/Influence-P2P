@@ -3,7 +3,6 @@ package io.github.chronosx88.influence.views.fragments;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,10 +16,10 @@ import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import io.github.chronosx88.influence.R;
-import io.github.chronosx88.influence.contracts.startchat.StartChatViewContract;
+import io.github.chronosx88.influence.contracts.startchat.IStartChatViewContract;
 import io.github.chronosx88.influence.presenters.StartChatPresenter;
 
-public class StartChatFragment extends Fragment implements StartChatViewContract {
+public class StartChatFragment extends Fragment implements IStartChatViewContract {
     private TextInputLayout textInputPeerID;
     private ProgressDialog progressDialog;
     private Button createChatButton;

@@ -12,15 +12,15 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import io.github.chronosx88.influence.R;
-import io.github.chronosx88.influence.contracts.ItemClickListener;
+import io.github.chronosx88.influence.contracts.IItemClickListener;
 import io.github.chronosx88.influence.models.roomEntities.ChatEntity;
 
 public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatListViewHolder> {
     List<ChatEntity> chatList = new ArrayList<>();
     public int onClickPosition = -1;
-    private ItemClickListener itemClickListener;
+    private IItemClickListener itemClickListener;
 
-    public ChatListAdapter(ItemClickListener itemClickListener) {
+    public ChatListAdapter(IItemClickListener itemClickListener) {
         this.itemClickListener = itemClickListener;
     }
 
