@@ -2,6 +2,7 @@ package io.github.chronosx88.influence.views;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -35,9 +36,11 @@ public class ChatActivity extends AppCompatActivity implements IChatViewContract
         Intent intent = getIntent();
 
         presenter = new ChatPresenter(this, intent.getStringExtra("chatID"));
-
         Toolbar toolbar = findViewById(R.id.toolbar_chat_activity);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
         messageList = findViewById(R.id.message_list);
         chatAdapter = new ChatAdapter();
         presenter.updateAdapter();
@@ -48,10 +51,11 @@ public class ChatActivity extends AppCompatActivity implements IChatViewContract
         sendMessageButton = findViewById(R.id.send_button);
         sendMessageButton.setOnClickListener((v) -> {
             presenter.sendMessage(messageTextEdit.getText().toString());
+            messageTextEdit.setText("");
+            messageList.scrollToPosition(chatAdapter.getItemCount()-1);
         });
         contactUsernameTextView.setText(intent.getStringExtra("contactUsername"));
-
-
+        messageList.scrollToPosition(chatAdapter.getItemCount()-1);
     }
 
     @Override
@@ -68,5 +72,15 @@ public class ChatActivity extends AppCompatActivity implements IChatViewContract
             chatAdapter.addMessages(messages);
             chatAdapter.notifyDataSetChanged();
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
