@@ -36,7 +36,14 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
     }
 
     public void addMessage(MessageEntity message) {
-        messages.add(message);
+        if(message != null) {
+            for (MessageEntity messageEntity : messages) {
+                if(messageEntity.messageID.equals(message.messageID)) {
+                    return;
+                }
+            }
+            messages.add(message);
+        }
     }
 
     public void addMessages(List<MessageEntity> messages) {
@@ -62,7 +69,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        if(messages.get(position).sender.equals(AppHelper.getPeerID())) {
+        if(messages.get(position).senderID.equals(AppHelper.getPeerID())) {
             return RIGHT_ITEM;
         } else {
             return LEFT_ITEM;

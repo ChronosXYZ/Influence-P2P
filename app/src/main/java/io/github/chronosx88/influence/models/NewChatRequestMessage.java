@@ -1,21 +1,24 @@
 package io.github.chronosx88.influence.models;
 
-import net.tomp2p.peers.PeerAddress;
-
 import java.io.Serializable;
-import java.util.UUID;
 
 import io.github.chronosx88.influence.helpers.actions.NetworkActions;
 
 public class NewChatRequestMessage extends BasicNetworkMessage implements Serializable {
     private String chatID;
+    private int chunkID;
 
-    public NewChatRequestMessage(String chatID, String senderID, PeerAddress senderPeerAddress) {
-        super(NetworkActions.CREATE_CHAT, senderID, senderPeerAddress);
+    public NewChatRequestMessage(String messageID, String chatID, String senderID, String username, long timestamp, int chunkID) {
+        super(NetworkActions.CREATE_CHAT, messageID, senderID, username, timestamp);
         this.chatID = chatID;
+        this.chunkID = chunkID;
     }
 
     public String getChatID() {
         return chatID;
+    }
+
+    public int getChunkID() {
+        return chunkID;
     }
 }

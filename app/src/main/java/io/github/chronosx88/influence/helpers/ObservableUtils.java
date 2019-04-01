@@ -16,7 +16,7 @@ public class ObservableUtils {
         AppHelper.getObservable().notifyUIObservers(jsonObject);
     }
 
-    public static void notifyUI(int action, long additional) {
+    public static void notifyUI(int action, int additional) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("action", action);
         jsonObject.addProperty("additional", additional);

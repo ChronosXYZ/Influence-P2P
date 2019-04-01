@@ -9,17 +9,21 @@ import java.io.Serializable;
  */
 public class BasicNetworkMessage implements Serializable {
     private int action;
+    private String messageID;
     private String senderID;
-    private PeerAddress senderPeerAddress;
+    private String username;
+    private long timestamp;
 
     public BasicNetworkMessage() {
         //
     }
 
-    public BasicNetworkMessage(int action, String senderID, PeerAddress senderPeerAddress) {
+    public BasicNetworkMessage(int action, String messageID, String senderID, String username, long timestamp) {
         this.action = action;
         this.senderID = senderID;
-        this.senderPeerAddress = senderPeerAddress;
+        this.username = username;
+        this.messageID = messageID;
+        this.timestamp = timestamp;
     }
 
     public int getAction() {
@@ -30,19 +34,15 @@ public class BasicNetworkMessage implements Serializable {
         return senderID;
     }
 
-    public PeerAddress getSenderPeerAddress() {
-        return senderPeerAddress;
+    public String getUsername() {
+        return username;
     }
 
-    public void setAction(int action) {
-        this.action = action;
+    public String getMessageID() {
+        return messageID;
     }
 
-    public void setSenderID(String senderID) {
-        this.senderID = senderID;
-    }
-
-    public void setSenderPeerAddress(PeerAddress senderPeerAddress) {
-        this.senderPeerAddress = senderPeerAddress;
+    public long getTimestamp() {
+        return timestamp;
     }
 }

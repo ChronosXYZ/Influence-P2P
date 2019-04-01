@@ -7,6 +7,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import net.tomp2p.connection.RSASignatureFactory;
 import net.tomp2p.dht.PeerBuilderDHT;
 import net.tomp2p.dht.PeerDHT;
 import net.tomp2p.futures.FutureBootstrap;
@@ -20,6 +21,7 @@ import net.tomp2p.peers.PeerAddress;
 import net.tomp2p.relay.tcp.TCPRelayClientConfig;
 import net.tomp2p.replication.AutoReplication;
 import net.tomp2p.storage.Data;
+import net.tomp2p.storage.StorageDisk;
 
 import java.io.IOException;
 import java.net.Inet4Address;
@@ -30,15 +32,20 @@ import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.DSAPublicKeySpec;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import io.github.chronosx88.influence.contracts.mainactivity.IMainLogicContract;
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.DSAKey;
+import io.github.chronosx88.influence.helpers.JVMShutdownHook;
 import io.github.chronosx88.influence.helpers.KeyPairManager;
 import io.github.chronosx88.influence.helpers.NetworkHandler;
 import io.github.chronosx88.influence.helpers.P2PUtils;
 import io.github.chronosx88.influence.helpers.StorageMVStore;
+import io.github.chronosx88.influence.helpers.StorageMapDB;
+import io.github.chronosx88.influence.helpers.actions.NetworkActions;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.models.PublicUserProfile;
 
@@ -54,6 +61,7 @@ public class MainLogic implements IMainLogicContract {
     private Gson gson;
     private AutoReplication replication;
     private KeyPairManager keyPairManager;
+    private Thread checkNewChatsThread = null;
 
     public MainLogic() {
         this.context = AppHelper.getContext();
@@ -77,13 +85,17 @@ public class MainLogic implements IMainLogicContract {
 
         new Thread(() -> {
             try {
+                StorageMapDB storageDisk = new StorageMapDB(peerID, context.getFilesDir(), new RSASignatureFactory());
                 peerDHT = new PeerBuilderDHT(
                         new PeerBuilder(peerID)
                                 .ports(7243)
                                 .start()
                 )
-                        .storage(new StorageMVStore(peerID, context.getFilesDir()))
+                        //.storage(new StorageMVStore(peerID, context.getFilesDir()))
+                        .storage(storageDisk)
                         .start();
+                JVMShutdownHook jvmShutdownHook = new JVMShutdownHook(storageDisk);
+                Runtime.getRuntime().addShutdownHook(jvmShutdownHook);
                 try {
                     String bootstrapIP = this.preferences.getString("bootstrapAddress", null);
                     if(bootstrapIP == null) {
@@ -139,8 +151,22 @@ public class MainLogic implements IMainLogicContract {
                 setReceiveHandler();
                 gson = new Gson();
                 publicProfileToDHT();
-                NetworkHandler.handlePendingChats();
-                NetworkHandler.handlePendingAcceptedChats();
+                NetworkHandler.handlePendingChatRequests();
+                TimerTask timerTask = new TimerTask() {
+                    @Override
+                    public void run() {
+                        if(checkNewChatsThread == null) {
+                            checkNewChatsThread = new Thread(NetworkHandler::handlePendingChatRequests);
+                            checkNewChatsThread.start();
+                        }
+                        if(!checkNewChatsThread.isAlive()) {
+                            checkNewChatsThread = new Thread(NetworkHandler::handlePendingChatRequests);
+                            checkNewChatsThread.start();
+                        }
+                    }
+                };
+                Timer timer = new Timer();
+                timer.schedule(timerTask, 1, 5000);
                 replication = new AutoReplication(peerDHT.peer()).start();
             } catch (IOException e) {
                 e.printStackTrace();

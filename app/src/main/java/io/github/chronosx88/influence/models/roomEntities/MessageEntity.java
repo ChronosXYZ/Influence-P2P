@@ -7,19 +7,22 @@ import androidx.room.PrimaryKey;
 
 @Entity(tableName = "messages")
 public class MessageEntity {
-    @PrimaryKey(autoGenerate = true) public long id;
-    @ColumnInfo public int type;
-    @ColumnInfo public String chatID;
-    @ColumnInfo public String sender;
-    @ColumnInfo public long timestamp;
-    @ColumnInfo public String text;
-    @ColumnInfo public boolean isSent;
-    @ColumnInfo public boolean isRead;
+    @PrimaryKey @NonNull public String messageID; // Global message ID
+    @ColumnInfo public int type; // Message type
+    @ColumnInfo public String chatID; // Chat ID
+    @ColumnInfo public String senderID; // PeerID
+    @ColumnInfo public String username; // Username
+    @ColumnInfo public long timestamp; // Timestamp
+    @ColumnInfo public String text; // Message text
+    @ColumnInfo public boolean isSent; // Send status indicator
+    @ColumnInfo public boolean isRead; // Message Read Indicator
 
-    public MessageEntity(int type, String chatID, String sender, long timestamp, String text, boolean isSent, boolean isRead) {
+    public MessageEntity(int type, String messageID, String chatID, String senderID, String username, long timestamp, String text, boolean isSent, boolean isRead) {
         this.type = type;
+        this.messageID = messageID;
         this.chatID = chatID;
-        this.sender = sender;
+        this.senderID = senderID;
+        this.username = username;
         this.timestamp = timestamp;
         this.text = text;
         this.isSent = isSent;
@@ -29,6 +32,6 @@ public class MessageEntity {
     @NonNull
     @Override
     public String toString() {
-        return id + "/" + chatID + "/" + type + "/" + sender + "/" + text;
+        return text;
     }
 }

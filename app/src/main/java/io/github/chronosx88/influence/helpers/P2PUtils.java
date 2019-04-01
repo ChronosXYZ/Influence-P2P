@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 
 import net.tomp2p.dht.FutureGet;
 import net.tomp2p.dht.FuturePut;
+import net.tomp2p.dht.FutureRemove;
 import net.tomp2p.dht.PeerDHT;
 import net.tomp2p.futures.FutureDirect;
 import net.tomp2p.futures.FuturePing;
@@ -67,5 +68,14 @@ public class P2PUtils {
                 .start()
                 .awaitUninterruptibly();
         return futureDirect.isSuccess();
+    }
+
+    public static boolean remove(String locationKey, String contentKey) {
+        FutureRemove futureRemove = peerDHT
+                .remove(Number160.createHash(locationKey))
+                .contentKey(contentKey == null ? null : Number160.createHash(contentKey))
+                .start()
+                .awaitUninterruptibly();
+        return futureRemove.isRemoved();
     }
 }

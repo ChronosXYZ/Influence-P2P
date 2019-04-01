@@ -1,9 +1,11 @@
 package io.github.chronosx88.influence.helpers;
 
-public class JVMShutdownHook extends Thread {
-    StorageMVStore storage;
+import net.tomp2p.dht.Storage;
 
-    public JVMShutdownHook(StorageMVStore storage) {
+public class JVMShutdownHook extends Thread {
+    Storage storage;
+
+    public JVMShutdownHook(Storage storage) {
         this.storage = storage;
     }
 

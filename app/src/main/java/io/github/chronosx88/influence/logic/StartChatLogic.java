@@ -10,6 +10,7 @@ import net.tomp2p.peers.PeerAddress;
 import net.tomp2p.storage.Data;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 
@@ -20,6 +21,7 @@ import io.github.chronosx88.influence.helpers.LocalDBWrapper;
 import io.github.chronosx88.influence.helpers.ObservableUtils;
 import io.github.chronosx88.influence.helpers.P2PUtils;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
+import io.github.chronosx88.influence.models.ChatMetadata;
 import io.github.chronosx88.influence.models.NewChatRequestMessage;
 import io.github.chronosx88.influence.models.PublicUserProfile;
 
@@ -43,23 +45,29 @@ public class StartChatLogic implements IStartChatLogicContract {
                 ObservableUtils.notifyUI(UIActions.PEER_NOT_EXIST);
                 return;
             }
-            PeerAddress recipientPeerAddress = getPublicProfile(peerID).getPeerAddress();
 
-            NewChatRequestMessage newChatRequestMessage = new NewChatRequestMessage(UUID.randomUUID().toString(), AppHelper.getPeerID(), peerDHT.peerAddress());
-            if(P2PUtils.ping(recipientPeerAddress)) {
-                peerDHT.peer().sendDirect(recipientPeerAddress).object(gson.toJson(newChatRequestMessage)).start().awaitUninterruptibly();
-            } else {
-                try {
-                    if(P2PUtils.put(peerID + "_pendingChats", newChatRequestMessage.getChatID(), new Data(gson.toJson(newChatRequestMessage)))) {
-                        Log.i(LOG_TAG, "# Create new offline chat request is successful! ChatID: " + newChatRequestMessage.getChatID());
-                    } else {
-                        Log.e(LOG_TAG, "# Failed to create offline chat request. ChatID: " + newChatRequestMessage.getChatID());
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
+            NewChatRequestMessage newChatRequestMessage = new NewChatRequestMessage(UUID.randomUUID().toString(), UUID.randomUUID().toString(), AppHelper.getPeerID(), AppHelper.getPeerID(), System.currentTimeMillis(), 0);
+            try {
+                if(P2PUtils.put(peerID + "_pendingChats", newChatRequestMessage.getChatID(), new Data(gson.toJson(newChatRequestMessage)))) {
+                    Log.i(LOG_TAG, "# Create new offline chat request is successful! ChatID: " + newChatRequestMessage.getChatID());
+                } else {
+                    Log.e(LOG_TAG, "# Failed to create offline chat request. ChatID: " + newChatRequestMessage.getChatID());
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            LocalDBWrapper.createChatEntry(newChatRequestMessage.getChatID(), peerID, recipientPeerAddress);
+
+            ArrayList<String> admins = new ArrayList<>();
+            admins.add(AppHelper.getPeerID());
+            Data data = null;
+            try {
+                data = new Data(gson.toJson(new ChatMetadata(peerID, admins, new ArrayList<>())));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            data.protectEntry(keyPairManager.openMainKeyPair());
+            P2PUtils.put(newChatRequestMessage.getChatID() + "_metadata", null, data);
+            LocalDBWrapper.createChatEntry(newChatRequestMessage.getChatID(), peerID, newChatRequestMessage.getChatID() + "_metadata", newChatRequestMessage.getChatID() + "_members", 0);
             ObservableUtils.notifyUI(UIActions.NEW_CHAT);
         }).start();
     }
