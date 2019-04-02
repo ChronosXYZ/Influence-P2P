@@ -85,17 +85,13 @@ public class MainLogic implements IMainLogicContract {
 
         new Thread(() -> {
             try {
-                StorageMapDB storageDisk = new StorageMapDB(peerID, context.getFilesDir(), new RSASignatureFactory());
                 peerDHT = new PeerBuilderDHT(
                         new PeerBuilder(peerID)
                                 .ports(7243)
                                 .start()
                 )
-                        //.storage(new StorageMVStore(peerID, context.getFilesDir()))
-                        .storage(storageDisk)
+                        .storage(new StorageMVStore(peerID, context.getFilesDir()))
                         .start();
-                JVMShutdownHook jvmShutdownHook = new JVMShutdownHook(storageDisk);
-                Runtime.getRuntime().addShutdownHook(jvmShutdownHook);
                 try {
                     String bootstrapIP = this.preferences.getString("bootstrapAddress", null);
                     if(bootstrapIP == null) {
