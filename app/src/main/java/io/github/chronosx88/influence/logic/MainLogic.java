@@ -7,9 +7,10 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-import net.tomp2p.connection.RSASignatureFactory;
+import net.tomp2p.connection.DSASignatureFactory;
 import net.tomp2p.dht.PeerBuilderDHT;
 import net.tomp2p.dht.PeerDHT;
+import net.tomp2p.dht.StorageMemory;
 import net.tomp2p.futures.FutureBootstrap;
 import net.tomp2p.futures.FutureDiscover;
 import net.tomp2p.nat.FutureRelayNAT;
@@ -21,7 +22,6 @@ import net.tomp2p.peers.PeerAddress;
 import net.tomp2p.relay.tcp.TCPRelayClientConfig;
 import net.tomp2p.replication.AutoReplication;
 import net.tomp2p.storage.Data;
-import net.tomp2p.storage.StorageDisk;
 
 import java.io.IOException;
 import java.net.Inet4Address;
@@ -43,9 +43,7 @@ import io.github.chronosx88.influence.helpers.JVMShutdownHook;
 import io.github.chronosx88.influence.helpers.KeyPairManager;
 import io.github.chronosx88.influence.helpers.NetworkHandler;
 import io.github.chronosx88.influence.helpers.P2PUtils;
-import io.github.chronosx88.influence.helpers.StorageMVStore;
 import io.github.chronosx88.influence.helpers.StorageMapDB;
-import io.github.chronosx88.influence.helpers.actions.NetworkActions;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.models.PublicUserProfile;
 
@@ -85,13 +83,15 @@ public class MainLogic implements IMainLogicContract {
 
         new Thread(() -> {
             try {
+                StorageMapDB storageMapDB = new StorageMapDB(peerID, context.getFilesDir(), new DSASignatureFactory());
                 peerDHT = new PeerBuilderDHT(
                         new PeerBuilder(peerID)
                                 .ports(7243)
                                 .start()
                 )
-                        .storage(new StorageMVStore(peerID, context.getFilesDir()))
+                        .storage(storageMapDB)
                         .start();
+                Runtime.getRuntime().addShutdownHook(new JVMShutdownHook(storageMapDB));
                 try {
                     String bootstrapIP = this.preferences.getString("bootstrapAddress", null);
                     if(bootstrapIP == null) {

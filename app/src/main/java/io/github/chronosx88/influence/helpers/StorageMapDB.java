@@ -1,5 +1,16 @@
 package io.github.chronosx88.influence.helpers;
 
+import net.tomp2p.connection.SignatureFactory;
+import net.tomp2p.dht.Storage;
+import net.tomp2p.peers.Number160;
+import net.tomp2p.peers.Number320;
+import net.tomp2p.peers.Number480;
+import net.tomp2p.peers.Number640;
+import net.tomp2p.storage.Data;
+
+import org.mapdb.DB;
+import org.mapdb.DBMaker;
+
 import java.io.File;
 import java.security.PublicKey;
 import java.util.ArrayList;
@@ -14,18 +25,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentNavigableMap;
-
-import net.tomp2p.connection.SignatureFactory;
-import net.tomp2p.dht.Storage;
-import net.tomp2p.peers.Number160;
-import net.tomp2p.peers.Number320;
-import net.tomp2p.peers.Number480;
-import net.tomp2p.peers.Number640;
-import net.tomp2p.storage.Data;
-import net.tomp2p.storage.DataSerializer;
-
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
 
 public class StorageMapDB implements Storage {
     // Core
@@ -47,7 +46,7 @@ public class StorageMapDB implements Storage {
     //for full control
     public StorageMapDB(DB db, Number160 peerId, File path, SignatureFactory signatureFactory, int storageCheckIntervalMillis) {
         this.db = db;
-        DataSerializer dataSerializer = new DataSerializer(path, signatureFactory);
+        DataSerializerEx dataSerializer = new DataSerializerEx(path, signatureFactory);
         this.dataMap = db.createTreeMap("dataMap_" + peerId.toString()).valueSerializer(dataSerializer).makeOrGet();
         this.timeoutMap = db.createTreeMap("timeoutMap_" + peerId.toString()).makeOrGet();
         this.timeoutMapRev = db.createTreeMap("timeoutMapRev_" + peerId.toString()).makeOrGet();
@@ -60,7 +59,7 @@ public class StorageMapDB implements Storage {
 
     //set parameter to a reasonable default
     public StorageMapDB(Number160 peerId, File path, SignatureFactory signatureFactory) {
-        this(DBMaker.newFileDB(new File(path, "tomp2p")).closeOnJvmShutdown().make(),
+        this(DBMaker.newFileDB(new File(path, "coreDB")).closeOnJvmShutdown().make(),
                 peerId, path, signatureFactory, 60 * 1000);
     }
 

@@ -66,6 +66,4 @@ public class StartChatFragment extends Fragment implements IStartChatViewContrac
             }
         });
     }
-
-    // TODO: clear text input
 }
