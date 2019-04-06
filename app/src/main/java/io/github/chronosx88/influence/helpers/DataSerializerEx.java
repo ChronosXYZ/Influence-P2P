@@ -7,7 +7,6 @@ import net.tomp2p.peers.Number160;
 import net.tomp2p.storage.AlternativeCompositeByteBuf;
 import net.tomp2p.storage.Data;
 
-import org.mapdb.DataIO;
 import org.mapdb.Serializer;
 
 import java.io.DataInput;
@@ -27,7 +26,7 @@ import java.security.SignatureException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
-public class DataSerializerEx extends Serializer<Data> implements Serializable {
+public class DataSerializerEx implements Serializer<Data>, Serializable {
 
     private static final long serialVersionUID = 1428836065493792295L;
     //TODO: test the performance impact
@@ -140,7 +139,8 @@ public class DataSerializerEx extends Serializer<Data> implements Serializable {
         } else if(header == 0) {
             return deserializeMapDB(in);
         } else {
-            throw new IOException("unexpected header: " + header);
+            //throw new IOException("unexpected header: " + header);
+            return null;
         }
     }
 
@@ -164,8 +164,6 @@ public class DataSerializerEx extends Serializer<Data> implements Serializable {
             //throw new IOException("signature could not be read");
             Log.e("DataSerializerEx", "# Signature could not be read!");
         }
-        DataIO.DataInputByteArray di = (DataIO.DataInputByteArray) in;
-        di.setPos(di.internalByteArray().length);
 
         return data;
     }
