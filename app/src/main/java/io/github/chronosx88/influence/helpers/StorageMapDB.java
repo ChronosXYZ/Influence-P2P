@@ -1,5 +1,5 @@
 package io.github.chronosx88.influence.helpers;
-
+/*
 import net.tomp2p.connection.SignatureFactory;
 import net.tomp2p.dht.Storage;
 import net.tomp2p.peers.Number160;
@@ -96,27 +96,6 @@ public class StorageMapDB implements Storage {
     @Override
     public NavigableMap<Number640, Data> remove(Number640 from, Number640 to) {
         NavigableMap<Number640, Data> tmp = dataMap.subMap(from, true, to, true);
-
-        // new TreeMap<Number640, Data>(tmp); is not possible as this may lead to no such element exception:
-        //
-        //      java.util.NoSuchElementException: null
-        //    	at java.util.concurrent.ConcurrentSkipListMap$SubMap$SubMapIter.advance(ConcurrentSkipListMap.java:3030) ~[na:1.7.0_60]
-        //    	at java.util.concurrent.ConcurrentSkipListMap$SubMap$SubMapEntryIterator.next(ConcurrentSkipListMap.java:3100) ~[na:1.7.0_60]
-        //    	at java.util.concurrent.ConcurrentSkipListMap$SubMap$SubMapEntryIterator.next(ConcurrentSkipListMap.java:3096) ~[na:1.7.0_60]
-        //    	at java.util.TreeMap.buildFromSorted(TreeMap.java:2394) ~[na:1.7.0_60]
-        //    	at java.util.TreeMap.buildFromSorted(TreeMap.java:2418) ~[na:1.7.0_60]
-        //    	at java.util.TreeMap.buildFromSorted(TreeMap.java:2418) ~[na:1.7.0_60]
-        //    	at java.util.TreeMap.buildFromSorted(TreeMap.java:2418) ~[na:1.7.0_60]
-        //    	at java.util.TreeMap.buildFromSorted(TreeMap.java:2418) ~[na:1.7.0_60]
-        //    	at java.util.TreeMap.buildFromSorted(TreeMap.java:2418) ~[na:1.7.0_60]
-        //    	at java.util.TreeMap.buildFromSorted(TreeMap.java:2418) ~[na:1.7.0_60]
-        //    	at java.util.TreeMap.buildFromSorted(TreeMap.java:2418) ~[na:1.7.0_60]
-        //    	at java.util.TreeMap.buildFromSorted(TreeMap.java:2344) ~[na:1.7.0_60]
-        //    	at java.util.TreeMap.<init>(TreeMap.java:195) ~[na:1.7.0_60]
-        //    	at net.tomp2p.dht.StorageMemory.subMap(StorageMemory.java:119) ~[classes/:na]
-        //
-        // the reason is that the size in TreeMap.buildFromSorted is stored beforehand, then iteratated. If the size changes,
-        // then you will call next() that returns null and an exception is thrown.
         final NavigableMap<Number640, Data> retVal = new TreeMap<Number640, Data>();
         for(final Map.Entry<Number640, Data> entry:tmp.entrySet()) {
             retVal.put(entry.getKey(), entry.getValue());
@@ -132,28 +111,6 @@ public class StorageMapDB implements Storage {
         NavigableMap<Number640, Data> tmp = dataMap.subMap(from, true, to, true);
         final NavigableMap<Number640, Data> retVal = new TreeMap<Number640, Data>();
         if (limit < 0) {
-
-            // new TreeMap<Number640, Data>(tmp); is not possible as this may lead to no such element exception:
-            //
-            //      java.util.NoSuchElementException: null
-            //    	at java.util.concurrent.ConcurrentSkipListMap$SubMap$SubMapIter.advance(ConcurrentSkipListMap.java:3030) ~[na:1.7.0_60]
-            //    	at java.util.concurrent.ConcurrentSkipListMap$SubMap$SubMapEntryIterator.next(ConcurrentSkipListMap.java:3100) ~[na:1.7.0_60]
-            //    	at java.util.concurrent.ConcurrentSkipListMap$SubMap$SubMapEntryIterator.next(ConcurrentSkipListMap.java:3096) ~[na:1.7.0_60]
-            //    	at java.util.TreeMap.buildFromSorted(TreeMap.java:2394) ~[na:1.7.0_60]
-            //    	at java.util.TreeMap.buildFromSorted(TreeMap.java:2418) ~[na:1.7.0_60]
-            //    	at java.util.TreeMap.buildFromSorted(TreeMap.java:2418) ~[na:1.7.0_60]
-            //    	at java.util.TreeMap.buildFromSorted(TreeMap.java:2418) ~[na:1.7.0_60]
-            //    	at java.util.TreeMap.buildFromSorted(TreeMap.java:2418) ~[na:1.7.0_60]
-            //    	at java.util.TreeMap.buildFromSorted(TreeMap.java:2418) ~[na:1.7.0_60]
-            //    	at java.util.TreeMap.buildFromSorted(TreeMap.java:2418) ~[na:1.7.0_60]
-            //    	at java.util.TreeMap.buildFromSorted(TreeMap.java:2418) ~[na:1.7.0_60]
-            //    	at java.util.TreeMap.buildFromSorted(TreeMap.java:2344) ~[na:1.7.0_60]
-            //    	at java.util.TreeMap.<init>(TreeMap.java:195) ~[na:1.7.0_60]
-            //    	at net.tomp2p.dht.StorageMemory.subMap(StorageMemory.java:119) ~[classes/:na]
-            //
-            // the reason is that the size in TreeMap.buildFromSorted is stored beforehand, then iteratated. If the size changes,
-            // then you will call next() that returns null and an exception is thrown.
-
             for(final Map.Entry<Number640, Data> entry:(ascending ? tmp : tmp.descendingMap()).entrySet()) {
                 retVal.put(entry.getKey(), entry.getValue());
             }
@@ -171,27 +128,6 @@ public class StorageMapDB implements Storage {
 
     @Override
     public NavigableMap<Number640, Data> map() {
-
-        // new TreeMap<Number640, Data>(dataMap); is not possible as this may lead to no such element exception:
-        //
-        //      java.util.NoSuchElementException: null
-        //    	at java.util.concurrent.ConcurrentSkipListMap$SubMap$SubMapIter.advance(ConcurrentSkipListMap.java:3030) ~[na:1.7.0_60]
-        //    	at java.util.concurrent.ConcurrentSkipListMap$SubMap$SubMapEntryIterator.next(ConcurrentSkipListMap.java:3100) ~[na:1.7.0_60]
-        //    	at java.util.concurrent.ConcurrentSkipListMap$SubMap$SubMapEntryIterator.next(ConcurrentSkipListMap.java:3096) ~[na:1.7.0_60]
-        //    	at java.util.TreeMap.buildFromSorted(TreeMap.java:2394) ~[na:1.7.0_60]
-        //    	at java.util.TreeMap.buildFromSorted(TreeMap.java:2418) ~[na:1.7.0_60]
-        //    	at java.util.TreeMap.buildFromSorted(TreeMap.java:2418) ~[na:1.7.0_60]
-        //    	at java.util.TreeMap.buildFromSorted(TreeMap.java:2418) ~[na:1.7.0_60]
-        //    	at java.util.TreeMap.buildFromSorted(TreeMap.java:2418) ~[na:1.7.0_60]
-        //    	at java.util.TreeMap.buildFromSorted(TreeMap.java:2418) ~[na:1.7.0_60]
-        //    	at java.util.TreeMap.buildFromSorted(TreeMap.java:2418) ~[na:1.7.0_60]
-        //    	at java.util.TreeMap.buildFromSorted(TreeMap.java:2418) ~[na:1.7.0_60]
-        //    	at java.util.TreeMap.buildFromSorted(TreeMap.java:2344) ~[na:1.7.0_60]
-        //    	at java.util.TreeMap.<init>(TreeMap.java:195) ~[na:1.7.0_60]
-        //    	at net.tomp2p.dht.StorageMemory.subMap(StorageMemory.java:119) ~[classes/:na]
-        //
-        // the reason is that the size in TreeMap.buildFromSorted is stored beforehand, then iteratated. If the size changes,
-        // then you will call next() that returns null and an exception is thrown.
         final NavigableMap<Number640, Data> retVal = new TreeMap<Number640, Data>();
         for(final Map.Entry<Number640, Data> entry:dataMap.entrySet()) {
             retVal.put(entry.getKey(), entry.getValue());
@@ -354,3 +290,4 @@ public class StorageMapDB implements Storage {
         return storageCheckIntervalMillis;
     }
 }
+*/

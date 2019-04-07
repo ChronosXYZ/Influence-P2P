@@ -1,5 +1,5 @@
 package io.github.chronosx88.influence.helpers;
-
+/*
 import android.util.Log;
 
 import net.tomp2p.connection.DSASignatureFactory;
@@ -391,3 +391,4 @@ public class StorageMVStore implements Storage {
         return data;
     }
 }
+*/

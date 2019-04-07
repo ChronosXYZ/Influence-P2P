@@ -148,8 +148,8 @@ public class ChatLogic implements IChatLogicContract {
                 if(messages.size() > 10) {
                     String messageID = UUID.randomUUID().toString();
                     try {
-                        chatEntity.chunkCursor += 1;
-                        P2PUtils.put(chatID + "_messages" + chatEntity.chunkCursor, messageID, new Data(gson.toJson(new NextChunkReference(messageID, AppHelper.getPeerID(), AppHelper.getPeerID(), System.currentTimeMillis(), chatEntity.chunkCursor))));
+                        P2PUtils.put(chatEntity.chatID + "_messages" + chunkID, messageID, new Data(gson.toJson(new NextChunkReference(messageID, AppHelper.getPeerID(), AppHelper.getPeerID(), System.currentTimeMillis(), chatEntity.chunkCursor+1))));
+                        P2PUtils.put(chatEntity.chatID + "_newMessage", null, new Data(messageID));
                         LocalDBWrapper.updateChatEntity(chatEntity);
                     } catch (IOException e) {
                         e.printStackTrace();

@@ -10,7 +10,6 @@ import com.google.gson.JsonObject;
 import net.tomp2p.connection.DSASignatureFactory;
 import net.tomp2p.dht.PeerBuilderDHT;
 import net.tomp2p.dht.PeerDHT;
-import net.tomp2p.dht.StorageMemory;
 import net.tomp2p.futures.FutureBootstrap;
 import net.tomp2p.futures.FutureDiscover;
 import net.tomp2p.nat.FutureRelayNAT;
@@ -43,7 +42,7 @@ import io.github.chronosx88.influence.helpers.JVMShutdownHook;
 import io.github.chronosx88.influence.helpers.KeyPairManager;
 import io.github.chronosx88.influence.helpers.NetworkHandler;
 import io.github.chronosx88.influence.helpers.P2PUtils;
-import io.github.chronosx88.influence.helpers.StorageMapDB;
+import io.github.chronosx88.influence.helpers.StorageBerkeleyDB;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.models.PublicUserProfile;
 
@@ -60,6 +59,7 @@ public class MainLogic implements IMainLogicContract {
     private AutoReplication replication;
     private KeyPairManager keyPairManager;
     private Thread checkNewChatsThread = null;
+    private StorageBerkeleyDB storage;
 
     public MainLogic() {
         this.context = AppHelper.getContext();
@@ -83,15 +83,16 @@ public class MainLogic implements IMainLogicContract {
 
         new Thread(() -> {
             try {
-                StorageMapDB storageMapDB = new StorageMapDB(peerID, context.getFilesDir(), new DSASignatureFactory());
+                StorageBerkeleyDB storageBerkeleyDB = new StorageBerkeleyDB(peerID, context.getFilesDir(), new DSASignatureFactory());
+                this.storage = storageBerkeleyDB;
                 peerDHT = new PeerBuilderDHT(
                         new PeerBuilder(peerID)
                                 .ports(7243)
                                 .start()
                 )
-                        .storage(storageMapDB)
+                        .storage(storageBerkeleyDB)
                         .start();
-                Runtime.getRuntime().addShutdownHook(new JVMShutdownHook(storageMapDB));
+                Runtime.getRuntime().addShutdownHook(new JVMShutdownHook(storageBerkeleyDB));
                 try {
                     String bootstrapIP = this.preferences.getString("bootstrapAddress", null);
                     if(bootstrapIP == null) {
@@ -227,7 +228,8 @@ public class MainLogic implements IMainLogicContract {
                 replication.shutdown().start();
             }
             peerDHT.peer().announceShutdown().start().awaitUninterruptibly();
-            peerDHT.peer().shutdown();
+            peerDHT.peer().shutdown().awaitUninterruptibly();
+            storage.close();
         }).start();
     }
 

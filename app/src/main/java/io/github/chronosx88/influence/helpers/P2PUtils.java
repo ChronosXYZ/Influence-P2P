@@ -54,7 +54,7 @@ public class P2PUtils {
                 .all()
                 .start()
                 .awaitUninterruptibly();
-        if(!futureGet.isEmpty()) {
+        if(futureGet != null && !futureGet.isEmpty()) {
             return futureGet.dataMap();
         }
         return null;
