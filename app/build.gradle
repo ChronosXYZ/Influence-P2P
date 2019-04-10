@@ -38,13 +38,14 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation fileTree(include: ['*.jar'], dir: 'libs/tomp2p')
+    //implementation fileTree(include: ['*.jar'], dir: 'libs/tomp2p')
     implementation 'androidx.appcompat:appcompat:1.1.0-alpha02'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha3'
     implementation "androidx.room:room-runtime:2.1.0-alpha04"
     annotationProcessor "androidx.room:room-compiler:2.1.0-alpha04"
     implementation 'org.slf4j:slf4j-log4j12:1.7.26'
     implementation group: 'com.h2database', name: 'h2-mvstore', version: '1.4.197'
+    implementation 'net.tomp2p:tomp2p-all:5.0-Beta8'
     implementation 'com.google.android.material:material:1.1.0-alpha04'
     implementation 'androidx.preference:preference:1.1.0-alpha03'
     implementation 'com.google.code.gson:gson:2.8.5'

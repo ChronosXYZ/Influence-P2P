@@ -52,7 +52,7 @@ public class KeyPairManager {
         KeyPair keyPair = null;
         try {
             keyPairFile.createNewFile();
-            keyPair = KeyPairGenerator.getInstance("DSA").generateKeyPair();
+            keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
             FileOutputStream outputStream = new FileOutputStream(keyPairFile);
             outputStream.write(serializer.serialize(keyPair));
             outputStream.close();

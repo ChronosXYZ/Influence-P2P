@@ -61,9 +61,6 @@ class DataSerializerEx(private val signatureFactory: SignatureFactory) : EntryBi
             // next data - no need to copy to another buffer, just take the data
             // from memory
             writeData(out, data.toByteBuffers())
-            // rest
-            // data.encodeDone(acb, signatureFactory)
-            // writeData(out, acb.nioBuffers())
         } catch (e: SignatureException) {
             e.printStackTrace()
         } catch (e: InvalidKeyException) {

@@ -7,7 +7,10 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import net.tomp2p.connection.Bindings;
+import net.tomp2p.connection.ChannelClientConfiguration;
 import net.tomp2p.connection.DSASignatureFactory;
+import net.tomp2p.connection.RSASignatureFactory;
 import net.tomp2p.dht.PeerBuilderDHT;
 import net.tomp2p.dht.PeerDHT;
 import net.tomp2p.futures.FutureBootstrap;
@@ -25,6 +28,7 @@ import net.tomp2p.storage.Data;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -83,11 +87,12 @@ public class MainLogic implements IMainLogicContract {
 
         new Thread(() -> {
             try {
-                StorageBerkeleyDB storageBerkeleyDB = new StorageBerkeleyDB(peerID, context.getFilesDir(), new DSASignatureFactory());
+                StorageBerkeleyDB storageBerkeleyDB = new StorageBerkeleyDB(peerID, context.getFilesDir(), new RSASignatureFactory());
                 this.storage = storageBerkeleyDB;
                 peerDHT = new PeerBuilderDHT(
                         new PeerBuilder(peerID)
                                 .ports(7243)
+                                .channelClientConfiguration(createChannelClientConfig())
                                 .start()
                 )
                         .storage(storageBerkeleyDB)
@@ -230,6 +235,7 @@ public class MainLogic implements IMainLogicContract {
             peerDHT.peer().announceShutdown().start().awaitUninterruptibly();
             peerDHT.peer().shutdown().awaitUninterruptibly();
             storage.close();
+            System.exit(0);
         }).start();
     }
 
@@ -245,19 +251,19 @@ public class MainLogic implements IMainLogicContract {
 
     private void publicProfileToDHT() {
         KeyPair mainKeyPair = keyPairManager.openMainKeyPair();
-        KeyFactory factory = null;
+        /*KeyFactory factory = null;
         try {
-            factory = KeyFactory.getInstance("DSA");
+            factory = KeyFactory.getInstance("RSA");
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
-        }
-        PublicUserProfile userProfile = null;
-        try {
+        }*/
+        PublicUserProfile userProfile = new PublicUserProfile(AppHelper.getPeerID(), peerDHT.peerAddress(), null);
+        /*try {
             DSAPublicKeySpec dsaKey = factory.getKeySpec(mainKeyPair.getPublic(), DSAPublicKeySpec.class);
             userProfile = new PublicUserProfile(AppHelper.getPeerID(), peerDHT.peerAddress(), new DSAKey(dsaKey.getQ(), dsaKey.getP(), dsaKey.getY(), dsaKey.getG()));
         } catch (InvalidKeySpecException e) {
             e.printStackTrace();
-        }
+        }*/
         Data serializedUserProfile = null;
         try {
             serializedUserProfile = new Data(gson.toJson(userProfile))
@@ -267,5 +273,19 @@ public class MainLogic implements IMainLogicContract {
             e.printStackTrace();
         }
         Log.i(LOG_TAG, P2PUtils.put(AppHelper.getPeerID() + "_profile", null, serializedUserProfile) ? "# Profile successfully published!" : "# Profile publishing failed!");
+    }
+
+    private ChannelClientConfiguration createChannelClientConfig() {
+        ChannelClientConfiguration channelClientConfiguration = new ChannelClientConfiguration();
+        channelClientConfiguration.bindings(new Bindings());
+        channelClientConfiguration.maxPermitsPermanentTCP(250);
+        channelClientConfiguration.maxPermitsTCP(250);
+        channelClientConfiguration.maxPermitsUDP(250);
+        channelClientConfiguration.pipelineFilter(new PeerBuilder.DefaultPipelineFilter());
+        channelClientConfiguration.signatureFactory(new RSASignatureFactory());
+        channelClientConfiguration.senderTCP((new InetSocketAddress(0)).getAddress());
+        channelClientConfiguration.senderUDP((new InetSocketAddress(0)).getAddress());
+        channelClientConfiguration.byteBufPool(false);
+        return channelClientConfiguration;
     }
 }

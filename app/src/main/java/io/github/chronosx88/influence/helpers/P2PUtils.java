@@ -40,6 +40,7 @@ public class P2PUtils {
     }
 
     public static boolean put(String locationKey, String contentKey, Data data) {
+        data.signed(false);
         FuturePut futurePut = peerDHT
                 .put(Number160.createHash(locationKey))
                 .data(contentKey == null ? Number160.ZERO : Number160.createHash(contentKey), data)
