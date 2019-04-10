@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,7 +24,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
     private final static int LEFT_ITEM = 1;
     private final static int TECHNICAL_MESSAGE = 2; // TODO
 
-    private final static Context context = AppHelper.getContext();
+    private final Context context = AppHelper.getContext();
     private ArrayList<MessageEntity> messages = new ArrayList<>();
 
     @NonNull

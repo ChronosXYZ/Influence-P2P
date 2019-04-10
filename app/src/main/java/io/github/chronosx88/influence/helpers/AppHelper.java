@@ -5,6 +5,7 @@ import android.content.Context;
 
 import net.tomp2p.dht.PeerDHT;
 
+import androidx.multidex.MultiDexApplication;
 import androidx.room.Room;
 import io.github.chronosx88.influence.observable.MainObservable;
 
@@ -12,7 +13,7 @@ import io.github.chronosx88.influence.observable.MainObservable;
  * Extended Application class which designed for getting various objects from anywhere in the application.
  */
 
-public class AppHelper extends Application {
+public class AppHelper extends MultiDexApplication {
     private static Application instance;
     private static MainObservable observable;
     private static String peerID;

@@ -11,6 +11,7 @@ android {
         versionCode 1
         versionName "0.1alpha2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
@@ -53,6 +54,7 @@ dependencies {
     implementation 'de.hdodenhof:circleimageview:3.0.0'
     implementation group: 'org.objenesis', name: 'objenesis', version: '2.6'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation 'com.android.support:multidex:1.0.3'
 }
 repositories {
     mavenCentral()
