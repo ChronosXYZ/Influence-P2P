@@ -6,7 +6,6 @@ import com.google.gson.Gson;
 
 import net.tomp2p.dht.PeerDHT;
 import net.tomp2p.peers.Number640;
-import net.tomp2p.peers.PeerAddress;
 import net.tomp2p.storage.Data;
 
 import java.io.IOException;

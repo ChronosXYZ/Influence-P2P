@@ -1,24 +1,16 @@
 package io.github.chronosx88.influence.helpers
 
 import android.util.Log
-
 import com.sleepycat.bind.EntryBinding
 import com.sleepycat.je.DatabaseEntry
-
+import io.netty.buffer.Unpooled
 import net.tomp2p.connection.SignatureFactory
 import net.tomp2p.storage.AlternativeCompositeByteBuf
 import net.tomp2p.storage.Data
-
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.IOException
-import java.io.OutputStream
-import java.io.Serializable
+import java.io.*
 import java.nio.ByteBuffer
 import java.security.InvalidKeyException
 import java.security.SignatureException
-
-import io.netty.buffer.Unpooled
 
 class DataSerializerEx(private val signatureFactory: SignatureFactory) : EntryBinding<Data>, Serializable {
     private val LOG_TAG = "DataSerializerEx"

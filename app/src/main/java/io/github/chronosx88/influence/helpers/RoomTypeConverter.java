@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import androidx.room.TypeConverter;
 
-public class Converter {
+public class RoomTypeConverter {
 
     @TypeConverter
     public static ArrayList<String> fromString(String value) {

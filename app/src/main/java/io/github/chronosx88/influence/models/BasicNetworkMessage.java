@@ -1,7 +1,5 @@
 package io.github.chronosx88.influence.models;
 
-import net.tomp2p.peers.PeerAddress;
-
 import java.io.Serializable;
 
 /**

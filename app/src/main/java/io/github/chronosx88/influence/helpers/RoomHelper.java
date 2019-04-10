@@ -10,7 +10,7 @@ import io.github.chronosx88.influence.models.roomEntities.MessageEntity;
 
 @Database(entities = { MessageEntity.class, ChatEntity.class }, version = 2)
 
-@TypeConverters({Converter.class})
+@TypeConverters({RoomTypeConverter.class})
 public abstract class RoomHelper extends RoomDatabase {
     public abstract ChatDao chatDao();
     public abstract MessageDao messageDao();
