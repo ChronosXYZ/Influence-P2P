@@ -139,7 +139,7 @@ public class ChatLogic implements IChatLogicContract {
                         case NetworkActions.JOIN_CHAT: {
                             JoinChatMessage joinChatMessage = gson.fromJson(json, JoinChatMessage.class);
                             LocalDBWrapper.createMessageEntry(NetworkActions.JOIN_CHAT, joinChatMessage.getMessageID(), joinChatMessage.getChatID(), joinChatMessage.getUsername(), joinChatMessage.getSenderID(), joinChatMessage.getTimestamp(), null, true, false);
-                            ObservableUtils.notifyUI(UIActions.MESSAGE_RECEIVED, joinChatMessage.getMessageID());
+                            ObservableUtils.notifyUI(UIActions.MESSAGE_RECEIVED, chatID, joinChatMessage.getMessageID());
                             break;
                         }
                         case NetworkActions.NEXT_CHUNK_REF: {

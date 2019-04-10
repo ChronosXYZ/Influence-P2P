@@ -1,6 +1,7 @@
 package io.github.chronosx88.influence.presenters;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
@@ -47,7 +48,11 @@ public class ChatPresenter implements IChatPresenterContract, IObserver {
     public void handleEvent(JsonObject object) {
         switch (object.get("action").getAsInt()) {
             case UIActions.MESSAGE_RECEIVED: {
-                MessageEntity messageEntity = LocalDBWrapper.getMessageByID(object.get("additional").getAsString());
+                JsonArray jsonArray = object.getAsJsonArray("additional");
+                if(!jsonArray.get(0).getAsString().equals(chatID)) {
+                    return;
+                }
+                MessageEntity messageEntity = LocalDBWrapper.getMessageByID(jsonArray.get(1).getAsString());
                 view.updateMessageList(messageEntity);
             }
         }
