@@ -86,4 +86,10 @@ public class ChatActivity extends AppCompatActivity implements IChatViewContract
         }
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        presenter.onDestroy();
+    }
 }

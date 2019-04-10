@@ -4,4 +4,5 @@ import io.github.chronosx88.influence.models.roomEntities.MessageEntity;
 
 public interface IChatLogicContract {
     void sendMessage(MessageEntity message);
+    void stopTrackingForNewMsgs();
 }

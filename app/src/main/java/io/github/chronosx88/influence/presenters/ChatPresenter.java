@@ -58,4 +58,9 @@ public class ChatPresenter implements IChatPresenterContract, IObserver {
         List<MessageEntity> entities = LocalDBWrapper.getMessagesByChatID(chatID);
         view.updateMessageList(entities == null ? new ArrayList<>() : entities);
     }
+
+    @Override
+    public void onDestroy() {
+        logic.stopTrackingForNewMsgs();
+    }
 }

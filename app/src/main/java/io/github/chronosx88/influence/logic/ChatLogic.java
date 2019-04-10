@@ -34,6 +34,7 @@ public class ChatLogic implements IChatLogicContract {
     private ChatEntity chatEntity;
     private Thread checkNewMessagesThread = null;
     private KeyPairManager keyPairManager;
+    private Timer timer;
 
     public ChatLogic(ChatEntity chatEntity) {
         this.chatEntity = chatEntity;
@@ -44,7 +45,7 @@ public class ChatLogic implements IChatLogicContract {
                 checkForNewMessages();
             }
         };
-        Timer timer = new Timer();
+        this.timer = new Timer();
         timer.schedule(timerTask, 1, 1000);
         this.keyPairManager = new KeyPairManager();
     }
@@ -166,5 +167,11 @@ public class ChatLogic implements IChatLogicContract {
     private int getMessageAction(String json) {
         JsonObject jsonObject = new JsonParser().parse(json).getAsJsonObject();
         return jsonObject.get("action").getAsInt();
+    }
+
+    @Override
+    public void stopTrackingForNewMsgs() {
+        timer.cancel();
+        timer.purge();
     }
 }
