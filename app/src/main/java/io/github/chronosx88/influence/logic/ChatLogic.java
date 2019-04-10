@@ -15,6 +15,7 @@ import java.util.UUID;
 
 import io.github.chronosx88.influence.contracts.chatactivity.IChatLogicContract;
 import io.github.chronosx88.influence.helpers.AppHelper;
+import io.github.chronosx88.influence.helpers.KeyPairManager;
 import io.github.chronosx88.influence.helpers.LocalDBWrapper;
 import io.github.chronosx88.influence.helpers.ObservableUtils;
 import io.github.chronosx88.influence.helpers.P2PUtils;
@@ -32,6 +33,7 @@ public class ChatLogic implements IChatLogicContract {
     private String newMessage = "";
     private ChatEntity chatEntity;
     private Thread checkNewMessagesThread = null;
+    private KeyPairManager keyPairManager;
 
     public ChatLogic(ChatEntity chatEntity) {
         this.chatEntity = chatEntity;
@@ -44,6 +46,7 @@ public class ChatLogic implements IChatLogicContract {
         };
         Timer timer = new Timer();
         timer.schedule(timerTask, 1, 1000);
+        this.keyPairManager = new KeyPairManager();
     }
 
     @Override
@@ -55,6 +58,7 @@ public class ChatLogic implements IChatLogicContract {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            data.protectEntry(keyPairManager.getKeyPair("mainKeyPair"));
             P2PUtils.put(chatID + "_messages" + chatEntity.chunkCursor, message.messageID, data);
             try {
                 P2PUtils.put(chatID + "_newMessage", null, new Data(message.messageID));
