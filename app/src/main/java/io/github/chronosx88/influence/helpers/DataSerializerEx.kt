@@ -47,16 +47,10 @@ class DataSerializerEx(private val signatureFactory: SignatureFactory) : EntryBi
         if (!retVal) {
             Log.e(LOG_TAG, "# ERROR: Data could not be deserialized!")
         }
-        retVal = data.decodeDone(buf, signatureFactory)
-        if (!retVal) {
-            Log.e(LOG_TAG, "# ERROR: Signature could not be read!")
-        }
         return data
     }
 
     override fun objectToEntry(data: Data, databaseEntry: DatabaseEntry) {
-        val forSigningKP = keyPairManager.getKeyPair("mainSigningKeyPair")
-        data.sign(forSigningKP)
         val out = ByteArrayOutputStream()
         val acb = AlternativeCompositeByteBuf.compBuffer(AlternativeCompositeByteBuf.UNPOOLED_HEAP)
         try {
@@ -68,8 +62,8 @@ class DataSerializerEx(private val signatureFactory: SignatureFactory) : EntryBi
             // from memory
             writeData(out, data.toByteBuffers())
             // rest
-            data.encodeDone(acb, signatureFactory)
-            writeData(out, acb.nioBuffers())
+            // data.encodeDone(acb, signatureFactory)
+            // writeData(out, acb.nioBuffers())
         } catch (e: SignatureException) {
             e.printStackTrace()
         } catch (e: InvalidKeyException) {
@@ -98,7 +92,6 @@ class DataSerializerEx(private val signatureFactory: SignatureFactory) : EntryBi
 
     companion object {
         private const val serialVersionUID = 1428836065493792295L
-        private val keyPairManager = KeyPairManager()
     }
 }
 
