@@ -9,7 +9,6 @@ import com.google.gson.JsonObject;
 
 import net.tomp2p.connection.Bindings;
 import net.tomp2p.connection.ChannelClientConfiguration;
-import net.tomp2p.connection.DSASignatureFactory;
 import net.tomp2p.connection.RSASignatureFactory;
 import net.tomp2p.dht.PeerBuilderDHT;
 import net.tomp2p.dht.PeerDHT;
@@ -30,18 +29,13 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.security.KeyFactory;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.DSAPublicKeySpec;
-import java.security.spec.InvalidKeySpecException;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
 import io.github.chronosx88.influence.contracts.mainactivity.IMainLogicContract;
 import io.github.chronosx88.influence.helpers.AppHelper;
-import io.github.chronosx88.influence.helpers.DSAKey;
 import io.github.chronosx88.influence.helpers.JVMShutdownHook;
 import io.github.chronosx88.influence.helpers.KeyPairManager;
 import io.github.chronosx88.influence.helpers.NetworkHandler;
@@ -251,19 +245,7 @@ public class MainLogic implements IMainLogicContract {
 
     private void publicProfileToDHT() {
         KeyPair mainKeyPair = keyPairManager.openMainKeyPair();
-        /*KeyFactory factory = null;
-        try {
-            factory = KeyFactory.getInstance("RSA");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }*/
-        PublicUserProfile userProfile = new PublicUserProfile(AppHelper.getPeerID(), peerDHT.peerAddress(), null);
-        /*try {
-            DSAPublicKeySpec dsaKey = factory.getKeySpec(mainKeyPair.getPublic(), DSAPublicKeySpec.class);
-            userProfile = new PublicUserProfile(AppHelper.getPeerID(), peerDHT.peerAddress(), new DSAKey(dsaKey.getQ(), dsaKey.getP(), dsaKey.getY(), dsaKey.getG()));
-        } catch (InvalidKeySpecException e) {
-            e.printStackTrace();
-        }*/
+        PublicUserProfile userProfile = new PublicUserProfile(AppHelper.getPeerID(), peerDHT.peerAddress());
         Data serializedUserProfile = null;
         try {
             serializedUserProfile = new Data(gson.toJson(userProfile))
