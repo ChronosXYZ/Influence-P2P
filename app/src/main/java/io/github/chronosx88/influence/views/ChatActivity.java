@@ -50,6 +50,9 @@ public class ChatActivity extends AppCompatActivity implements IChatViewContract
         messageTextEdit = findViewById(R.id.message_input);
         sendMessageButton = findViewById(R.id.send_button);
         sendMessageButton.setOnClickListener((v) -> {
+            if(messageTextEdit.getText().toString().equals("")) {
+                return;
+            }
             presenter.sendMessage(messageTextEdit.getText().toString());
             messageTextEdit.setText("");
             messageList.scrollToPosition(chatAdapter.getItemCount()-1);
