@@ -46,12 +46,18 @@ public class ChatLogic implements IChatLogicContract {
             }
         };
         this.timer = new Timer();
-        timer.schedule(timerTask, 1, 1000);
+        if(AppHelper.getPeerDHT() != null) {
+            timer.schedule(timerTask, 1, 1000);
+        }
         this.keyPairManager = new KeyPairManager();
     }
 
     @Override
     public void sendMessage(MessageEntity message) {
+        if(AppHelper.getPeerDHT() == null) {
+            ObservableUtils.notifyUI(UIActions.NODE_IS_OFFLINE);
+            return;
+        }
         new Thread(() -> {
             Data data = null;
             try {

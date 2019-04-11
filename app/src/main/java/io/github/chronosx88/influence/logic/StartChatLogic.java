@@ -38,6 +38,11 @@ public class StartChatLogic implements IStartChatLogicContract {
 
     @Override
     public void sendStartChatMessage(String peerID) {
+        if(peerDHT == null) {
+            ObservableUtils.notifyUI(UIActions.NODE_IS_OFFLINE);
+            return;
+        }
+
         new Thread(() -> {
             PublicUserProfile recipientPublicProfile = getPublicProfile(peerID);
             if(recipientPublicProfile == null) {

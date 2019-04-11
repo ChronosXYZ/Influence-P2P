@@ -249,8 +249,7 @@ public class MainLogic implements IMainLogicContract {
         Data serializedUserProfile = null;
         try {
             serializedUserProfile = new Data(gson.toJson(userProfile))
-                    .protectEntry(mainKeyPair.getPrivate())
-                    .sign(keyPairManager.getKeyPair("mainSigningKeyPair"));
+                    .protectEntry(mainKeyPair.getPrivate());
         } catch (IOException e) {
             e.printStackTrace();
         }

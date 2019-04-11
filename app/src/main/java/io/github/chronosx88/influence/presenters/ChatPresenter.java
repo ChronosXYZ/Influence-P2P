@@ -1,5 +1,7 @@
 package io.github.chronosx88.influence.presenters;
 
+import android.widget.Toast;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -54,6 +56,12 @@ public class ChatPresenter implements IChatPresenterContract, IObserver {
                 }
                 MessageEntity messageEntity = LocalDBWrapper.getMessageByID(jsonArray.get(1).getAsString());
                 view.updateMessageList(messageEntity);
+                break;
+            }
+
+            case UIActions.NODE_IS_OFFLINE: {
+                Toast.makeText(AppHelper.getContext(), "Нода не запущена!", Toast.LENGTH_SHORT).show();
+                break;
             }
         }
     }

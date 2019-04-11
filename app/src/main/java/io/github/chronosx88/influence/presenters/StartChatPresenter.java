@@ -40,6 +40,12 @@ public class StartChatPresenter implements IStartChatPresenterContract, IObserve
                 view.showMessage("Чат успешно создан!");
                 break;
             }
+
+            case UIActions.NODE_IS_OFFLINE: {
+                view.showProgressDialog(false);
+                view.showMessage("Нода не запущена!");
+                break;
+            }
         }
     }
 }
