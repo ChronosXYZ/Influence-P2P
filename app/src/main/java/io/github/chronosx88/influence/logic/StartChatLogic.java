@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 
-import io.github.chronosx88.influence.contracts.startchat.IStartChatLogicContract;
+import io.github.chronosx88.influence.contracts.CoreContracts;
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.KeyPairManager;
 import io.github.chronosx88.influence.helpers.LocalDBWrapper;
@@ -24,7 +24,7 @@ import io.github.chronosx88.influence.models.ChatMetadata;
 import io.github.chronosx88.influence.models.NewChatRequestMessage;
 import io.github.chronosx88.influence.models.PublicUserProfile;
 
-public class StartChatLogic implements IStartChatLogicContract {
+public class StartChatLogic implements CoreContracts.IStartChatLogicContract {
     private PeerDHT peerDHT;
     private Gson gson;
     private KeyPairManager keyPairManager;
@@ -37,20 +37,25 @@ public class StartChatLogic implements IStartChatLogicContract {
     }
 
     @Override
-    public void sendStartChatMessage(String peerID) {
+    public void sendStartChatMessage(String username) {
         if(peerDHT == null) {
             ObservableUtils.notifyUI(UIActions.NODE_IS_OFFLINE);
             return;
         }
 
         new Thread(() -> {
+            String peerID = getPeerIDByUsername(username);
+            if(peerID == null) {
+                ObservableUtils.notifyUI(UIActions.PEER_NOT_EXIST);
+                return;
+            }
             PublicUserProfile recipientPublicProfile = getPublicProfile(peerID);
             if(recipientPublicProfile == null) {
                 ObservableUtils.notifyUI(UIActions.PEER_NOT_EXIST);
                 return;
             }
 
-            NewChatRequestMessage newChatRequestMessage = new NewChatRequestMessage(UUID.randomUUID().toString(), UUID.randomUUID().toString(), AppHelper.getPeerID(), AppHelper.getPeerID(), System.currentTimeMillis(), 0);
+            NewChatRequestMessage newChatRequestMessage = new NewChatRequestMessage(UUID.randomUUID().toString(), UUID.randomUUID().toString(), AppHelper.getPeerID(), AppHelper.getUsername(), System.currentTimeMillis(), 0);
             try {
                 if(P2PUtils.put(peerID + "_pendingChats", newChatRequestMessage.getChatID(), new Data(gson.toJson(newChatRequestMessage)))) {
                     Log.i(LOG_TAG, "# Create new offline chat request is successful! ChatID: " + newChatRequestMessage.getChatID());
@@ -65,13 +70,13 @@ public class StartChatLogic implements IStartChatLogicContract {
             admins.add(AppHelper.getPeerID());
             Data data = null;
             try {
-                data = new Data(gson.toJson(new ChatMetadata(peerID, admins, new ArrayList<>())));
+                data = new Data(gson.toJson(new ChatMetadata(username, admins, new ArrayList<>())));
             } catch (IOException e) {
                 e.printStackTrace();
             }
             data.protectEntry(keyPairManager.openMainKeyPair());
             P2PUtils.put(newChatRequestMessage.getChatID() + "_metadata", null, data);
-            LocalDBWrapper.createChatEntry(newChatRequestMessage.getChatID(), peerID, newChatRequestMessage.getChatID() + "_metadata", newChatRequestMessage.getChatID() + "_members", 0);
+            LocalDBWrapper.createChatEntry(newChatRequestMessage.getChatID(), username, newChatRequestMessage.getChatID() + "_metadata", newChatRequestMessage.getChatID() + "_members", 0);
             ObservableUtils.notifyUI(UIActions.NEW_CHAT);
         }).start();
     }
@@ -86,6 +91,19 @@ public class StartChatLogic implements IStartChatLogicContract {
                 e.printStackTrace();
             }
             return publicProfile;
+        }
+        return null;
+    }
+
+    private String getPeerIDByUsername(String username) {
+        Map<Number640, Data> usernameMap = P2PUtils.get(username);
+        if(usernameMap == null) {
+            return null;
+        }
+        try {
+            return (String) usernameMap.values().iterator().next().object();
+        } catch (ClassNotFoundException | IOException e) {
+            e.printStackTrace();
         }
         return null;
     }

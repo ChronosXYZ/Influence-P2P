@@ -22,6 +22,8 @@ import net.tomp2p.peers.Number160;
 import net.tomp2p.peers.PeerAddress;
 import net.tomp2p.relay.tcp.TCPRelayClientConfig;
 import net.tomp2p.replication.AutoReplication;
+import net.tomp2p.replication.IndirectReplication;
+import net.tomp2p.replication.Replication;
 import net.tomp2p.storage.Data;
 
 import java.io.IOException;
@@ -34,7 +36,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
-import io.github.chronosx88.influence.contracts.mainactivity.IMainLogicContract;
+import io.github.chronosx88.influence.contracts.CoreContracts;
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.JVMShutdownHook;
 import io.github.chronosx88.influence.helpers.KeyPairManager;
@@ -44,8 +46,8 @@ import io.github.chronosx88.influence.helpers.StorageBerkeleyDB;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.models.PublicUserProfile;
 
-public class MainLogic implements IMainLogicContract {
-    private static final String LOG_TAG = "MainLogic";
+public class MainLogic implements CoreContracts.IMainLogicContract {
+    private static final String LOG_TAG = MainLogic.class.getName();
 
     private SharedPreferences preferences;
     private Number160 peerID;
@@ -54,7 +56,7 @@ public class MainLogic implements IMainLogicContract {
     private InetAddress bootstrapAddress = null;
     private PeerAddress bootstrapPeerAddress = null;
     private Gson gson;
-    private AutoReplication replication;
+    private IndirectReplication replication;
     private KeyPairManager keyPairManager;
     private Thread checkNewChatsThread = null;
     private StorageBerkeleyDB storage;
@@ -142,11 +144,13 @@ public class MainLogic implements IMainLogicContract {
                 jsonObject.addProperty("action", UIActions.BOOTSTRAP_SUCCESS);
                 AppHelper.getObservable().notifyUIObservers(jsonObject);
                 AppHelper.storePeerID(preferences.getString("peerID", null));
+                AppHelper.updateUsername(preferences.getString("username", null));
                 AppHelper.storePeerDHT(peerDHT);
                 AppHelper.initNetworkHandler();
                 setReceiveHandler();
                 gson = new Gson();
                 publicProfileToDHT();
+                SettingsLogic.Companion.publishUsername(AppHelper.getUsername(), AppHelper.getUsername());
                 NetworkHandler.handlePendingChatRequests();
                 TimerTask timerTask = new TimerTask() {
                     @Override
@@ -163,7 +167,7 @@ public class MainLogic implements IMainLogicContract {
                 };
                 Timer timer = new Timer();
                 timer.schedule(timerTask, 1, 5000);
-                replication = new AutoReplication(peerDHT.peer()).start();
+                replication = new IndirectReplication(peerDHT).start();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -224,7 +228,7 @@ public class MainLogic implements IMainLogicContract {
     public void shutdownPeer() {
         new Thread(() -> {
             if(replication != null) {
-                replication.shutdown().start();
+                replication.shutdown();
             }
             peerDHT.peer().announceShutdown().start().awaitUninterruptibly();
             peerDHT.peer().shutdown().awaitUninterruptibly();
@@ -245,7 +249,7 @@ public class MainLogic implements IMainLogicContract {
 
     private void publicProfileToDHT() {
         KeyPair mainKeyPair = keyPairManager.openMainKeyPair();
-        PublicUserProfile userProfile = new PublicUserProfile(AppHelper.getPeerID(), peerDHT.peerAddress());
+        PublicUserProfile userProfile = new PublicUserProfile(AppHelper.getUsername(), peerDHT.peerAddress());
         Data serializedUserProfile = null;
         try {
             serializedUserProfile = new Data(gson.toJson(userProfile))

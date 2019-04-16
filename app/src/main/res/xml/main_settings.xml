@@ -4,6 +4,10 @@
         android:key="peerID"
         android:title="Мой Peer ID"
         android:summary=""/>
+    <Preference
+        android:key="username"
+        android:title="Мой username"
+        android:summary=""/>
     <EditTextPreference
         android:key="bootstrapAddress"
         android:title="Адрес Bootstrap-ноды"

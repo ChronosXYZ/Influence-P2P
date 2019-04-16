@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Influence</string>
+    <string name="username_saved">Ваше имя пользователя успешно сохранено!</string>
+    <string name="username_isnt_saved">К сожалению, это имя пользователя занято.</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Отмена</string>
+    <string name="username_settings">Ваше имя пользователя</string>
+    <string name="username_hint">Имя пользователя</string>
+</resources>

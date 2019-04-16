@@ -16,10 +16,10 @@ import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import io.github.chronosx88.influence.R;
-import io.github.chronosx88.influence.contracts.startchat.IStartChatViewContract;
+import io.github.chronosx88.influence.contracts.CoreContracts;
 import io.github.chronosx88.influence.presenters.StartChatPresenter;
 
-public class StartChatFragment extends Fragment implements IStartChatViewContract {
+public class StartChatFragment extends Fragment implements CoreContracts.IStartChatViewContract {
     private TextInputLayout textInputPeerID;
     private ProgressDialog progressDialog;
     private Button createChatButton;

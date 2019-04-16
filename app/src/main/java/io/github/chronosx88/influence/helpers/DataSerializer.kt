@@ -7,6 +7,7 @@ import io.netty.buffer.Unpooled
 import net.tomp2p.connection.SignatureFactory
 import net.tomp2p.storage.AlternativeCompositeByteBuf
 import net.tomp2p.storage.Data
+import org.mapdb.DataInput2
 import java.io.*
 import java.nio.ByteBuffer
 import java.security.InvalidKeyException
@@ -27,7 +28,7 @@ class DataSerializerEx(private val signatureFactory: SignatureFactory) : EntryBi
             data = Data.decodeHeader(buf, signatureFactory)
         }
         val len = data.length()
-        val me = ByteArray(len)
+        var me = ByteArray(len)
         try {
             inputStream.read(me)
         } catch (e: IOException) {
@@ -38,6 +39,14 @@ class DataSerializerEx(private val signatureFactory: SignatureFactory) : EntryBi
         var retVal = data.decodeBuffer(buf)
         if (!retVal) {
             Log.e(LOG_TAG, "# ERROR: Data could not be deserialized!")
+        }
+        val dataInput = DataInputStream(inputStream)
+        me = ByteArray(signatureFactory.signatureSize())
+        dataInput.readFully(me)
+        buf = Unpooled.wrappedBuffer(me)
+        retVal = data.decodeDone(buf, signatureFactory);
+        if(!retVal) {
+            throw IOException("signature could not be read")
         }
         return data
     }

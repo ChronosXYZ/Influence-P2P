@@ -12,4 +12,6 @@ public class UIActions {
     public static final int SUCCESSFUL_CREATE_CHAT = 0x8;
     public static final int MESSAGE_RECEIVED = 0x9;
     public static final int NODE_IS_OFFLINE = 0x10;
+    public static final int USERNAME_ISNT_AVAILABLE = 0x11;
+    public static final int USERNAME_AVAILABLE = 0x12;
 }

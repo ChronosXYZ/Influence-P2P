@@ -2,19 +2,17 @@ package io.github.chronosx88.influence.presenters;
 
 import com.google.gson.JsonObject;
 
+import io.github.chronosx88.influence.contracts.CoreContracts;
 import io.github.chronosx88.influence.contracts.observer.IObserver;
-import io.github.chronosx88.influence.contracts.startchat.IStartChatLogicContract;
-import io.github.chronosx88.influence.contracts.startchat.IStartChatPresenterContract;
-import io.github.chronosx88.influence.contracts.startchat.IStartChatViewContract;
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.logic.StartChatLogic;
 
-public class StartChatPresenter implements IStartChatPresenterContract, IObserver {
-    private IStartChatViewContract view;
-    private IStartChatLogicContract logic;
+public class StartChatPresenter implements CoreContracts.IStartChatPresenterContract, IObserver {
+    private CoreContracts.IStartChatViewContract view;
+    private CoreContracts.IStartChatLogicContract logic;
 
-    public StartChatPresenter(IStartChatViewContract view) {
+    public StartChatPresenter(CoreContracts.IStartChatViewContract view) {
         this.view = view;
         this.logic = new StartChatLogic();
         AppHelper.getObservable().register(this);

@@ -13,8 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import io.github.chronosx88.influence.R;
-import io.github.chronosx88.influence.contracts.mainactivity.IMainPresenterContract;
-import io.github.chronosx88.influence.contracts.mainactivity.IMainViewContract;
+import io.github.chronosx88.influence.contracts.CoreContracts;
 import io.github.chronosx88.influence.contracts.observer.IObserver;
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
@@ -23,9 +22,9 @@ import io.github.chronosx88.influence.views.fragments.ChatListFragment;
 import io.github.chronosx88.influence.views.fragments.SettingsFragment;
 import io.github.chronosx88.influence.views.fragments.StartChatFragment;
 
-public class MainActivity extends AppCompatActivity implements IObserver, IMainViewContract {
+public class MainActivity extends AppCompatActivity implements IObserver, CoreContracts.IMainViewContract {
 
-    private IMainPresenterContract presenter;
+    private CoreContracts.IMainPresenterContract presenter;
     private ProgressDialog progressDialog;
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {

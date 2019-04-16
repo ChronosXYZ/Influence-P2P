@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Influence</string>
+    <string name="username_saved">Your username saved successfully!</string>
+    <string name="username_isnt_saved">Sorry, this username is busy.</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="username_settings">Your username</string>
+    <string name="username_hint">Username</string>
 </resources>

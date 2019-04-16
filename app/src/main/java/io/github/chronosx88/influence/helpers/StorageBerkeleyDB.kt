@@ -72,7 +72,7 @@ class StorageBerkeleyDB(peerId: Number160, path : File, signatureFactory: Signat
 
         storageCheckIntervalMillis = 60 * 1000
 
-        dataMap = StoredSortedMap(dataMapDB, Serializer<Number640>(), DataSerializerEx(signatureFactory), true)
+        dataMap = StoredSortedMap(dataMapDB, Serializer<Number640>(), DataSerializer(signatureFactory), true)
         timeoutMap = StoredSortedMap(timeoutMapDB, Serializer<Number640>(), Serializer<Long>(), true)
         timeoutMapRev = StoredSortedMap(timeoutMapRevDB, Serializer<Long>(), Serializer<Set<Number640>>(), true)
         protectedDomainMap = StoredSortedMap(protectedDomainMapDB, Serializer<Number320>(), Serializer<PublicKey>(), true)
@@ -89,8 +89,8 @@ class StorageBerkeleyDB(peerId: Number160, path : File, signatureFactory: Signat
         return dataMap.subMap(from, true, to, true).size
     }
 
-    override fun findContentForResponsiblePeerID(peerID: Number160?): MutableSet<Number160> {
-        return responsibilityMapRev[peerID] as MutableSet<Number160>
+    override fun findContentForResponsiblePeerID(peerID: Number160?): MutableSet<Number160>? {
+        return responsibilityMapRev[peerID] as MutableSet<Number160>?
     }
 
     override fun findPeerIDsForResponsibleContent(locationKey: Number160?): Number160? {

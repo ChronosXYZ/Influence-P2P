@@ -3,9 +3,7 @@ package io.github.chronosx88.influence.presenters;
 import android.content.Intent;
 import android.view.MenuItem;
 
-import io.github.chronosx88.influence.contracts.chatlist.IChatListLogicContract;
-import io.github.chronosx88.influence.contracts.chatlist.IChatListPresenterContract;
-import io.github.chronosx88.influence.contracts.chatlist.IChatListViewContract;
+import io.github.chronosx88.influence.contracts.CoreContracts;
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.ChatListAdapter;
 import io.github.chronosx88.influence.helpers.LocalDBWrapper;
@@ -13,12 +11,12 @@ import io.github.chronosx88.influence.logic.ChatListLogic;
 import io.github.chronosx88.influence.models.roomEntities.ChatEntity;
 import io.github.chronosx88.influence.views.ChatActivity;
 
-public class ChatListPresenter implements IChatListPresenterContract {
-    private IChatListViewContract view;
-    private IChatListLogicContract logic;
+public class ChatListPresenter implements CoreContracts.IChatListPresenterContract {
+    private CoreContracts.IChatListViewContract view;
+    private CoreContracts.IChatListLogicContract logic;
     private ChatListAdapter chatListAdapter;
 
-    public ChatListPresenter(IChatListViewContract view) {
+    public ChatListPresenter(CoreContracts.IChatListViewContract view) {
         this.view = view;
         chatListAdapter = new ChatListAdapter((v, p)-> {
             openChat(chatListAdapter.getChatEntity(p).chatID);

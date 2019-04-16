@@ -10,9 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import io.github.chronosx88.influence.contracts.chatactivity.IChatLogicContract;
-import io.github.chronosx88.influence.contracts.chatactivity.IChatPresenterContract;
-import io.github.chronosx88.influence.contracts.chatactivity.IChatViewContract;
+import io.github.chronosx88.influence.contracts.CoreContracts;
 import io.github.chronosx88.influence.contracts.observer.IObserver;
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.LocalDBWrapper;
@@ -22,14 +20,14 @@ import io.github.chronosx88.influence.logic.ChatLogic;
 import io.github.chronosx88.influence.models.roomEntities.ChatEntity;
 import io.github.chronosx88.influence.models.roomEntities.MessageEntity;
 
-public class ChatPresenter implements IChatPresenterContract, IObserver {
-    private IChatLogicContract logic;
-    private IChatViewContract view;
+public class ChatPresenter implements CoreContracts.IChatPresenterContract, IObserver {
+    private CoreContracts.IChatLogicContract logic;
+    private CoreContracts.IChatViewContract view;
     private ChatEntity chatEntity;
     private String chatID;
     private Gson gson;
 
-    public ChatPresenter(IChatViewContract view, String chatID) {
+    public ChatPresenter(CoreContracts.IChatViewContract view, String chatID) {
         this.logic = new ChatLogic(LocalDBWrapper.getChatByChatID(chatID));
         this.view = view;
         this.chatID = chatID;

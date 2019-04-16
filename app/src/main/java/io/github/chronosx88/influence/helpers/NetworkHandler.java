@@ -58,7 +58,7 @@ public class NetworkHandler implements INetworkObserver {
 
                 LocalDBWrapper.createChatEntry(
                         newChatRequestMessage.getChatID(),
-                        newChatRequestMessage.getSenderID(),
+                        newChatRequestMessage.getUsername(),
                         newChatRequestMessage.getChatID() + "_metadata",
                         newChatRequestMessage.getChatID() + "_members",
                         newChatRequestMessage.getChunkID()
@@ -67,7 +67,7 @@ public class NetworkHandler implements INetworkObserver {
                 P2PUtils.remove(AppHelper.getPeerID() + "_pendingChats", newChatRequestMessage.getChatID());
                 String messageID = UUID.randomUUID().toString();
                 try {
-                    P2PUtils.put(newChatRequestMessage.getChatID() + "_messages", messageID, new Data(gson.toJson(new JoinChatMessage(AppHelper.getPeerID(), AppHelper.getPeerID(), newChatRequestMessage.getChatID(), System.currentTimeMillis()))).protectEntry(keyPairManager.openMainKeyPair()));
+                    P2PUtils.put(newChatRequestMessage.getChatID() + "_messages", messageID, new Data(gson.toJson(new JoinChatMessage(AppHelper.getPeerID(), AppHelper.getUsername() == null ? AppHelper.getPeerID() : AppHelper.getUsername(), newChatRequestMessage.getChatID(), System.currentTimeMillis()))).protectEntry(keyPairManager.openMainKeyPair()));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -75,6 +75,4 @@ public class NetworkHandler implements INetworkObserver {
             }
         }
     }
-
-
 }

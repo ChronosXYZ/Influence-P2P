@@ -13,7 +13,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
-import io.github.chronosx88.influence.contracts.chatactivity.IChatLogicContract;
+import io.github.chronosx88.influence.contracts.CoreContracts;
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.KeyPairManager;
 import io.github.chronosx88.influence.helpers.LocalDBWrapper;
@@ -27,7 +27,7 @@ import io.github.chronosx88.influence.models.TextMessage;
 import io.github.chronosx88.influence.models.roomEntities.ChatEntity;
 import io.github.chronosx88.influence.models.roomEntities.MessageEntity;
 
-public class ChatLogic implements IChatLogicContract {
+public class ChatLogic implements CoreContracts.IChatLogicContract {
     private static Gson gson = new Gson();
     private String chatID;
     private String newMessage = "";

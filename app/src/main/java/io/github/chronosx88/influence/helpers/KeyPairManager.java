@@ -25,7 +25,6 @@ public class KeyPairManager {
     }
 
     public KeyPair getKeyPair(String keyPairName) {
-        KeyPair keyPair = null;
         keyPairName = keyPairName + ".kp";
         File keyPairFile = new File(keyPairDir, keyPairName);
         if (!keyPairFile.exists()) {
@@ -52,7 +51,9 @@ public class KeyPairManager {
         KeyPair keyPair = null;
         try {
             keyPairFile.createNewFile();
-            keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+            keyPairGenerator.initialize(1024);
+            keyPair = keyPairGenerator.generateKeyPair();
             FileOutputStream outputStream = new FileOutputStream(keyPairFile);
             outputStream.write(serializer.serialize(keyPair));
             outputStream.close();
