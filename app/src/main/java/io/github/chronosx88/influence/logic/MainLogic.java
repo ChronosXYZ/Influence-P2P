@@ -9,6 +9,8 @@ import com.google.gson.JsonObject;
 
 import net.tomp2p.connection.Bindings;
 import net.tomp2p.connection.ChannelClientConfiguration;
+import net.tomp2p.connection.ChannelServerConfiguration;
+import net.tomp2p.connection.Ports;
 import net.tomp2p.connection.RSASignatureFactory;
 import net.tomp2p.dht.PeerBuilderDHT;
 import net.tomp2p.dht.PeerDHT;
@@ -21,9 +23,7 @@ import net.tomp2p.p2p.PeerBuilder;
 import net.tomp2p.peers.Number160;
 import net.tomp2p.peers.PeerAddress;
 import net.tomp2p.relay.tcp.TCPRelayClientConfig;
-import net.tomp2p.replication.AutoReplication;
 import net.tomp2p.replication.IndirectReplication;
-import net.tomp2p.replication.Replication;
 import net.tomp2p.storage.Data;
 
 import java.io.IOException;
@@ -89,6 +89,7 @@ public class MainLogic implements CoreContracts.IMainLogicContract {
                         new PeerBuilder(peerID)
                                 .ports(7243)
                                 .channelClientConfiguration(createChannelClientConfig())
+                                .channelServerConfiguration(createChannelServerConfig())
                                 .start()
                 )
                         .storage(storageBerkeleyDB)
@@ -257,7 +258,7 @@ public class MainLogic implements CoreContracts.IMainLogicContract {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Log.i(LOG_TAG, P2PUtils.put(AppHelper.getPeerID() + "_profile", null, serializedUserProfile) ? "# Profile successfully published!" : "# Profile publishing failed!");
+        Log.i(LOG_TAG, P2PUtils.put(AppHelper.getPeerID() + "_profile", null, serializedUserProfile, mainKeyPair) ? "# Profile successfully published!" : "# Profile publishing failed!");
     }
 
     private ChannelClientConfiguration createChannelClientConfig() {
@@ -272,5 +273,18 @@ public class MainLogic implements CoreContracts.IMainLogicContract {
         channelClientConfiguration.senderUDP((new InetSocketAddress(0)).getAddress());
         channelClientConfiguration.byteBufPool(false);
         return channelClientConfiguration;
+    }
+
+    private ChannelServerConfiguration createChannelServerConfig() {
+        ChannelServerConfiguration channelServerConfiguration = new ChannelServerConfiguration();
+        channelServerConfiguration.bindings(new Bindings());
+        //these two values may be overwritten in the peer builder
+        channelServerConfiguration.ports(new Ports(Ports.DEFAULT_PORT, Ports.DEFAULT_PORT));
+        channelServerConfiguration.portsForwarding(new Ports(Ports.DEFAULT_PORT, Ports.DEFAULT_PORT));
+        channelServerConfiguration.behindFirewall(false);
+        channelServerConfiguration.pipelineFilter(new PeerBuilder.DefaultPipelineFilter());
+        channelServerConfiguration.signatureFactory(new RSASignatureFactory());
+        channelServerConfiguration.byteBufPool(false);
+        return channelServerConfiguration;
     }
 }

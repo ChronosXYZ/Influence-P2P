@@ -23,24 +23,27 @@ class SettingsLogic : CoreContracts.ISettingsLogic {
 
         fun publishUsername(oldUsername: String?, username: String?) {
             val mainKeyPair = keyPairManager.openMainKeyPair()
-            if(oldUsername != null || !oldUsername.equals("")) {
-                P2PUtils.remove(oldUsername, null, mainKeyPair)
+            oldUsername?.let {
+                if(!oldUsername.equals("")) {
+                    P2PUtils.remove(oldUsername, null, mainKeyPair)
+                }
             }
 
-            if (username.equals("") || username == null) {
+            username?.let {
+                var data: Data? = null
+                try {
+                    data = Data(AppHelper.getPeerID())
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+
+                data!!.protectEntry(mainKeyPair)
+
+                val isSuccess = P2PUtils.put(username, null, data, mainKeyPair)
+                Log.i(LOG_TAG, if (isSuccess) "Username $username is published!" else "Username $username isn't published!")
+            } ?: run {
                 return
             }
-            var data: Data? = null
-            try {
-                data = Data(AppHelper.getPeerID())
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-
-            data!!.protectEntry(mainKeyPair)
-
-            val isSuccess = P2PUtils.put(username, null, data, mainKeyPair)
-            Log.i(LOG_TAG, if (isSuccess) "Username $username is published!" else "Username $username isn't published!")
         }
     }
 }
