@@ -23,11 +23,20 @@ class SettingsPresenter(private val view: CoreContracts.ISettingsView) : CoreCon
 
     override fun updateUsername(username: String) {
         view.loadingScreen(true)
+        val editor: SharedPreferences.Editor = AppHelper.getPreferences().edit()
+
         GlobalScope.launch {
+            val oldUsername = AppHelper.getPreferences().getString("username", null)
+            if(username.equals("")) {
+                SettingsLogic.publishUsername(oldUsername, null)
+                editor.remove("username")
+                editor.apply()
+                AppHelper.updateUsername(null)
+                ObservableUtils.notifyUI(UIActions.USERNAME_AVAILABLE)
+                return@launch
+            }
             if(!logic.checkUsernameExists(username)) {
                 // Save username in SharedPreferences
-                val editor: SharedPreferences.Editor = AppHelper.getPreferences().edit()
-                val oldUsername = AppHelper.getPreferences().getString("username", null)
                 if(username.equals("")) {
                     editor.remove("username")
                 } else {

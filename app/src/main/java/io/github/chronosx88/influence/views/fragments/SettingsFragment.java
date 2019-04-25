@@ -68,6 +68,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements CoreCo
                 LinearLayout.LayoutParams.MATCH_PARENT);
         input.setSingleLine();
         input.setLayoutParams(lp);
+        input.setText(AppHelper.getPreferences().getString("username", null));
+
         alertDialog.setView(input);
 
         alertDialog.setPositiveButton(getContext().getString(R.string.ok), (dialog, which) -> presenter.updateUsername(input.getText().toString()));
