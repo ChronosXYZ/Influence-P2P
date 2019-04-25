@@ -13,6 +13,9 @@ import android.widget.Toast;
 import org.jetbrains.annotations.NotNull;
 
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceScreen;
+import androidx.recyclerview.widget.RecyclerView;
+
 import io.github.chronosx88.influence.R;
 import io.github.chronosx88.influence.contracts.CoreContracts;
 import io.github.chronosx88.influence.helpers.AppHelper;
@@ -43,6 +46,10 @@ public class SettingsFragment extends PreferenceFragmentCompat implements CoreCo
             setupUsernameEditDialog().show();
             return true;
         });
+        getPreferenceScreen().getPreference(1).setOnPreferenceChangeListener((p, nV) -> {
+            getPreferenceScreen().getPreference(1).setSummary((String) nV);
+            return true;
+        });
     }
 
     @Override
@@ -71,11 +78,15 @@ public class SettingsFragment extends PreferenceFragmentCompat implements CoreCo
         input.setText(AppHelper.getPreferences().getString("username", null));
 
         alertDialog.setView(input);
-
         alertDialog.setPositiveButton(getContext().getString(R.string.ok), (dialog, which) -> presenter.updateUsername(input.getText().toString()));
-
         alertDialog.setNegativeButton(getContext().getString(R.string.cancel), (dialog, which) -> dialog.cancel());
 
         return alertDialog;
     }
+
+    @Override
+    public void refreshScreen() {
+        getPreferenceScreen().getPreference(1).callChangeListener(AppHelper.getPreferences().getString("username", null));
+    }
+
 }

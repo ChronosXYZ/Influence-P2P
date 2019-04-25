@@ -87,5 +87,6 @@ interface CoreContracts {
     interface ISettingsView {
         fun loadingScreen(state: Boolean)
         fun showMessage(message: String)
+        fun refreshScreen()
     }
 }

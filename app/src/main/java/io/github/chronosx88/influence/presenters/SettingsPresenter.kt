@@ -61,6 +61,7 @@ class SettingsPresenter(private val view: CoreContracts.ISettingsView) : CoreCon
                 UIActions.USERNAME_AVAILABLE -> {
                     view.loadingScreen(false)
                     view.showMessage(AppHelper.getContext().getString(R.string.username_saved))
+                    view.refreshScreen()
                 }
                 UIActions.USERNAME_ISNT_AVAILABLE -> {
                     view.loadingScreen(false)
