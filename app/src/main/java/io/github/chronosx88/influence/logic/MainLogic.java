@@ -14,6 +14,7 @@ import net.tomp2p.connection.Ports;
 import net.tomp2p.connection.RSASignatureFactory;
 import net.tomp2p.dht.PeerBuilderDHT;
 import net.tomp2p.dht.PeerDHT;
+import net.tomp2p.dht.Storage;
 import net.tomp2p.futures.FutureBootstrap;
 import net.tomp2p.futures.FutureDiscover;
 import net.tomp2p.nat.FutureRelayNAT;
@@ -26,6 +27,7 @@ import net.tomp2p.relay.tcp.TCPRelayClientConfig;
 import net.tomp2p.replication.IndirectReplication;
 import net.tomp2p.storage.Data;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -42,7 +44,7 @@ import io.github.chronosx88.influence.helpers.JVMShutdownHook;
 import io.github.chronosx88.influence.helpers.KeyPairManager;
 import io.github.chronosx88.influence.helpers.NetworkHandler;
 import io.github.chronosx88.influence.helpers.P2PUtils;
-import io.github.chronosx88.influence.helpers.StorageBerkeleyDB;
+import io.github.chronosx88.influence.helpers.StorageMapDB;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.models.PublicUserProfile;
 
@@ -59,7 +61,7 @@ public class MainLogic implements CoreContracts.IMainLogicContract {
     private IndirectReplication replication;
     private KeyPairManager keyPairManager;
     private Thread checkNewChatsThread = null;
-    private StorageBerkeleyDB storage;
+    private Storage storage;
 
     public MainLogic() {
         this.context = AppHelper.getContext();
@@ -83,8 +85,9 @@ public class MainLogic implements CoreContracts.IMainLogicContract {
 
         new Thread(() -> {
             try {
-                StorageBerkeleyDB storageBerkeleyDB = new StorageBerkeleyDB(peerID, context.getFilesDir(), new RSASignatureFactory());
-                this.storage = storageBerkeleyDB;
+                //StorageBerkeleyDB storageBerkeleyDB = new StorageBerkeleyDB(peerID, context.getFilesDir(), new RSASignatureFactory());
+                Storage storageMapDB = new StorageMapDB(peerID, new File(context.getFilesDir(), "dhtDB.db"), new RSASignatureFactory());
+                this.storage = storageMapDB;
                 peerDHT = new PeerBuilderDHT(
                         new PeerBuilder(peerID)
                                 .ports(7243)
@@ -92,9 +95,9 @@ public class MainLogic implements CoreContracts.IMainLogicContract {
                                 .channelServerConfiguration(createChannelServerConfig())
                                 .start()
                 )
-                        .storage(storageBerkeleyDB)
+                        .storage(storageMapDB)
                         .start();
-                Runtime.getRuntime().addShutdownHook(new JVMShutdownHook(storageBerkeleyDB));
+                Runtime.getRuntime().addShutdownHook(new JVMShutdownHook(storageMapDB));
                 try {
                     String bootstrapIP = this.preferences.getString("bootstrapAddress", null);
                     if(bootstrapIP == null) {

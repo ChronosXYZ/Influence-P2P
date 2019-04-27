@@ -40,7 +40,7 @@ class SettingsLogic : CoreContracts.ISettingsLogic {
                 data!!.protectEntry(mainKeyPair)
 
                 val isSuccess = P2PUtils.put(username, null, data, mainKeyPair)
-                Log.i(LOG_TAG, if (isSuccess) "Username $username is published!" else "Username $username isn't published!")
+                Log.i(LOG_TAG, if (isSuccess) "# Username $username is published!" else "# Username $username isn't published!")
             } ?: run {
                 return
             }
