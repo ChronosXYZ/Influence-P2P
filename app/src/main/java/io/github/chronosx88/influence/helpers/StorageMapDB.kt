@@ -49,7 +49,7 @@ class StorageMapDB(peerId: Number160, path : File, signatureFactory: SignatureFa
     private val responsibilityMap: BTreeMap<Number160, Number160>
     private val responsibilityMapRev: BTreeMap<Number160, Set<Number160>>
 
-    private val db: DB = DBMaker.fileDB(path).closeOnJvmShutdown().make()
+    private val db: DB = DBMaker.fileDB(path).transactionEnable().closeOnJvmShutdown().make()
     private val storageCheckIntervalMillis: Int = 60 * 1000
 
     init {

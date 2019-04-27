@@ -39,7 +39,7 @@ class DataSerializerMapDB(private val signatureFactory: SignatureFactory) : Grou
         val acb = Unpooled.buffer()
         // store data to disk
         // header first
-        if(value.publicKey().equals(PeerBuilder.EMPTY_PUBLIC_KEY)) {
+        if(value.publicKey()!= null && value.publicKey().equals(PeerBuilder.EMPTY_PUBLIC_KEY)) {
             value.publicKey(null)
         }
         value.encodeHeader(acb, signatureFactory)

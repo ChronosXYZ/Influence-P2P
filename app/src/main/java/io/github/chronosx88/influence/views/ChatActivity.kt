@@ -49,7 +49,6 @@ class ChatActivity : AppCompatActivity(), CoreContracts.IChatViewContract {
             }
             presenter!!.sendMessage(messageTextEdit!!.text.toString())
             messageTextEdit!!.setText("")
-            messageList!!.scrollToPosition(chatAdapter!!.itemCount - 1)
         }
         contactUsernameTextView!!.text = intent.getStringExtra("contactUsername")
         messageList!!.scrollToPosition(chatAdapter!!.itemCount - 1)
@@ -58,6 +57,7 @@ class ChatActivity : AppCompatActivity(), CoreContracts.IChatViewContract {
     override fun updateMessageList(message: MessageEntity) {
         runOnUiThread {
             chatAdapter!!.addMessage(message)
+            messageList!!.scrollToPosition(chatAdapter!!.itemCount - 1)
             chatAdapter!!.notifyDataSetChanged()
         }
     }
@@ -65,6 +65,7 @@ class ChatActivity : AppCompatActivity(), CoreContracts.IChatViewContract {
     override fun updateMessageList(messages: List<MessageEntity>) {
         runOnUiThread {
             chatAdapter!!.addMessages(messages)
+            messageList!!.scrollToPosition(chatAdapter!!.itemCount - 1)
             chatAdapter!!.notifyDataSetChanged()
         }
     }

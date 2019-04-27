@@ -8,6 +8,11 @@ import net.tomp2p.dht.PeerDHT;
 
 import androidx.multidex.MultiDexApplication;
 import androidx.room.Room;
+
+import com.instacart.library.truetime.TrueTime;
+
+import java.io.IOException;
+
 import io.github.chronosx88.influence.observable.MainObservable;
 
 /**
@@ -33,6 +38,13 @@ public class AppHelper extends MultiDexApplication {
                     .allowMainThreadQueries()
                     .build();
         preferences = getApplicationContext().getSharedPreferences("io.github.chronosx88.influence_preferences", MODE_PRIVATE);
+        new Thread(() -> {
+            try {
+                TrueTime.build().initialize();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     public static void storePeerID(String peerID1) { peerID = peerID1; }

@@ -6,11 +6,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedSet;
+import java.util.TimeZone;
 import java.util.TreeSet;
 
 import androidx.annotation.NonNull;
@@ -26,6 +33,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
     private final Context context = AppHelper.getContext();
     private ArrayList<MessageEntity> messages = new ArrayList<>();
+    private static Comparator<MessageEntity> comparator = ((o1, o2) -> Long.compare(o1.timestamp, o2.timestamp));
 
     @NonNull
     @Override
@@ -45,11 +53,13 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
                 }
             }
             messages.add(message);
+            Collections.sort(messages, comparator);
         }
     }
 
     public void addMessages(List<MessageEntity> messages) {
         this.messages.addAll(messages);
+        Collections.sort(messages, comparator);
     }
 
     @Override
@@ -58,9 +68,9 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         holder.messageText.setText(messages.get(position).text);
 
         // Setting message time (HOUR:MINUTE)
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date(messages.get(position).timestamp));
-        String time = calendar.get(Calendar.HOUR) + ":" + calendar.get(Calendar.MINUTE);
+        DateFormat dateFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
+        dateFormat.setTimeZone(TimeZone.getDefault());
+        String time = dateFormat.format(new Date(messages.get(position).timestamp));
         holder.messageTime.setText(time);
     }
 
@@ -90,4 +100,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
             messageTime = itemView.findViewById(R.id.message_time);
         }
     }
+
+
 }
