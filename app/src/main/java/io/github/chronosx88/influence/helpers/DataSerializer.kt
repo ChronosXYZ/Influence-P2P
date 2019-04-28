@@ -19,7 +19,7 @@ class DataSerializer(private val signatureFactory: SignatureFactory) : EntryBind
         if (databaseEntry.data == null) {
             return null
         }
-        val dataInput = DataInputStream(ByteArrayInputStream(databaseEntry.data))
+        val dataInput = ByteArrayInputStream(databaseEntry.data)
         var buf = Unpooled.buffer()
         var data: Data? = null
         while (data == null) {
@@ -41,7 +41,7 @@ class DataSerializer(private val signatureFactory: SignatureFactory) : EntryBind
         }
         if (data.isSigned) {
             me = ByteArray(signatureFactory.signatureSize())
-            dataInput.readFully(me)
+            dataInput.read(me)
             buf = Unpooled.wrappedBuffer(me)
         }
         retVal = data.decodeDone(buf, signatureFactory);
@@ -52,8 +52,7 @@ class DataSerializer(private val signatureFactory: SignatureFactory) : EntryBind
     }
 
     override fun objectToEntry(data: Data, databaseEntry: DatabaseEntry) {
-        val baos = ByteArrayOutputStream()
-        val out = DataOutputStream(baos)
+        val out = ByteArrayOutputStream()
         val acb = Unpooled.buffer()
         // store data to disk
         // header first
@@ -73,7 +72,7 @@ class DataSerializer(private val signatureFactory: SignatureFactory) : EntryBind
             throw IOException(e)
         }
         out.flush()
-        databaseEntry.data = baos.toByteArray()
+        databaseEntry.data = out.toByteArray()
         out.close()
     }
 

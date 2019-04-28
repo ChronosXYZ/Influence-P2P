@@ -51,7 +51,7 @@ class StorageBerkeleyDB(peerId: Number160, path : File, signatureFactory: Signat
         envConfig.allowCreate = true
         dbEnvironment = Environment(path, envConfig)
 
-        val configMap : HashMap<String, com.sleepycat.je.DatabaseConfig> = HashMap()
+        val configMap : HashMap<String, DatabaseConfig> = HashMap()
 
         val compareNumber640 = CompareNumber640()
         val compareLong = CompareLong()
@@ -98,7 +98,9 @@ class StorageBerkeleyDB(peerId: Number160, path : File, signatureFactory: Signat
     }
 
     override fun put(key: Number640?, value: Data?): Data? {
-        return dataMap.put(key, value)
+        val oldData = dataMap.put(key, value)
+        dbEnvironment.sync()
+        return oldData
     }
 
     override fun get(key: Number640?): Data? {
@@ -106,7 +108,9 @@ class StorageBerkeleyDB(peerId: Number160, path : File, signatureFactory: Signat
     }
 
     override fun remove(key: Number640?, returnData: Boolean): Data? {
-        return dataMap.remove(key)
+        val oldData = dataMap.remove(key)
+        dbEnvironment.sync()
+        return oldData
     }
 
     override fun remove(from: Number640?, to: Number640?): NavigableMap<Number640, Data> {
@@ -116,6 +120,7 @@ class StorageBerkeleyDB(peerId: Number160, path : File, signatureFactory: Signat
             retVal[entry.key] = entry.value
         }
         tmp.clear()
+        dbEnvironment.sync()
         return retVal
     }
 
@@ -126,6 +131,7 @@ class StorageBerkeleyDB(peerId: Number160, path : File, signatureFactory: Signat
             return
         }
         removeRevTimeout(key, oldExpiration)
+        dbEnvironment.sync()
     }
 
     private fun putIfAbsent2(expiration: Long, key: Number640) {
@@ -136,10 +142,11 @@ class StorageBerkeleyDB(peerId: Number160, path : File, signatureFactory: Signat
         }
         (timeouts as MutableSet).add(key)
         timeoutMapRev[expiration] = timeouts
+        dbEnvironment.sync()
     }
 
     private fun removeRevTimeout(key: Number640, expiration: Long?) {
-        val tmp = timeoutMapRev[expiration] as MutableSet<Number640>
+        val tmp = timeoutMapRev[expiration] as MutableSet<Number640>?
         if (tmp != null) {
             tmp.remove(key)
             if (tmp.isEmpty()) {
@@ -148,6 +155,7 @@ class StorageBerkeleyDB(peerId: Number160, path : File, signatureFactory: Signat
                 timeoutMapRev[expiration!!] = tmp
             }
         }
+        dbEnvironment.sync()
     }
 
     override fun updateResponsibilities(locationKey: Number160, peerId: Number160?): Boolean {
@@ -163,12 +171,13 @@ class StorageBerkeleyDB(peerId: Number160, path : File, signatureFactory: Signat
         } else {
             hasChanged = true
         }
-        var contentIDs: MutableSet<Number160>? = responsibilityMapRev[peerId] as MutableSet
+        var contentIDs: MutableSet<Number160>? = responsibilityMapRev[peerId] as MutableSet?
         if (contentIDs == null) {
             contentIDs = HashSet()
         }
         contentIDs.add(locationKey)
         responsibilityMapRev[peerId] = contentIDs
+        dbEnvironment.sync()
         return hasChanged
     }
 
@@ -182,10 +191,12 @@ class StorageBerkeleyDB(peerId: Number160, path : File, signatureFactory: Signat
                 responsibilityMapRev[peerId] = contentIDs
             }
         }
+        dbEnvironment.sync()
     }
 
     override fun protectDomain(key: Number320?, publicKey: PublicKey?): Boolean {
         protectedDomainMap[key] = publicKey
+        dbEnvironment.sync()
         return true
     }
 
@@ -201,6 +212,8 @@ class StorageBerkeleyDB(peerId: Number160, path : File, signatureFactory: Signat
     override fun removeTimeout(key: Number640) {
         val expiration = timeoutMap.remove(key) ?: return
         removeRevTimeout(key, expiration)
+        timeoutMapDB.sync()
+        dbEnvironment.sync()
     }
 
     override fun removeResponsibility(locationKey: Number160) {
@@ -208,10 +221,12 @@ class StorageBerkeleyDB(peerId: Number160, path : File, signatureFactory: Signat
         if (peerId != null) {
             removeRevResponsibility(peerId, locationKey)
         }
+        dbEnvironment.sync()
     }
 
     override fun protectEntry(key: Number480?, publicKey: PublicKey?): Boolean {
         protectedEntryMap[key] = publicKey
+        dbEnvironment.sync()
         return true
     }
 
@@ -270,5 +285,6 @@ class StorageBerkeleyDB(peerId: Number160, path : File, signatureFactory: Signat
         protectedEntryMapDB.close()
         responsibilityMapDB.close()
         responsibilityMapRevDB.close()
+        dbEnvironment.close()
     }
 }

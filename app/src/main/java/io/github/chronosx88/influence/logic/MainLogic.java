@@ -44,6 +44,7 @@ import io.github.chronosx88.influence.helpers.JVMShutdownHook;
 import io.github.chronosx88.influence.helpers.KeyPairManager;
 import io.github.chronosx88.influence.helpers.NetworkHandler;
 import io.github.chronosx88.influence.helpers.P2PUtils;
+import io.github.chronosx88.influence.helpers.StorageBerkeleyDB;
 import io.github.chronosx88.influence.helpers.StorageMapDB;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.models.PublicUserProfile;
@@ -85,9 +86,11 @@ public class MainLogic implements CoreContracts.IMainLogicContract {
 
         new Thread(() -> {
             try {
-                //StorageBerkeleyDB storageBerkeleyDB = new StorageBerkeleyDB(peerID, context.getFilesDir(), new RSASignatureFactory());
-                Storage storageMapDB = new StorageMapDB(peerID, new File(context.getFilesDir(), "dhtDB.db"), new RSASignatureFactory());
-                this.storage = storageMapDB;
+                File dhtDBEnv = new File(context.getFilesDir(), "dhtDBEnv");
+                if(!dhtDBEnv.exists())
+                    dhtDBEnv.mkdirs();
+                Storage storage = new StorageBerkeleyDB(peerID, dhtDBEnv, new RSASignatureFactory());
+                this.storage = storage;
                 peerDHT = new PeerBuilderDHT(
                         new PeerBuilder(peerID)
                                 .ports(7243)
@@ -95,9 +98,9 @@ public class MainLogic implements CoreContracts.IMainLogicContract {
                                 .channelServerConfiguration(createChannelServerConfig())
                                 .start()
                 )
-                        .storage(storageMapDB)
+                        .storage(storage)
                         .start();
-                Runtime.getRuntime().addShutdownHook(new JVMShutdownHook(storageMapDB));
+                Runtime.getRuntime().addShutdownHook(new JVMShutdownHook(storage));
                 try {
                     String bootstrapIP = this.preferences.getString("bootstrapAddress", null);
                     if(bootstrapIP == null) {

@@ -30,7 +30,7 @@ import io.github.chronosx88.influence.models.roomEntities.MessageEntity;
 public class ChatLogic implements CoreContracts.IChatLogicContract {
     private static Gson gson = new Gson();
     private String chatID;
-    private String newMessage = "";
+    private volatile String newMessage = "";
     private ChatEntity chatEntity;
     private Thread checkNewMessagesThread = null;
     private KeyPairManager keyPairManager;
