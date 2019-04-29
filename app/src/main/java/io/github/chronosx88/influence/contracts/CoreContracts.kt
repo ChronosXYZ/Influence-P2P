@@ -54,7 +54,10 @@ interface CoreContracts {
         fun onDestroy()
     }
 
-    interface IMainViewContract//
+    interface IMainViewContract {
+        fun showSnackbar(message: String)
+        fun showProgressBar(state: Boolean)
+    }
 
     // -----ChatActivity-----
 

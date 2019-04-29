@@ -7,4 +7,6 @@
     <string name="cancel">Отмена</string>
     <string name="username_settings">Ваше имя пользователя</string>
     <string name="username_hint">Имя пользователя</string>
+    <string name="reconnect_network">Переподключиться к сети</string>
+    <string name="node_already_running">Узел уже запущен</string>
 </resources>

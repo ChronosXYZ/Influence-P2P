@@ -6,4 +6,6 @@
     <string name="cancel">Cancel</string>
     <string name="username_settings">Your username</string>
     <string name="username_hint">Username</string>
+    <string name="reconnect_network">Reconnect to the network</string>
+    <string name="node_already_running">Node already running</string>
 </resources>

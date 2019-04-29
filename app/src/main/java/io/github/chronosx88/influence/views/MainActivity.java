@@ -2,16 +2,23 @@ package io.github.chronosx88.influence.views;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.JsonObject;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+
+import org.jetbrains.annotations.NotNull;
+
 import io.github.chronosx88.influence.R;
 import io.github.chronosx88.influence.contracts.CoreContracts;
 import io.github.chronosx88.influence.contracts.observer.IObserver;
@@ -129,5 +136,48 @@ public class MainActivity extends AppCompatActivity implements IObserver, CoreCo
                 break;
             }
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_actionbar_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == R.id.action_reconnect_network) {
+            progressDialog.show();
+            presenter.initPeer();
+        }
+        return true;
+    }
+
+    @Override
+    public void showSnackbar(@NotNull String message) {
+        Snackbar.make(getRootView(), message, Snackbar.LENGTH_LONG)
+                .show();
+    }
+
+    @Override
+    public void showProgressBar(boolean state) {
+        if(state) {
+            progressDialog.show();
+        } else {
+            progressDialog.dismiss();
+        }
+    }
+
+    private View getRootView() {
+        final ViewGroup contentViewGroup = findViewById(android.R.id.content);
+        View rootView = null;
+
+        if(contentViewGroup != null)
+            rootView = contentViewGroup.getChildAt(0);
+
+        if(rootView == null)
+            rootView = getWindow().getDecorView().getRootView();
+
+        return rootView;
     }
 }
