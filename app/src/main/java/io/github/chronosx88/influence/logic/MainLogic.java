@@ -45,7 +45,6 @@ import io.github.chronosx88.influence.helpers.KeyPairManager;
 import io.github.chronosx88.influence.helpers.NetworkHandler;
 import io.github.chronosx88.influence.helpers.P2PUtils;
 import io.github.chronosx88.influence.helpers.StorageBerkeleyDB;
-import io.github.chronosx88.influence.helpers.StorageMapDB;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.models.PublicUserProfile;
 
@@ -154,7 +153,7 @@ public class MainLogic implements CoreContracts.IMainLogicContract {
                 AppHelper.updateUsername(preferences.getString("username", null));
                 AppHelper.storePeerDHT(peerDHT);
                 AppHelper.initNetworkHandler();
-                setReceiveHandler();
+                //setReceiveHandler();
                 gson = new Gson();
                 publicProfileToDHT();
                 SettingsLogic.Companion.publishUsername(AppHelper.getUsername(), AppHelper.getUsername());
