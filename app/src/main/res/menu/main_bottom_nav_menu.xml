@@ -8,8 +8,4 @@
         android:id="@+id/action_settings"
         android:icon="@drawable/ic_settings_white"
         android:title="Настройки" />
-    <item
-        android:id="@+id/action_start_chat"
-        android:icon="@drawable/ic_person_add_white"
-        android:title="Начать чат" />
 </menu>

@@ -22,10 +22,13 @@ import net.tomp2p.nat.PeerBuilderNAT;
 import net.tomp2p.nat.PeerNAT;
 import net.tomp2p.p2p.PeerBuilder;
 import net.tomp2p.peers.Number160;
+import net.tomp2p.peers.Number640;
 import net.tomp2p.peers.PeerAddress;
 import net.tomp2p.relay.tcp.TCPRelayClientConfig;
 import net.tomp2p.replication.IndirectReplication;
 import net.tomp2p.storage.Data;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +37,8 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.security.KeyPair;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -42,10 +47,14 @@ import io.github.chronosx88.influence.contracts.CoreContracts;
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.JVMShutdownHook;
 import io.github.chronosx88.influence.helpers.KeyPairManager;
+import io.github.chronosx88.influence.helpers.LocalDBWrapper;
 import io.github.chronosx88.influence.helpers.NetworkHandler;
+import io.github.chronosx88.influence.helpers.ObservableUtils;
 import io.github.chronosx88.influence.helpers.P2PUtils;
 import io.github.chronosx88.influence.helpers.StorageBerkeleyDB;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
+import io.github.chronosx88.influence.models.ChatMetadata;
+import io.github.chronosx88.influence.models.NewChatRequestMessage;
 import io.github.chronosx88.influence.models.PublicUserProfile;
 
 public class MainLogic implements CoreContracts.IMainLogicContract {
@@ -236,8 +245,10 @@ public class MainLogic implements CoreContracts.IMainLogicContract {
             if(replication != null) {
                 replication.shutdown();
             }
-            peerDHT.peer().announceShutdown().start().awaitUninterruptibly();
-            peerDHT.peer().shutdown().awaitUninterruptibly();
+            if(peerDHT != null) {
+                peerDHT.peer().announceShutdown().start().awaitUninterruptibly();
+                peerDHT.peer().shutdown().awaitUninterruptibly();
+            }
             storage.close();
             System.exit(0);
         }).start();
@@ -291,5 +302,75 @@ public class MainLogic implements CoreContracts.IMainLogicContract {
         channelServerConfiguration.signatureFactory(new RSASignatureFactory());
         channelServerConfiguration.byteBufPool(false);
         return channelServerConfiguration;
+    }
+
+    @Override
+    public void sendStartChatMessage(@NotNull String username) {
+        if(AppHelper.getPeerDHT() == null) {
+            ObservableUtils.notifyUI(UIActions.NODE_IS_OFFLINE);
+            return;
+        }
+
+        String companionPeerID = getPeerIDByUsername(username);
+        if(companionPeerID == null) {
+            ObservableUtils.notifyUI(UIActions.PEER_NOT_EXIST);
+            return;
+        }
+        PublicUserProfile recipientPublicProfile = getPublicProfile(companionPeerID);
+        if(recipientPublicProfile == null) {
+            ObservableUtils.notifyUI(UIActions.PEER_NOT_EXIST);
+            return;
+        }
+
+        NewChatRequestMessage newChatRequestMessage = new NewChatRequestMessage(UUID.randomUUID().toString(), UUID.randomUUID().toString(), AppHelper.getPeerID(), AppHelper.getUsername(), System.currentTimeMillis(), 0);
+        try {
+            if(P2PUtils.put(companionPeerID + "_pendingChats", newChatRequestMessage.getChatID(), new Data(gson.toJson(newChatRequestMessage)))) {
+                Log.i(LOG_TAG, "# Create new offline chat request is successful! ChatID: " + newChatRequestMessage.getChatID());
+            } else {
+                Log.e(LOG_TAG, "# Failed to create offline chat request. ChatID: " + newChatRequestMessage.getChatID());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        ArrayList<String> admins = new ArrayList<>();
+        admins.add(AppHelper.getPeerID());
+        Data data = null;
+        try {
+            data = new Data(gson.toJson(new ChatMetadata(username, admins, new ArrayList<>())));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        data.protectEntry(keyPairManager.openMainKeyPair());
+        P2PUtils.put(newChatRequestMessage.getChatID() + "_metadata", null, data);
+        LocalDBWrapper.createChatEntry(newChatRequestMessage.getChatID(), username, newChatRequestMessage.getChatID() + "_metadata", newChatRequestMessage.getChatID() + "_members", 0);
+        ObservableUtils.notifyUI(UIActions.NEW_CHAT);
+    }
+
+    private PublicUserProfile getPublicProfile(String peerID) {
+        PublicUserProfile publicProfile = null;
+        Map<Number640, Data> data = P2PUtils.get(peerID + "_profile");
+        if (data != null && data.size() == 1) {
+            try {
+                publicProfile = gson.fromJson((String) data.values().iterator().next().object(), PublicUserProfile.class);
+            } catch (ClassNotFoundException | IOException e) {
+                e.printStackTrace();
+            }
+            return publicProfile;
+        }
+        return null;
+    }
+
+    private String getPeerIDByUsername(String username) {
+        Map<Number640, Data> usernameMap = P2PUtils.get(username);
+        if(usernameMap == null) {
+            return null;
+        }
+        try {
+            return (String) usernameMap.values().iterator().next().object();
+        } catch (ClassNotFoundException | IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

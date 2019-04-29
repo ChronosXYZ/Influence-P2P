@@ -6,13 +6,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.JsonObject;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -27,7 +30,7 @@ import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.presenters.MainPresenter;
 import io.github.chronosx88.influence.views.fragments.ChatListFragment;
 import io.github.chronosx88.influence.views.fragments.SettingsFragment;
-import io.github.chronosx88.influence.views.fragments.StartChatFragment;
+import kotlin.Pair;
 
 public class MainActivity extends AppCompatActivity implements IObserver, CoreContracts.IMainViewContract {
 
@@ -48,9 +51,6 @@ public class MainActivity extends AppCompatActivity implements IObserver, CoreCo
                 case R.id.action_settings:
                     selectedFragment = new SettingsFragment();
                     break;
-                case R.id.action_start_chat:
-                    selectedFragment = new StartChatFragment();
-                    break;
             }
 
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -68,6 +68,19 @@ public class MainActivity extends AppCompatActivity implements IObserver, CoreCo
         setContentView(R.layout.activity_main);
         BottomNavigationView navigation = findViewById(R.id.main_bottom_navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        FloatingActionButton fab = findViewById(R.id.add_chat);
+        fab.setOnClickListener((v) -> {
+            Pair<AlertDialog.Builder, EditText> pair = ViewUtils.INSTANCE.setupEditTextDialog(MainActivity.this, getString(R.string.input_companion_username));
+            pair.getFirst().setPositiveButton(getString(R.string.ok), (dialog, which) -> {
+                progressDialog.show();
+                presenter.startChatWithPeer(pair.getSecond().getText().toString());
+            });
+            pair.getFirst().setNegativeButton(getString(R.string.cancel), (dialog, which) -> {
+                dialog.cancel();
+            });
+            pair.getFirst().show();
+        });
 
         getSupportFragmentManager()
                 .beginTransaction()
@@ -155,17 +168,21 @@ public class MainActivity extends AppCompatActivity implements IObserver, CoreCo
 
     @Override
     public void showSnackbar(@NotNull String message) {
-        Snackbar.make(getRootView(), message, Snackbar.LENGTH_LONG)
-                .show();
+        runOnUiThread(() -> {
+            Snackbar.make(getRootView(), message, Snackbar.LENGTH_LONG)
+                    .show();
+        });
     }
 
     @Override
     public void showProgressBar(boolean state) {
-        if(state) {
-            progressDialog.show();
-        } else {
-            progressDialog.dismiss();
-        }
+        runOnUiThread(() -> {
+            if(state) {
+                progressDialog.show();
+            } else {
+                progressDialog.dismiss();
+            }
+        });
     }
 
     private View getRootView() {

@@ -46,11 +46,13 @@ interface CoreContracts {
 
     interface IMainLogicContract {
         fun initPeer()
+        fun sendStartChatMessage(username: String)
         fun shutdownPeer()
     }
 
     interface IMainPresenterContract {
         fun initPeer()
+        fun startChatWithPeer(username: String)
         fun onDestroy()
     }
 
