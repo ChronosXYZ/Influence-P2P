@@ -131,11 +131,7 @@ public class MainLogic implements CoreContracts.IMainLogicContract {
 
                 boolean discoveredExternalAddress = false;
 
-                if(!discoverExternalAddress()) {
-                    JsonObject jsonObject = new JsonObject();
-                    jsonObject.addProperty("action", UIActions.PORT_FORWARDING_ERROR);
-                    AppHelper.getObservable().notifyUIObservers(jsonObject);
-                } else {
+                if(discoverExternalAddress()) {
                     discoveredExternalAddress = true;
                 }
 
