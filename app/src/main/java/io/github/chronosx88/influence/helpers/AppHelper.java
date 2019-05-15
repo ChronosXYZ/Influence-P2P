@@ -13,7 +13,10 @@ import com.instacart.library.truetime.TrueTime;
 
 import java.io.IOException;
 
+import io.github.chronosx88.influence.notificationSystem.NotificationSystem;
 import io.github.chronosx88.influence.observable.MainObservable;
+import rice.environment.Environment;
+import rice.pastry.PastryNode;
 
 /**
  * Extended Application class which designed for centralized getting various objects from anywhere in the application.
@@ -25,9 +28,11 @@ public class AppHelper extends MultiDexApplication {
     private static String peerID;
     private static PeerDHT peerDHT;
     private static RoomHelper chatDB;
-    private static NetworkHandler networkHandler;
     private static String username = "";
     private static SharedPreferences preferences;
+    private static PastryNode pastryNode;
+    private static Environment pastryEnvironment;
+    private static NotificationSystem notificationSystem;
 
     @Override
     public void onCreate() {
@@ -67,9 +72,27 @@ public class AppHelper extends MultiDexApplication {
 
     public static RoomHelper getChatDB() { return chatDB; }
 
-    public static void initNetworkHandler() { networkHandler = new NetworkHandler(); }
-
     public static SharedPreferences getPreferences() {
         return preferences;
+    }
+
+    public static void storePastryNode(PastryNode node) { pastryNode = node; }
+
+    public static PastryNode getPastryNode() { return pastryNode; }
+
+    public static void storePastryEnvironment(Environment env) {
+        pastryEnvironment = env;
+    }
+
+    public static Environment getPastryEnvironment() {
+        return pastryEnvironment;
+    }
+
+    public static void storeNotificationSystem(NotificationSystem system) {
+        notificationSystem = system;
+    }
+
+    public static NotificationSystem getNotificationSystem() {
+        return notificationSystem;
     }
 }

@@ -56,6 +56,15 @@ import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.models.ChatMetadata;
 import io.github.chronosx88.influence.models.NewChatRequestMessage;
 import io.github.chronosx88.influence.models.PublicUserProfile;
+import io.github.chronosx88.influence.notificationSystem.NotificationHandler;
+import io.github.chronosx88.influence.notificationSystem.NotificationSystem;
+import rice.environment.Environment;
+import rice.p2p.scribe.ScribeContent;
+import rice.pastry.NodeHandle;
+import rice.pastry.NodeIdFactory;
+import rice.pastry.PastryNode;
+import rice.pastry.socket.internet.InternetPastryNodeFactory;
+import rice.pastry.standard.RandomNodeIdFactory;
 
 public class MainLogic implements CoreContracts.IMainLogicContract {
     private static final String LOG_TAG = MainLogic.class.getName();
@@ -71,6 +80,7 @@ public class MainLogic implements CoreContracts.IMainLogicContract {
     private KeyPairManager keyPairManager;
     private Thread checkNewChatsThread = null;
     private Storage storage;
+    private PastryNode pastryNode;
 
     public MainLogic() {
         this.context = AppHelper.getContext();
@@ -151,19 +161,35 @@ public class MainLogic implements CoreContracts.IMainLogicContract {
                     return;
                 }
 
+                try {
+                    if(!createPastryNode(7244, new InetSocketAddress(bootstrapAddress, 7244))) {
+                        JsonObject jsonObject = new JsonObject();
+                        jsonObject.addProperty("action", UIActions.BOOTSTRAP_ERROR);
+                        AppHelper.getObservable().notifyUIObservers(jsonObject);
+                        return;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    JsonObject jsonObject = new JsonObject();
+                    jsonObject.addProperty("action", UIActions.BOOTSTRAP_ERROR);
+                    AppHelper.getObservable().notifyUIObservers(jsonObject);
+                    return;
+                }
+
                 JsonObject jsonObject = new JsonObject();
                 jsonObject.addProperty("action", UIActions.BOOTSTRAP_SUCCESS);
                 AppHelper.getObservable().notifyUIObservers(jsonObject);
                 AppHelper.storePeerID(preferences.getString("peerID", null));
                 AppHelper.updateUsername(preferences.getString("username", null));
                 AppHelper.storePeerDHT(peerDHT);
-                AppHelper.initNetworkHandler();
-                //setReceiveHandler();
+                AppHelper.storePastryNode(pastryNode);
+                AppHelper.storeNotificationSystem(new NotificationSystem());
                 gson = new Gson();
                 publicProfileToDHT();
                 SettingsLogic.Companion.publishUsername(AppHelper.getUsername(), AppHelper.getUsername());
                 NetworkHandler.handlePendingChatRequests();
-                TimerTask timerTask = new TimerTask() {
+                AppHelper.getNotificationSystem().subscribe(AppHelper.getPeerID() + "_newChats", notification -> NetworkHandler.handlePendingChatRequests());
+                /*TimerTask timerTask = new TimerTask() {
                     @Override
                     public void run() {
                         if(checkNewChatsThread == null) {
@@ -177,7 +203,7 @@ public class MainLogic implements CoreContracts.IMainLogicContract {
                     }
                 };
                 Timer timer = new Timer();
-                timer.schedule(timerTask, 1, 5000);
+                timer.schedule(timerTask, 1, 5000);*/
                 replication = new IndirectReplication(peerDHT).start();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -227,14 +253,6 @@ public class MainLogic implements CoreContracts.IMainLogicContract {
         }
     }
 
-    private void setReceiveHandler() {
-        AppHelper.getPeerDHT().peer().objectDataReply((s, r) -> {
-            Log.i(LOG_TAG, "# Incoming message: " + r);
-            AppHelper.getObservable().notifyNetworkObservers(r);
-            return null;
-        });
-    }
-
     @Override
     public void shutdownPeer() {
         new Thread(() -> {
@@ -274,29 +292,14 @@ public class MainLogic implements CoreContracts.IMainLogicContract {
     }
 
     private ChannelClientConfiguration createChannelClientConfig() {
-        ChannelClientConfiguration channelClientConfiguration = new ChannelClientConfiguration();
-        channelClientConfiguration.bindings(new Bindings());
-        channelClientConfiguration.maxPermitsPermanentTCP(250);
-        channelClientConfiguration.maxPermitsTCP(250);
-        channelClientConfiguration.maxPermitsUDP(250);
-        channelClientConfiguration.pipelineFilter(new PeerBuilder.DefaultPipelineFilter());
+        ChannelClientConfiguration channelClientConfiguration = PeerBuilder.createDefaultChannelClientConfiguration();
         channelClientConfiguration.signatureFactory(new RSASignatureFactory());
-        channelClientConfiguration.senderTCP((new InetSocketAddress(0)).getAddress());
-        channelClientConfiguration.senderUDP((new InetSocketAddress(0)).getAddress());
-        channelClientConfiguration.byteBufPool(false);
         return channelClientConfiguration;
     }
 
     private ChannelServerConfiguration createChannelServerConfig() {
-        ChannelServerConfiguration channelServerConfiguration = new ChannelServerConfiguration();
-        channelServerConfiguration.bindings(new Bindings());
-        //these two values may be overwritten in the peer builder
-        channelServerConfiguration.ports(new Ports(Ports.DEFAULT_PORT, Ports.DEFAULT_PORT));
-        channelServerConfiguration.portsForwarding(new Ports(Ports.DEFAULT_PORT, Ports.DEFAULT_PORT));
-        channelServerConfiguration.behindFirewall(false);
-        channelServerConfiguration.pipelineFilter(new PeerBuilder.DefaultPipelineFilter());
+        ChannelServerConfiguration channelServerConfiguration = PeerBuilder.createDefaultChannelServerConfiguration();
         channelServerConfiguration.signatureFactory(new RSASignatureFactory());
-        channelServerConfiguration.byteBufPool(false);
         return channelServerConfiguration;
     }
 
@@ -368,5 +371,32 @@ public class MainLogic implements CoreContracts.IMainLogicContract {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private boolean createPastryNode(int bindPort, InetSocketAddress bootAddress) throws Exception {
+        Environment env = new Environment();
+        env.getParameters().setString("probe_for_external_address","true");
+        AppHelper.storePastryEnvironment(env);
+        NodeIdFactory nidFactory = new RandomNodeIdFactory(env);
+        InternetPastryNodeFactory factory = new InternetPastryNodeFactory(nidFactory, bindPort, env);
+        NodeHandle bootHandle = factory.getNodeHandle(bootAddress);
+        PastryNode node;
+        if(bootHandle != null) {
+            node = factory.newNode(bootHandle);
+        } else {
+            return false;
+        }
+        // the node may require sending several messages to fully boot into the ring
+        synchronized(node) {
+            while(!node.isReady() && !node.joinFailed()) {
+                node.wait(100);
+                if (node.joinFailed()) {
+                    return false;
+                }
+            }
+        }
+        Log.i(LOG_TAG, "# [Pastry] Finished creating new Pastry node: " + node);
+        this.pastryNode = node;
+        return true;
     }
 }
