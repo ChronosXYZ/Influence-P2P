@@ -75,4 +75,45 @@ public class NetworkHandler implements INetworkObserver {
             }
         }
     }
+
+    public static void handleNewChat(String chatID) {
+        Data newChat = P2PUtils.get(AppHelper.getPeerID() + "_pendingChats", chatID);
+        if (newChat != null) {
+            NewChatRequestMessage newChatRequestMessage = null;
+            try {
+                newChatRequestMessage = gson.fromJson((String) newChat.object(), NewChatRequestMessage.class);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            ChatMember chatMember = new ChatMember(AppHelper.getPeerID(), AppHelper.getPeerID());
+            Data putData = null;
+            try {
+                putData = new Data(gson.toJson(chatMember)).protectEntry(keyPairManager.openMainKeyPair());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            P2PUtils.put(newChatRequestMessage.getChatID() + "_members", AppHelper.getPeerID(), putData);
+
+            LocalDBWrapper.createChatEntry(
+                    newChatRequestMessage.getChatID(),
+                    newChatRequestMessage.getUsername(),
+                    newChatRequestMessage.getChatID() + "_metadata",
+                    newChatRequestMessage.getChatID() + "_members",
+                    newChatRequestMessage.getChunkID()
+            );
+
+            P2PUtils.remove(AppHelper.getPeerID() + "_pendingChats", newChatRequestMessage.getChatID());
+            String messageID = UUID.randomUUID().toString();
+            try {
+                P2PUtils.put(newChatRequestMessage.getChatID() + "_messages", messageID, new Data(gson.toJson(new JoinChatMessage(AppHelper.getPeerID(), AppHelper.getUsername() == null ? AppHelper.getPeerID() : AppHelper.getUsername(), newChatRequestMessage.getChatID(), System.currentTimeMillis()))).protectEntry(keyPairManager.openMainKeyPair()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            ObservableUtils.notifyUI(UIActions.SUCCESSFUL_CREATE_CHAT);
+        }
+    }
 }

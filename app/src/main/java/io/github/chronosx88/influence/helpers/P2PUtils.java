@@ -53,6 +53,20 @@ public class P2PUtils {
         return null;
     }
 
+    public static Data get(String locationKey, String contentKey) {
+        FutureGet futureGet = peerDHT
+                .get(Number160.createHash(locationKey))
+                .contentKey(Number160.createHash(contentKey))
+                .start()
+                .awaitUninterruptibly();
+        if(futureGet != null) {
+            if(!futureGet.isEmpty()) {
+                return futureGet.data();
+            }
+        }
+        return null;
+    }
+
     public static boolean remove(String locationKey, String contentKey) {
         FutureRemove futureRemove = peerDHT
                 .remove(Number160.createHash(locationKey))

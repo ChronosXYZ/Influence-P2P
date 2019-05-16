@@ -7,10 +7,8 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-import net.tomp2p.connection.Bindings;
 import net.tomp2p.connection.ChannelClientConfiguration;
 import net.tomp2p.connection.ChannelServerConfiguration;
-import net.tomp2p.connection.Ports;
 import net.tomp2p.connection.RSASignatureFactory;
 import net.tomp2p.dht.PeerBuilderDHT;
 import net.tomp2p.dht.PeerDHT;
@@ -39,8 +37,6 @@ import java.net.UnknownHostException;
 import java.security.KeyPair;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 
 import io.github.chronosx88.influence.contracts.CoreContracts;
@@ -56,11 +52,9 @@ import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.models.ChatMetadata;
 import io.github.chronosx88.influence.models.NewChatRequestMessage;
 import io.github.chronosx88.influence.models.PublicUserProfile;
-import io.github.chronosx88.influence.notificationSystem.NotificationHandler;
+import io.github.chronosx88.influence.models.notifications.NewChatNotification;
 import io.github.chronosx88.influence.notificationSystem.NotificationSystem;
 import rice.environment.Environment;
-import rice.p2p.scribe.ScribeContent;
-import rice.pastry.NodeHandle;
 import rice.pastry.NodeIdFactory;
 import rice.pastry.PastryNode;
 import rice.pastry.socket.internet.InternetPastryNodeFactory;
@@ -188,7 +182,11 @@ public class MainLogic implements CoreContracts.IMainLogicContract {
                 publicProfileToDHT();
                 SettingsLogic.Companion.publishUsername(AppHelper.getUsername(), AppHelper.getUsername());
                 NetworkHandler.handlePendingChatRequests();
-                AppHelper.getNotificationSystem().subscribe(AppHelper.getPeerID() + "_newChats", notification -> NetworkHandler.handlePendingChatRequests());
+                AppHelper.getNotificationSystem().subscribe(AppHelper.getPeerID() + "_newChats", notification -> {
+                    if(notification instanceof NewChatNotification) {
+                        NetworkHandler.handleNewChat(((NewChatNotification) notification).getChatID());
+                    }
+                });
                 /*TimerTask timerTask = new TimerTask() {
                     @Override
                     public void run() {
@@ -263,7 +261,9 @@ public class MainLogic implements CoreContracts.IMainLogicContract {
                 peerDHT.peer().announceShutdown().start().awaitUninterruptibly();
                 peerDHT.peer().shutdown().awaitUninterruptibly();
             }
-            storage.close();
+            if(storage != null) {
+                storage.close();
+            }
             System.exit(0);
         }).start();
     }
@@ -321,7 +321,7 @@ public class MainLogic implements CoreContracts.IMainLogicContract {
             return;
         }
 
-        NewChatRequestMessage newChatRequestMessage = new NewChatRequestMessage(UUID.randomUUID().toString(), UUID.randomUUID().toString(), AppHelper.getPeerID(), AppHelper.getUsername(), System.currentTimeMillis(), 0);
+        NewChatRequestMessage newChatRequestMessage = new NewChatRequestMessage(UUID.randomUUID().toString(), UUID.randomUUID().toString(), AppHelper.getPeerID(), AppHelper.getUsername() == null ? AppHelper.getPeerID() : AppHelper.getUsername(), System.currentTimeMillis(), 0);
         try {
             if(P2PUtils.put(companionPeerID + "_pendingChats", newChatRequestMessage.getChatID(), new Data(gson.toJson(newChatRequestMessage)))) {
                 Log.i(LOG_TAG, "# Create new offline chat request is successful! ChatID: " + newChatRequestMessage.getChatID());
@@ -344,6 +344,7 @@ public class MainLogic implements CoreContracts.IMainLogicContract {
         P2PUtils.put(newChatRequestMessage.getChatID() + "_metadata", null, data);
         LocalDBWrapper.createChatEntry(newChatRequestMessage.getChatID(), username, newChatRequestMessage.getChatID() + "_metadata", newChatRequestMessage.getChatID() + "_members", 0);
         ObservableUtils.notifyUI(UIActions.NEW_CHAT);
+        AppHelper.getNotificationSystem().publish(companionPeerID + "_newChats", new NewChatNotification(newChatRequestMessage.getChatID()));
     }
 
     private PublicUserProfile getPublicProfile(String peerID) {
@@ -376,20 +377,18 @@ public class MainLogic implements CoreContracts.IMainLogicContract {
     private boolean createPastryNode(int bindPort, InetSocketAddress bootAddress) throws Exception {
         Environment env = new Environment();
         env.getParameters().setString("probe_for_external_address","true");
+        env.getParameters().setString("nat_search_policy", "never");
         AppHelper.storePastryEnvironment(env);
         NodeIdFactory nidFactory = new RandomNodeIdFactory(env);
         InternetPastryNodeFactory factory = new InternetPastryNodeFactory(nidFactory, bindPort, env);
-        NodeHandle bootHandle = factory.getNodeHandle(bootAddress);
-        PastryNode node;
-        if(bootHandle != null) {
-            node = factory.newNode(bootHandle);
-        } else {
-            return false;
-        }
+        PastryNode node = factory.newNode();
+
+        node.boot(bootAddress);
+
         // the node may require sending several messages to fully boot into the ring
         synchronized(node) {
             while(!node.isReady() && !node.joinFailed()) {
-                node.wait(100);
+                node.wait(500);
                 if (node.joinFailed()) {
                     return false;
                 }
