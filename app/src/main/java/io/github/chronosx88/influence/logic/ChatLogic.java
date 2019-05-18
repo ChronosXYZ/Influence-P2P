@@ -9,7 +9,6 @@ import net.tomp2p.storage.Data;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
@@ -24,30 +23,33 @@ import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.models.JoinChatMessage;
 import io.github.chronosx88.influence.models.NextChunkReference;
 import io.github.chronosx88.influence.models.TextMessage;
+import io.github.chronosx88.influence.models.notifications.NewMessageNotification;
 import io.github.chronosx88.influence.models.roomEntities.ChatEntity;
 import io.github.chronosx88.influence.models.roomEntities.MessageEntity;
 
 public class ChatLogic implements CoreContracts.IChatLogicContract {
     private static Gson gson = new Gson();
     private String chatID;
-    private volatile String newMessage = "";
+    //private volatile String newMessage = "";
     private ChatEntity chatEntity;
-    private Thread checkNewMessagesThread = null;
+    //private Thread checkNewMessagesThread = null;
     private KeyPairManager keyPairManager;
-    private Timer timer;
 
     public ChatLogic(ChatEntity chatEntity) {
         this.chatEntity = chatEntity;
         this.chatID = chatEntity.chatID;
-        TimerTask timerTask = new TimerTask() {
+        /*TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
                 checkForNewMessages();
             }
-        };
-        this.timer = new Timer();
-        if(AppHelper.getPeerDHT() != null) {
-            timer.schedule(timerTask, 1, 1000);
+        };*/
+        if(AppHelper.getPeerDHT() != null && AppHelper.getNotificationSystem() != null) {
+            AppHelper.getNotificationSystem().subscribe(chatID, notification -> {
+                if(notification instanceof NewMessageNotification) {
+                    handleNewMessages(chatEntity.chunkCursor);
+                }
+            });
         }
         this.keyPairManager = new KeyPairManager();
     }
@@ -67,15 +69,16 @@ public class ChatLogic implements CoreContracts.IChatLogicContract {
             }
             data.protectEntry(keyPairManager.getKeyPair("mainKeyPair"));
             P2PUtils.put(chatID + "_messages" + chatEntity.chunkCursor, message.messageID, data);
-            try {
+            /*try {
                 P2PUtils.put(chatID + "_newMessage", null, new Data(message.messageID));
             } catch (IOException e) {
                 e.printStackTrace();
-            }
+            }*/
+            AppHelper.getNotificationSystem().publish(chatID, new NewMessageNotification());
         }).start();
     }
 
-    private void checkForNewMessages() {
+    /*private void checkForNewMessages() {
         if(checkNewMessagesThread == null) {
             checkNewMessagesThread = new Thread(() -> {
                 Map<Number640, Data> data = P2PUtils.get(chatID + "_newMessage");
@@ -120,7 +123,7 @@ public class ChatLogic implements CoreContracts.IChatLogicContract {
             });
             checkNewMessagesThread.start();
         }
-    }
+    }*/
 
     private void handleNewMessages(int chunkID) {
         new Thread(() -> {
@@ -160,8 +163,9 @@ public class ChatLogic implements CoreContracts.IChatLogicContract {
                     String messageID = UUID.randomUUID().toString();
                     try {
                         P2PUtils.put(chatEntity.chatID + "_messages" + chunkID, messageID, new Data(gson.toJson(new NextChunkReference(messageID, AppHelper.getPeerID(), AppHelper.getPeerID(), System.currentTimeMillis(), chatEntity.chunkCursor+1))));
-                        P2PUtils.put(chatEntity.chatID + "_newMessage", null, new Data(messageID));
-                        LocalDBWrapper.updateChatEntity(chatEntity);
+                        //P2PUtils.put(chatEntity.chatID + "_newMessage", null, new Data(messageID));
+                        //LocalDBWrapper.updateChatEntity(chatEntity);
+                        AppHelper.getNotificationSystem().publish(chatID, new NewMessageNotification());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -177,7 +181,6 @@ public class ChatLogic implements CoreContracts.IChatLogicContract {
 
     @Override
     public void stopTrackingForNewMsgs() {
-        timer.cancel();
-        timer.purge();
+        AppHelper.getNotificationSystem().unsubscribe(chatID);
     }
 }

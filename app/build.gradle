@@ -62,7 +62,6 @@ dependencies {
     implementation 'jdom:jdom:1.1'
     implementation 'commons-beanutils:commons-beanutils:1.8.3'
     implementation 'org.apache.tomcat:servlet-api:6.0.35'
-    //implementation group: 'org.eclipse.jetty.orbit', name: 'javax.servlet.jsp', version: '2.2.0.v201112011158'
 }
 repositories {
     mavenCentral()
