@@ -9,6 +9,10 @@ import io.github.chronosx88.influence.models.roomEntities.MessageEntity
 
 interface CoreContracts {
 
+    interface ViewWithLoadingScreen {
+        fun loadingScreen(state: Boolean);
+    }
+
     // -----ChatList-----
 
     interface IChatListLogicContract {
@@ -25,21 +29,6 @@ interface CoreContracts {
         fun setRecycleAdapter(adapter: ChatListAdapter)
         fun startActivity(intent: Intent)
         fun updateChatList(adapter: ChatListAdapter, chats: List<ChatEntity>)
-    }
-
-    // -----StartChat-----
-
-    interface IStartChatLogicContract {
-        fun sendStartChatMessage(peerID: String)
-    }
-
-    interface IStartChatPresenterContract {
-        fun startChatWithPeer(peerID: String)
-    }
-
-    interface IStartChatViewContract {
-        fun showMessage(message: String)
-        fun showProgressDialog(enabled: Boolean)
     }
 
     // -----MainActivity-----
@@ -94,4 +83,7 @@ interface CoreContracts {
         fun showMessage(message: String)
         fun refreshScreen()
     }
+
+    // -----LoginActivity-----
+    interface ILoginViewContract : ViewWithLoadingScreen
 }

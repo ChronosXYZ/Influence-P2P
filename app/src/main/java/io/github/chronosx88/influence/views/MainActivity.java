@@ -32,7 +32,7 @@ import io.github.chronosx88.influence.views.fragments.ChatListFragment;
 import io.github.chronosx88.influence.views.fragments.SettingsFragment;
 import kotlin.Pair;
 
-public class MainActivity extends AppCompatActivity implements IObserver, CoreContracts.IMainViewContract {
+public class MainActivity extends AppCompatActivity implements CoreContracts.IMainViewContract {
 
     private CoreContracts.IMainPresenterContract presenter;
     private ProgressDialog progressDialog;
@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements IObserver, CoreCo
                 .commit();
 
         presenter = new MainPresenter(this);
-        AppHelper.getObservable().register(this);
+
 
         progressDialog = new ProgressDialog(MainActivity.this, R.style.AlertDialogTheme);
         progressDialog.setCancelable(false);
@@ -101,54 +101,6 @@ public class MainActivity extends AppCompatActivity implements IObserver, CoreCo
     protected void onDestroy() {
         super.onDestroy();
         presenter.onDestroy();
-        AppHelper.getObservable().unregister(this);
-    }
-
-    @Override
-    public void handleEvent(JsonObject object) {
-        switch (object.get("action").getAsInt()) {
-            case UIActions.BOOTSTRAP_NOT_SPECIFIED: {
-                runOnUiThread(() -> {
-                    progressDialog.dismiss();
-                    Toast.makeText(this, "Bootstrap-нода не указана. Прерываю подключение к сети...", Toast.LENGTH_LONG).show();
-                });
-                break;
-            }
-            case UIActions.NETWORK_ERROR: {
-                runOnUiThread(() -> {
-                    progressDialog.dismiss();
-                    Toast.makeText(this, "Ошибка сети. Возможно, нода недоступна, или у вас отсутствует Интернет.", Toast.LENGTH_LONG).show();
-                });
-                break;
-            }
-            case UIActions.BOOTSTRAP_SUCCESS: {
-                runOnUiThread(() -> {
-                    progressDialog.dismiss();
-                    Toast.makeText(this, "Нода успешно запущена!", Toast.LENGTH_LONG).show();
-                });
-                break;
-            }
-            case UIActions.PORT_FORWARDING_ERROR: {
-                runOnUiThread(() -> {
-                    Toast.makeText(this, "Проблемы с пробросом портов. Возможно, у вас не настроен uPnP.", Toast.LENGTH_LONG).show();
-                });
-                break;
-            }
-            case UIActions.BOOTSTRAP_ERROR: {
-                runOnUiThread(() -> {
-                    progressDialog.dismiss();
-                    Toast.makeText(this, "Не удалось подключиться к бутстрап-ноде.", Toast.LENGTH_LONG).show();
-                });
-                break;
-            }
-            case UIActions.RELAY_CONNECTION_ERROR: {
-                runOnUiThread(() -> {
-                    progressDialog.dismiss();
-                    Toast.makeText(this, "Не удалось подключиться к relay-ноде.", Toast.LENGTH_LONG).show();
-                });
-                break;
-            }
-        }
     }
 
     @Override

@@ -18,7 +18,6 @@ import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.KeyPairManager;
 import io.github.chronosx88.influence.helpers.LocalDBWrapper;
 import io.github.chronosx88.influence.helpers.ObservableUtils;
-import io.github.chronosx88.influence.helpers.P2PUtils;
 import io.github.chronosx88.influence.helpers.actions.NetworkActions;
 import io.github.chronosx88.influence.helpers.actions.UIActions;
 import io.github.chronosx88.influence.models.JoinChatMessage;
@@ -159,9 +158,9 @@ public class ChatLogic implements CoreContracts.IChatLogicContract {
                 if(messages.size() > 10) {
                     String messageID = UUID.randomUUID().toString();
                     try {
-                        P2PUtils.put(chatEntity.chatID + "_messages" + chunkID, messageID, new Data(gson.toJson(new NextChunkReference(messageID, AppHelper.getPeerID(), AppHelper.getPeerID(), System.currentTimeMillis(), chatEntity.chunkCursor+1))));
+                        int nextChunkCursor = chatEntity.chunkCursor + 1;
+                        P2PUtils.put(chatEntity.chatID + "_messages" + chunkID, messageID, new Data(gson.toJson(new NextChunkReference(messageID, AppHelper.getPeerID(), AppHelper.getPeerID(), System.currentTimeMillis(), nextChunkCursor))));
                         P2PUtils.put(chatEntity.chatID + "_newMessage", null, new Data(messageID));
-                        LocalDBWrapper.updateChatEntity(chatEntity);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

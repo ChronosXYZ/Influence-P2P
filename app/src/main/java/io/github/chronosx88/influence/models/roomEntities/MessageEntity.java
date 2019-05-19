@@ -7,22 +7,17 @@ import androidx.room.PrimaryKey;
 
 @Entity(tableName = "messages")
 public class MessageEntity {
-    @PrimaryKey @NonNull public String messageID; // Global message ID
-    @ColumnInfo public int type; // Message type
-    @ColumnInfo public String chatID; // Chat ID
-    @ColumnInfo public String senderID; // PeerID
-    @ColumnInfo public String username; // Username
+    @PrimaryKey(autoGenerate = true) public long messageID; // Global message ID
+    @ColumnInfo public String jid; // Chat ID
+    @ColumnInfo public String senderJid;
     @ColumnInfo public long timestamp; // Timestamp
     @ColumnInfo public String text; // Message text
     @ColumnInfo public boolean isSent; // Send status indicator
     @ColumnInfo public boolean isRead; // Message Read Indicator
 
-    public MessageEntity(int type, String messageID, String chatID, String senderID, String username, long timestamp, String text, boolean isSent, boolean isRead) {
-        this.type = type;
-        this.messageID = messageID;
-        this.chatID = chatID;
-        this.senderID = senderID;
-        this.username = username;
+    public MessageEntity(String jid, String senderJid, long timestamp, String text, boolean isSent, boolean isRead) {
+        this.jid = jid;
+        this.senderJid = senderJid;
         this.timestamp = timestamp;
         this.text = text;
         this.isSent = isSent;

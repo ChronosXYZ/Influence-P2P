@@ -12,19 +12,19 @@ import io.github.chronosx88.influence.models.roomEntities.MessageEntity;
 @Dao
 public interface MessageDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    void insertMessage(MessageEntity chatModel);
+    long insertMessage(MessageEntity chatModel);
 
     @Query("DELETE FROM messages WHERE messageID = :messageID")
     void deleteMessage(String messageID);
 
-    @Query("DELETE FROM messages WHERE chatID = :chatID")
-    void deleteMessagesByChatID(String chatID);
+    @Query("DELETE FROM messages WHERE jid = :jid")
+    void deleteMessagesByChatID(String jid);
 
-    @Query("SELECT * FROM messages WHERE chatID = :chatID")
-    List<MessageEntity> getMessagesByChatID(String chatID);
+    @Query("SELECT * FROM messages WHERE jid = :jid")
+    List<MessageEntity> getMessagesByChatID(String jid);
 
     @Query("SELECT * FROM messages WHERE messageID = :messageID")
-    List<MessageEntity> getMessageByID(String messageID);
+    List<MessageEntity> getMessageByID(long messageID);
 
     @Update
     void updateMessage(MessageEntity message);

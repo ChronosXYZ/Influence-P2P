@@ -1,78 +1,35 @@
 package io.github.chronosx88.influence.helpers;
 
-import com.google.gson.Gson;
+import android.content.Context;
+import android.content.Intent;
 
-import net.tomp2p.dht.PeerDHT;
-import net.tomp2p.peers.Number640;
-import net.tomp2p.storage.Data;
+import com.instacart.library.truetime.TrueTime;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.UUID;
+import org.jivesoftware.smack.chat2.Chat;
+import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
+import org.jivesoftware.smack.packet.Message;
+import org.jxmpp.jid.EntityBareJid;
 
-import io.github.chronosx88.influence.contracts.observer.INetworkObserver;
-import io.github.chronosx88.influence.helpers.actions.UIActions;
-import io.github.chronosx88.influence.models.ChatMember;
-import io.github.chronosx88.influence.models.JoinChatMessage;
-import io.github.chronosx88.influence.models.NewChatRequestMessage;
+import io.github.chronosx88.influence.XMPPConnectionService;
 
-public class NetworkHandler implements INetworkObserver {
+public class NetworkHandler implements IncomingChatMessageListener {
     private final static String LOG_TAG = "NetworkHandler";
-    private static Gson gson = new Gson();
-    private static PeerDHT peerDHT = AppHelper.getPeerDHT();
-    private static KeyPairManager keyPairManager = new KeyPairManager();
+    private Context context;
 
-    public NetworkHandler() {
-        AppHelper.getObservable().register(this);
+    public NetworkHandler(Context context) {
+        this.context = context;
     }
 
     @Override
-    public void handleEvent(Object object) {
-        // Empty
-    }
-
-
-
-    public static void handlePendingChatRequests() {
-        Map<Number640, Data> pendingChats = P2PUtils.get(AppHelper.getPeerID() + "_pendingChats");
-        if (pendingChats != null) {
-            for (Map.Entry<Number640, Data> entry : pendingChats.entrySet()) {
-                NewChatRequestMessage newChatRequestMessage = null;
-                try {
-                    newChatRequestMessage = gson.fromJson((String) entry.getValue().object(), NewChatRequestMessage.class);
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                ChatMember chatMember = new ChatMember(AppHelper.getPeerID(), AppHelper.getPeerID());
-                Data putData = null;
-                try {
-                    putData = new Data(gson.toJson(chatMember)).protectEntry(keyPairManager.openMainKeyPair());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                P2PUtils.put(newChatRequestMessage.getChatID() + "_members", AppHelper.getPeerID(), putData);
-
-                LocalDBWrapper.createChatEntry(
-                        newChatRequestMessage.getChatID(),
-                        newChatRequestMessage.getUsername(),
-                        newChatRequestMessage.getChatID() + "_metadata",
-                        newChatRequestMessage.getChatID() + "_members",
-                        newChatRequestMessage.getChunkID()
-                );
-
-                P2PUtils.remove(AppHelper.getPeerID() + "_pendingChats", newChatRequestMessage.getChatID());
-                String messageID = UUID.randomUUID().toString();
-                try {
-                    P2PUtils.put(newChatRequestMessage.getChatID() + "_messages", messageID, new Data(gson.toJson(new JoinChatMessage(AppHelper.getPeerID(), AppHelper.getUsername() == null ? AppHelper.getPeerID() : AppHelper.getUsername(), newChatRequestMessage.getChatID(), System.currentTimeMillis()))).protectEntry(keyPairManager.openMainKeyPair()));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                ObservableUtils.notifyUI(UIActions.SUCCESSFUL_CREATE_CHAT);
-            }
+    public void newIncomingMessage(EntityBareJid from, Message message, Chat chat) {
+        if(LocalDBWrapper.getChatByChatID(from.asEntityBareJidString()) == null) {
+            LocalDBWrapper.createChatEntry(chat.getXmppAddressOfChatPartner().asUnescapedString(), chat.getXmppAddressOfChatPartner().asBareJid().asUnescapedString());
         }
+        long messageID = LocalDBWrapper.createMessageEntry(chat.getXmppAddressOfChatPartner().asUnescapedString(), from.asUnescapedString(), TrueTime.now().getTime(), message.getBody(), true, false);
+        Intent intent = new Intent(XMPPConnectionService.INTENT_NEW_MESSAGE);
+        intent.setPackage(context.getPackageName());
+        intent.putExtra(XMPPConnectionService.MESSAGE_CHATID, chat.getXmppAddressOfChatPartner().toString());
+        intent.putExtra(XMPPConnectionService.MESSAGE_ID, messageID);
+        context.sendBroadcast(intent);
     }
 }

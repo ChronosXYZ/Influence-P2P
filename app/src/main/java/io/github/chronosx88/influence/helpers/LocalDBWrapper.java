@@ -12,39 +12,22 @@ public class LocalDBWrapper {
     private static final String LOG_TAG = "LocalDBWrapper";
     private static RoomHelper dbInstance = AppHelper.getChatDB();
 
-    /**
-     * Create a chat entry in the local database.
-     * @param chatID Chat ID
-     * @param name Chat name
-     * @param metadataRef Reference to general chat metadata (key in DHT)
-     * @param membersRef Reference to member list
-     */
-    public static void createChatEntry(String chatID, String name, String metadataRef, String membersRef, int chunkID) {
-        dbInstance.chatDao().addChat(new ChatEntity(chatID, name, metadataRef, membersRef, new ArrayList<>(), chunkID));
+    public static void createChatEntry(String jid, String chatName) {
+        dbInstance.chatDao().addChat(new ChatEntity(jid, chatName));
     }
 
-    /**
-     * Creating a message entry in the local database
-     * @param type Message type
-     * @param chatID ID of the chat in which need to create a message
-     * @param username Sender username
-     * @param senderID Sender peer ID
-     * @param timestamp Message timestamp
-     * @param text Message text
-     * @return New message
-     */
-    public static MessageEntity createMessageEntry(int type, String messageID, String chatID, String username, String senderID, long timestamp, String text, boolean isSent, boolean isRead) {
-        List<ChatEntity> chatEntities = AppHelper.getChatDB().chatDao().getChatByChatID(chatID);
+    public static long createMessageEntry(String jid, String senderJid, long timestamp, String text, boolean isSent, boolean isRead) {
+        List<ChatEntity> chatEntities = AppHelper.getChatDB().chatDao().getChatByChatID(jid);
         if(chatEntities.size() < 1) {
-            Log.e(LOG_TAG, "Failed to create message entry because chat " + chatID + " doesn't exists!");
-            return null;
+            Log.e(LOG_TAG, "Failed to create message entry because chat " + jid + " doesn't exists!");
+            return -1;
         }
-        MessageEntity message = new MessageEntity(type, messageID, chatID, senderID, username, timestamp, text, isSent, isRead);
-        dbInstance.messageDao().insertMessage(message);
-        return message;
+        MessageEntity message = new MessageEntity(jid, senderJid, timestamp, text, isSent, isRead);
+        long index = dbInstance.messageDao().insertMessage(message);
+        return index;
     }
 
-    public static MessageEntity getMessageByID(String messageID) {
+    public static MessageEntity getMessageByID(long messageID) {
         List<MessageEntity> messages = dbInstance.messageDao().getMessageByID(messageID);
         if(messages.isEmpty()) {
             return null;

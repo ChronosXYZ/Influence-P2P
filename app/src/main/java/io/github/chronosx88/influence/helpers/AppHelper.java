@@ -3,6 +3,7 @@ package io.github.chronosx88.influence.helpers;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import net.tomp2p.dht.PeerDHT;
 
@@ -22,11 +23,10 @@ import io.github.chronosx88.influence.observable.MainObservable;
 public class AppHelper extends MultiDexApplication {
     private static Application instance;
     private static MainObservable observable;
-    private static String peerID;
-    private static PeerDHT peerDHT;
+    public final static String APP_NAME = "Influence";
+
+    private static String jid;
     private static RoomHelper chatDB;
-    private static NetworkHandler networkHandler;
-    private static String username = "";
     private static SharedPreferences preferences;
 
     @Override
@@ -37,7 +37,7 @@ public class AppHelper extends MultiDexApplication {
         chatDB = Room.databaseBuilder(getApplicationContext(), RoomHelper.class, "chatDB")
                     .allowMainThreadQueries()
                     .build();
-        preferences = getApplicationContext().getSharedPreferences("io.github.chronosx88.influence_preferences", MODE_PRIVATE);
+        preferences = PreferenceManager.getDefaultSharedPreferences(instance);
         new Thread(() -> {
             try {
                 TrueTime.build().initialize();
@@ -47,27 +47,17 @@ public class AppHelper extends MultiDexApplication {
         }).start();
     }
 
-    public static void storePeerID(String peerID1) { peerID = peerID1; }
-
-    public static void updateUsername(String username1) { username = username1; }
-
-    public static void storePeerDHT(PeerDHT peerDHT1) { peerDHT = peerDHT1; }
-
     public static Context getContext() {
         return instance.getApplicationContext();
     }
 
     public static MainObservable getObservable() { return observable; }
 
-    public static String getPeerID() { return peerID; }
+    public static String getJid() { return jid; }
 
-    public static String getUsername() { return username; }
-
-    public static PeerDHT getPeerDHT() { return peerDHT; }
+    public static void setJid(String jid1) { jid = jid1; }
 
     public static RoomHelper getChatDB() { return chatDB; }
-
-    public static void initNetworkHandler() { networkHandler = new NetworkHandler(); }
 
     public static SharedPreferences getPreferences() {
         return preferences;

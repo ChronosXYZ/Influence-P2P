@@ -5,7 +5,6 @@ import io.github.chronosx88.influence.contracts.CoreContracts
 import io.github.chronosx88.influence.helpers.AppHelper
 import io.github.chronosx88.influence.helpers.KeyPairManager
 import io.github.chronosx88.influence.helpers.ObservableUtils
-import io.github.chronosx88.influence.helpers.P2PUtils
 import io.github.chronosx88.influence.helpers.actions.UIActions
 import net.tomp2p.peers.Number640
 import net.tomp2p.storage.Data
