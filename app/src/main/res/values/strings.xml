@@ -9,4 +9,5 @@
     <string name="reconnect_network">Reconnect to the network</string>
     <string name="node_already_running">Node already running</string>
     <string name="input_companion_username">Input interlocutor\'s username</string>
+    <string name="hint_enter_a_message">Enter message...</string>
 </resources>

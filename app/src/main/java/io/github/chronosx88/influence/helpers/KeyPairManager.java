@@ -10,14 +10,14 @@ import java.security.NoSuchAlgorithmException;
 
 public class KeyPairManager {
     private File keyPairDir;
-    private Serializer<KeyPair> serializer;
+    private JavaSerializer<KeyPair> serializer;
 
     public KeyPairManager() {
         this.keyPairDir = new File(AppHelper.getContext().getFilesDir().getAbsoluteFile(), "keyPairs");
         if(!this.keyPairDir.exists()) {
             this.keyPairDir.mkdir();
         }
-        this.serializer = new Serializer<>();
+        this.serializer = new JavaSerializer<>();
     }
 
     public KeyPair openMainKeyPair() {

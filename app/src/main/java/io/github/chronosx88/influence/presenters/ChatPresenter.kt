@@ -1,70 +1,76 @@
 package io.github.chronosx88.influence.presenters
 
-import android.widget.Toast
-
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import com.google.gson.Gson
-import com.google.gson.JsonObject
-import com.instacart.library.truetime.TrueTime
-
-import java.io.IOException
-import java.util.ArrayList
-import java.util.UUID
-
+import com.stfalcon.chatkit.commons.ImageLoader
+import com.stfalcon.chatkit.messages.MessagesListAdapter
+import io.github.chronosx88.influence.R
+import io.github.chronosx88.influence.XMPPConnectionService
 import io.github.chronosx88.influence.contracts.CoreContracts
-import io.github.chronosx88.influence.contracts.observer.IObserver
 import io.github.chronosx88.influence.helpers.AppHelper
 import io.github.chronosx88.influence.helpers.LocalDBWrapper
-import io.github.chronosx88.influence.helpers.actions.NetworkActions
-import io.github.chronosx88.influence.helpers.actions.UIActions
 import io.github.chronosx88.influence.logic.ChatLogic
+import io.github.chronosx88.influence.models.GenericDialog
+import io.github.chronosx88.influence.models.GenericMessage
 import io.github.chronosx88.influence.models.roomEntities.ChatEntity
-import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.doAsyncResult
+import io.github.chronosx88.influence.models.roomEntities.MessageEntity
 
-class ChatPresenter(private val view: CoreContracts.IChatViewContract, private val chatID: String) : CoreContracts.IChatPresenterContract, IObserver {
+class ChatPresenter(private val view: CoreContracts.IChatViewContract, private val chatID: String) : CoreContracts.IChatPresenterContract {
     private val logic: CoreContracts.IChatLogicContract
     private val chatEntity: ChatEntity?
     private val gson: Gson
+    private val chatAdapter: MessagesListAdapter<GenericMessage>
+    private val newMessageReceiver: BroadcastReceiver
 
     init {
         this.logic = ChatLogic(LocalDBWrapper.getChatByChatID(chatID)!!)
         this.chatEntity = LocalDBWrapper.getChatByChatID(chatID)
-
-        AppHelper.getObservable().register(this)
         gson = Gson()
-    }
+        chatAdapter = MessagesListAdapter(AppHelper.getJid(), ImageLoader { imageView, _, _ -> imageView.setImageResource(R.mipmap.ic_launcher) })
+        view.setAdapter(chatAdapter)
 
-    override fun sendMessage(text: String) {
-        doAsync {
-            val message = LocalDBWrapper.createMessageEntry(NetworkActions.TEXT_MESSAGE, UUID.randomUUID().toString(), chatID, AppHelper.getPeerID(), AppHelper.getPeerID(), TrueTime.now().time, text, false, false)
-            logic.sendMessage(message!!)
-            view.updateMessageList(message)
-        }
-    }
-
-    override fun handleEvent(obj: JsonObject) {
-        when (obj.get("action").asInt) {
-            UIActions.MESSAGE_RECEIVED -> {
-                val jsonArray = obj.getAsJsonArray("additional")
-                if (jsonArray.get(0).asString != chatID) {
-                    return
+        newMessageReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                if(intent.getStringExtra(XMPPConnectionService.MESSAGE_CHATID).equals(chatEntity.jid)) {
+                    val messageID = intent.getLongExtra(XMPPConnectionService.MESSAGE_ID, -1)
+                    chatAdapter.addToStart(GenericMessage(LocalDBWrapper.getMessageByID(messageID)), true)
                 }
-                val messageEntity = LocalDBWrapper.getMessageByID(jsonArray.get(1).asString)
-                view.updateMessageList(messageEntity!!)
-            }
-
-            UIActions.NODE_IS_OFFLINE -> {
-                Toast.makeText(AppHelper.getContext(), "Нода не запущена!", Toast.LENGTH_SHORT).show()
             }
         }
+        val filter = IntentFilter()
+        filter.addAction(XMPPConnectionService.INTENT_NEW_MESSAGE)
+        AppHelper.getContext().registerReceiver(newMessageReceiver, filter)
     }
 
-    override fun updateAdapter() {
-        val entities = LocalDBWrapper.getMessagesByChatID(chatID)
-        view.updateMessageList(entities ?: ArrayList())
+    override fun sendMessage(text: String): Boolean {
+        val message: MessageEntity? = logic.sendMessage(text)
+        if(message != null) {
+            chatAdapter.addToStart(GenericMessage(message), true)
+            return true
+        }
+        return false
+    }
+
+    override fun loadLocalMessages() {
+        val entities: List<MessageEntity>? = LocalDBWrapper.getMessagesByChatID(chatID)
+        val messages = ArrayList<GenericMessage>()
+        if(entities != null) {
+            entities.forEach {
+                messages.add(GenericMessage(it))
+            }
+        }
+        chatAdapter.addToEnd(messages, true)
     }
 
     override fun onDestroy() {
-        logic.stopTrackingForNewMsgs()
+        //
     }
+
+    private fun setupIncomingMessagesReceiver() {
+
+    }
+
 }

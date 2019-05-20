@@ -1,83 +1,23 @@
 package io.github.chronosx88.influence.logic;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.util.Log;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-
-import net.tomp2p.connection.Bindings;
-import net.tomp2p.connection.ChannelClientConfiguration;
-import net.tomp2p.connection.ChannelServerConfiguration;
-import net.tomp2p.connection.Ports;
-import net.tomp2p.connection.RSASignatureFactory;
-import net.tomp2p.dht.PeerBuilderDHT;
-import net.tomp2p.dht.PeerDHT;
-import net.tomp2p.dht.Storage;
-import net.tomp2p.futures.FutureBootstrap;
-import net.tomp2p.futures.FutureDiscover;
-import net.tomp2p.nat.FutureRelayNAT;
-import net.tomp2p.nat.PeerBuilderNAT;
-import net.tomp2p.nat.PeerNAT;
-import net.tomp2p.p2p.PeerBuilder;
-import net.tomp2p.peers.Number160;
-import net.tomp2p.peers.Number640;
-import net.tomp2p.peers.PeerAddress;
-import net.tomp2p.relay.tcp.TCPRelayClientConfig;
-import net.tomp2p.replication.IndirectReplication;
-import net.tomp2p.storage.Data;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
-import java.security.KeyPair;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
 
 import io.github.chronosx88.influence.contracts.CoreContracts;
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.KeyPairManager;
-import io.github.chronosx88.influence.helpers.LocalDBWrapper;
-import io.github.chronosx88.influence.helpers.NetworkHandler;
-import io.github.chronosx88.influence.helpers.ObservableUtils;
-import io.github.chronosx88.influence.helpers.StorageBerkeleyDB;
-import io.github.chronosx88.influence.helpers.actions.UIActions;
-import io.github.chronosx88.influence.models.ChatMetadata;
-import io.github.chronosx88.influence.models.NewChatRequestMessage;
-import io.github.chronosx88.influence.models.PublicUserProfile;
 
 public class MainLogic implements CoreContracts.IMainLogicContract {
     private static final String LOG_TAG = MainLogic.class.getName();
 
-    private SharedPreferences preferences;
-    private Number160 peerID;
-    private PeerDHT peerDHT;
     private Context context;
-    private InetAddress bootstrapAddress = null;
-    private PeerAddress bootstrapPeerAddress = null;
-    private Gson gson;
-    private IndirectReplication replication;
-    private KeyPairManager keyPairManager;
-    private Thread checkNewChatsThread = null;
-    private Storage storage;
 
     public MainLogic() {
         this.context = AppHelper.getContext();
-        this.preferences = context.getSharedPreferences("io.github.chronosx88.influence_preferences", context.MODE_PRIVATE);
-        gson = new Gson();
-        keyPairManager = new KeyPairManager();
     }
 
-    @Override
+    /*@Override
     public void initPeer() {
         org.apache.log4j.BasicConfigurator.configure();
 
@@ -366,5 +306,5 @@ public class MainLogic implements CoreContracts.IMainLogicContract {
             e.printStackTrace();
         }
         return null;
-    }
+    }*/
 }

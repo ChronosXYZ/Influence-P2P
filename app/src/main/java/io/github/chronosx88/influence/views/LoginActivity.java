@@ -27,7 +27,6 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -51,6 +50,8 @@ public class LoginActivity extends AppCompatActivity implements CoreContracts.IL
         passwordEditText = findViewById(R.id.login_password);
         signInButton = findViewById(R.id.sign_in_button);
         progressDialog = new ProgressDialog(LoginActivity.this);
+        progressDialog.setCancelable(false);
+        progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Small);
         signInButton.setOnClickListener((v) -> {
             if(checkLoginCredentials()) {
                 saveLoginCredentials();
@@ -82,7 +83,7 @@ public class LoginActivity extends AppCompatActivity implements CoreContracts.IL
                     }
                     case XMPPConnectionService.INTENT_AUTHENTICATION_FAILED: {
                         loadingScreen(false);
-                        passwordEditText.setError("Invalid JID/Password");
+                        jidEditText.setError("Invalid JID/Password/Server");
                         break;
                     }
                 }

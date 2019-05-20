@@ -1,9 +1,12 @@
 package io.github.chronosx88.influence.contracts
 
+import android.content.Context
 import android.content.Intent
-import android.view.MenuItem
+import com.stfalcon.chatkit.dialogs.DialogsListAdapter
+import com.stfalcon.chatkit.messages.MessagesListAdapter
 
-import io.github.chronosx88.influence.helpers.ChatListAdapter
+import io.github.chronosx88.influence.models.GenericDialog
+import io.github.chronosx88.influence.models.GenericMessage
 import io.github.chronosx88.influence.models.roomEntities.ChatEntity
 import io.github.chronosx88.influence.models.roomEntities.MessageEntity
 
@@ -15,28 +18,23 @@ interface CoreContracts {
 
     // -----ChatList-----
 
-    interface IChatListLogicContract {
+    interface IDialogListLogicContract {
         fun loadAllChats(): List<ChatEntity>
     }
 
-    interface IChatListPresenterContract {
-        fun updateChatList()
+    interface IDialogListPresenterContract {
         fun openChat(chatID: String)
-        fun onContextItemSelected(item: MenuItem)
     }
 
     interface IChatListViewContract {
-        fun setRecycleAdapter(adapter: ChatListAdapter)
+        fun setDialogAdapter(adapter: DialogsListAdapter<GenericDialog>)
         fun startActivity(intent: Intent)
-        fun updateChatList(adapter: ChatListAdapter, chats: List<ChatEntity>)
+        fun getActivityContext(): Context?
     }
 
     // -----MainActivity-----
 
     interface IMainLogicContract {
-        fun initPeer()
-        fun sendStartChatMessage(username: String)
-        fun shutdownPeer()
     }
 
     interface IMainPresenterContract {
@@ -53,19 +51,17 @@ interface CoreContracts {
     // -----ChatActivity-----
 
     interface IChatLogicContract {
-        fun sendMessage(message: MessageEntity)
-        fun stopTrackingForNewMsgs()
+        fun sendMessage(text: String): MessageEntity
     }
 
     interface IChatPresenterContract {
-        fun sendMessage(text: String)
-        fun updateAdapter()
+        fun sendMessage(text: String): Boolean
+        fun loadLocalMessages()
         fun onDestroy()
     }
 
     interface IChatViewContract {
-        fun updateMessageList(message: MessageEntity)
-        fun updateMessageList(messages: List<MessageEntity>)
+        fun setAdapter(adapter: MessagesListAdapter<GenericMessage>)
     }
 
     // -----SettingsFragment-----

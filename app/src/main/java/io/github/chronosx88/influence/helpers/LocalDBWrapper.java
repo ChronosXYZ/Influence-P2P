@@ -13,7 +13,7 @@ public class LocalDBWrapper {
     private static RoomHelper dbInstance = AppHelper.getChatDB();
 
     public static void createChatEntry(String jid, String chatName) {
-        dbInstance.chatDao().addChat(new ChatEntity(jid, chatName));
+        dbInstance.chatDao().addChat(new ChatEntity(jid, chatName, new ArrayList<>(), 0));
     }
 
     public static long createMessageEntry(String jid, String senderJid, long timestamp, String text, boolean isSent, boolean isRead) {

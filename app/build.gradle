@@ -64,6 +64,9 @@ dependencies {
     implementation 'org.igniterealtime.smack:smack-android:4.3.3'
     implementation 'org.igniterealtime.smack:smack-extensions:4.3.3'
 
+    implementation 'com.github.stfalcon:chatkit:0.3.3'
+    implementation 'net.sourceforge.streamsupport:streamsupport:1.7.0'
+
 }
 repositories {
     mavenCentral()

@@ -33,12 +33,12 @@ public class SettingsFragment extends PreferenceFragmentCompat implements CoreCo
         presenter = new SettingsPresenter(this);
         // Load the Preferences from the XML file
         addPreferencesFromResource(R.xml.main_settings);
-        getPreferenceScreen().getPreference(0).setSummary(AppHelper.getPeerID());
+        /*getPreferenceScreen().getPreference(0).setSummary(AppHelper.getPeerID());
         getPreferenceScreen().getPreference(0).setOnPreferenceClickListener((preference -> {
-            ClipboardManager clipboard = (ClipboardManager) AppHelper.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipboardManager clipboard = (ClipboardManager) AppHelper.getActivityContext().getSystemService(Context.CLIPBOARD_SERVICE);
             ClipData clip = ClipData.newPlainText("", AppHelper.getPeerID());
             clipboard.setPrimaryClip(clip);
-            Toast.makeText(AppHelper.getContext(), "Скопировано в буфер обмена!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(AppHelper.getActivityContext(), "Скопировано в буфер обмена!", Toast.LENGTH_SHORT).show();
             return false;
         }));
         getPreferenceScreen().getPreference(1).setSummary(AppHelper.getUsername());
@@ -49,7 +49,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements CoreCo
         getPreferenceScreen().getPreference(1).setOnPreferenceChangeListener((p, nV) -> {
             getPreferenceScreen().getPreference(1).setSummary((String) nV);
             return true;
-        });
+        });*/
     }
 
     @Override

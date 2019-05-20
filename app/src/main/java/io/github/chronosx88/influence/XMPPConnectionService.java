@@ -29,6 +29,8 @@ import org.jivesoftware.smack.XMPPException;
 
 import java.io.IOException;
 
+import io.github.chronosx88.influence.helpers.AppHelper;
+
 public class XMPPConnectionService extends Service {
     public static final String INTENT_NEW_MESSAGE = "io.github.chronosx88.intents.new_message";
     public static final String INTENT_SEND_MESSAGE = "io.github.chronosx88.intents.send_message";
@@ -40,18 +42,16 @@ public class XMPPConnectionService extends Service {
     public static final String MESSAGE_BODY = "message_body";
     public static final String MESSAGE_RECIPIENT = "message_recipient";
 
-    public static XMPPConnection.ConnectionState connectionState = XMPPConnection.ConnectionState.DISCONNECTED;
-    public static XMPPConnection.SessionState sessionState = XMPPConnection.SessionState.LOGGED_OUT;
+    public static XMPPConnection.ConnectionState CONNECTION_STATE = XMPPConnection.ConnectionState.DISCONNECTED;
+    public static XMPPConnection.SessionState SESSION_STATE = XMPPConnection.SessionState.LOGGED_OUT;
 
     private Thread thread;
     private Handler threadHandler;
     private boolean isThreadAlive = false;
     private XMPPConnection connection;
-    private Context context;
+    private Context context = AppHelper.getContext();
 
-    public XMPPConnectionService(Context context) {
-        this.context = context;
-    }
+    public XMPPConnectionService() { }
 
     @Override
     public IBinder onBind(Intent intent) { return null; }
@@ -89,9 +89,8 @@ public class XMPPConnectionService extends Service {
             connection.connect();
         } catch (IOException | SmackException | XMPPException e) {
             Intent intent = new Intent(INTENT_AUTHENTICATION_FAILED);
-
+            context.sendBroadcast(intent);
             e.printStackTrace();
-            //Stop the service all together.
             stopSelf();
         }
     }

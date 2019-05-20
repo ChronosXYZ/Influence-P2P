@@ -2,39 +2,27 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "81501115d10a6dc46002667323359631",
+    "identityHash": "2409c873b47ccd635ed7d10e4d8604f8",
     "entities": [
       {
         "tableName": "messages",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`messageID` TEXT NOT NULL, `type` INTEGER NOT NULL, `chatID` TEXT, `senderID` TEXT, `username` TEXT, `timestamp` INTEGER NOT NULL, `text` TEXT, `isSent` INTEGER NOT NULL, `isRead` INTEGER NOT NULL, PRIMARY KEY(`messageID`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`messageID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `jid` TEXT, `senderJid` TEXT, `timestamp` INTEGER NOT NULL, `text` TEXT, `isSent` INTEGER NOT NULL, `isRead` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "messageID",
             "columnName": "messageID",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "type",
-            "columnName": "type",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "chatID",
-            "columnName": "chatID",
+            "fieldPath": "jid",
+            "columnName": "jid",
             "affinity": "TEXT",
             "notNull": false
           },
           {
-            "fieldPath": "senderID",
-            "columnName": "senderID",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "username",
-            "columnName": "username",
+            "fieldPath": "senderJid",
+            "columnName": "senderJid",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -67,55 +55,43 @@
           "columnNames": [
             "messageID"
           ],
-          "autoGenerate": false
+          "autoGenerate": true
         },
         "indices": [],
         "foreignKeys": []
       },
       {
         "tableName": "chats",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`chatID` TEXT NOT NULL, `name` TEXT, `metadataRef` TEXT, `membersRef` TEXT, `bannedUsers` TEXT, `chunkCursor` INTEGER NOT NULL, PRIMARY KEY(`chatID`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`jid` TEXT NOT NULL, `chatName` TEXT, `users` TEXT, `unreadMessagesCount` INTEGER NOT NULL, PRIMARY KEY(`jid`))",
         "fields": [
           {
-            "fieldPath": "chatID",
-            "columnName": "chatID",
+            "fieldPath": "jid",
+            "columnName": "jid",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "name",
-            "columnName": "name",
+            "fieldPath": "chatName",
+            "columnName": "chatName",
             "affinity": "TEXT",
             "notNull": false
           },
           {
-            "fieldPath": "metadataRef",
-            "columnName": "metadataRef",
+            "fieldPath": "users",
+            "columnName": "users",
             "affinity": "TEXT",
             "notNull": false
           },
           {
-            "fieldPath": "membersRef",
-            "columnName": "membersRef",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "bannedUsers",
-            "columnName": "bannedUsers",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "chunkCursor",
-            "columnName": "chunkCursor",
+            "fieldPath": "unreadMessagesCount",
+            "columnName": "unreadMessagesCount",
             "affinity": "INTEGER",
             "notNull": true
           }
         ],
         "primaryKey": {
           "columnNames": [
-            "chatID"
+            "jid"
           ],
           "autoGenerate": false
         },
@@ -126,7 +102,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"81501115d10a6dc46002667323359631\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"2409c873b47ccd635ed7d10e4d8604f8\")"
     ]
   }
 }

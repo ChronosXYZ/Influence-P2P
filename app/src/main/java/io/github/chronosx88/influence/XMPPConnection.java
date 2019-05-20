@@ -56,9 +56,6 @@ public class XMPPConnection implements ConnectionListener {
 
     public enum ConnectionState {
         CONNECTED,
-        AUTHENTICATED,
-        CONNECTING,
-        DISCONNECTING,
         DISCONNECTED
     }
 
@@ -68,6 +65,8 @@ public class XMPPConnection implements ConnectionListener {
     }
 
     public XMPPConnection(Context context) {
+        this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        this.context = context;
         String jid = prefs.getString("jid", null);
         String password = prefs.getString("pass", null);
         if(jid != null && password != null) {
@@ -78,8 +77,6 @@ public class XMPPConnection implements ConnectionListener {
             credentials.password = password;
         }
         networkHandler = new NetworkHandler(context);
-        prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        this.context = context;
     }
 
     public void connect() throws XMPPException, SmackException, IOException {
@@ -97,6 +94,9 @@ public class XMPPConnection implements ConnectionListener {
 
             connection = new XMPPTCPConnection(conf);
             connection.addConnectionListener(this);
+            if(credentials.jabberHost.equals("") && credentials.password.equals("") && credentials.username.equals("")){
+                throw new IOException();
+            }
             try {
                 connection.connect();
                 connection.login(credentials.username, credentials.password);
@@ -121,26 +121,28 @@ public class XMPPConnection implements ConnectionListener {
 
     @Override
     public void connected(org.jivesoftware.smack.XMPPConnection connection) {
-        XMPPConnectionService.connectionState = ConnectionState.CONNECTED;
+        XMPPConnectionService.CONNECTION_STATE = ConnectionState.CONNECTED;
     }
 
     @Override
     public void authenticated(org.jivesoftware.smack.XMPPConnection connection, boolean resumed) {
-        XMPPConnectionService.sessionState = SessionState.LOGGED_IN;
+        XMPPConnectionService.SESSION_STATE = SessionState.LOGGED_IN;
         prefs.edit().putBoolean("logged_in", true).apply();
+        context.sendBroadcast(new Intent(XMPPConnectionService.INTENT_AUTHENTICATED));
+        AppHelper.setJid(credentials.username + "@" + credentials.jabberHost);
     }
 
     @Override
     public void connectionClosed() {
-        XMPPConnectionService.connectionState = ConnectionState.DISCONNECTED;
-        XMPPConnectionService.sessionState = SessionState.LOGGED_OUT;
+        XMPPConnectionService.CONNECTION_STATE = ConnectionState.DISCONNECTED;
+        XMPPConnectionService.SESSION_STATE = SessionState.LOGGED_OUT;
         prefs.edit().putBoolean("logged_in", false).apply();
     }
 
     @Override
     public void connectionClosedOnError(Exception e) {
-        XMPPConnectionService.connectionState = ConnectionState.DISCONNECTED;
-        XMPPConnectionService.sessionState = SessionState.LOGGED_OUT;
+        XMPPConnectionService.CONNECTION_STATE = ConnectionState.DISCONNECTED;
+        XMPPConnectionService.SESSION_STATE = SessionState.LOGGED_OUT;
         prefs.edit().putBoolean("logged_in", false).apply();
         Log.e(LOG_TAG, "Connection closed, exception occurred");
         e.printStackTrace();

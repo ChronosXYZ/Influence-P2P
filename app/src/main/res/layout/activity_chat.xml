@@ -38,38 +38,26 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/message_list"
+    <com.stfalcon.chatkit.messages.MessagesList
+        android:id="@+id/messages_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/appbar_chat_activity"
-        android:layout_above="@+id/chat_activity_bottom_container"/>
+        android:layout_above="@+id/message_input"/>
 
-    <RelativeLayout
-        android:id="@+id/chat_activity_bottom_container"
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_above="@+id/message_input"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:background="@android:color/darker_gray"/>
+
+    <com.stfalcon.chatkit.messages.MessageInput
+        android:id="@+id/message_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="#FFFFFF"
-        android:orientation="horizontal"
-        android:padding="5dp">
-
-        <EditText
-            android:id="@+id/message_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toLeftOf="@+id/send_button"
-            android:background="@android:color/transparent"
-            android:hint="Type a message..." />
-
-        <ImageButton
-            android:id="@+id/send_button"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:background="@drawable/ic_send_green_24dp" />
-    </RelativeLayout>
+        app:inputHint="@string/hint_enter_a_message"
+        app:showAttachmentButton="true"/>
 
 </RelativeLayout>

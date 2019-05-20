@@ -1,7 +1,8 @@
 package io.github.chronosx88.influence.contracts.observer;
 
-import com.google.gson.JsonObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public interface IObserver {
-    void handleEvent(JsonObject object);
+    void handleEvent(JSONObject object) throws JSONException;
 }

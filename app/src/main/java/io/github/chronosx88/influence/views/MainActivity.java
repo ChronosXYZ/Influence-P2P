@@ -7,59 +7,51 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.Toast;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.gson.JsonObject;
-
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import io.github.chronosx88.influence.R;
 import io.github.chronosx88.influence.contracts.CoreContracts;
 import io.github.chronosx88.influence.contracts.observer.IObserver;
 import io.github.chronosx88.influence.helpers.AppHelper;
-import io.github.chronosx88.influence.helpers.actions.UIActions;
+import io.github.chronosx88.influence.helpers.ObservableActions;
 import io.github.chronosx88.influence.presenters.MainPresenter;
-import io.github.chronosx88.influence.views.fragments.ChatListFragment;
+import io.github.chronosx88.influence.views.fragments.DialogListFragment;
 import io.github.chronosx88.influence.views.fragments.SettingsFragment;
 import kotlin.Pair;
 
-public class MainActivity extends AppCompatActivity implements CoreContracts.IMainViewContract {
+public class MainActivity extends AppCompatActivity implements CoreContracts.IMainViewContract, IObserver {
 
     private CoreContracts.IMainPresenterContract presenter;
     private ProgressDialog progressDialog;
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = (item) -> {
+        Fragment selectedFragment = null;
 
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
-            Fragment selectedFragment = null;
-
-            switch (item.getItemId()) {
-                case R.id.action_chats:
-                    selectedFragment = new ChatListFragment();
-                    break;
-                case R.id.action_settings:
-                    selectedFragment = new SettingsFragment();
-                    break;
-            }
-
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.main_fragment_container, selectedFragment);
-            transaction.commit();
-
-            return true;
+        switch (item.getItemId()) {
+            case R.id.action_chats:
+                selectedFragment = new DialogListFragment();
+                break;
+            case R.id.action_settings:
+                selectedFragment = new SettingsFragment();
+                break;
         }
 
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.main_fragment_container, selectedFragment);
+        transaction.commit();
+
+        return true;
     };
 
     @Override
@@ -73,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements CoreContracts.IMa
         fab.setOnClickListener((v) -> {
             Pair<AlertDialog.Builder, EditText> pair = ViewUtils.INSTANCE.setupEditTextDialog(MainActivity.this, getString(R.string.input_companion_username));
             pair.getFirst().setPositiveButton(getString(R.string.ok), (dialog, which) -> {
-                progressDialog.show();
+                showProgressBar(true);
                 presenter.startChatWithPeer(pair.getSecond().getText().toString());
             });
             pair.getFirst().setNegativeButton(getString(R.string.cancel), (dialog, which) -> {
@@ -84,17 +76,17 @@ public class MainActivity extends AppCompatActivity implements CoreContracts.IMa
 
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.main_fragment_container, new ChatListFragment())
+                .replace(R.id.main_fragment_container, new DialogListFragment())
                 .commit();
 
         presenter = new MainPresenter(this);
-
 
         progressDialog = new ProgressDialog(MainActivity.this, R.style.AlertDialogTheme);
         progressDialog.setCancelable(false);
         progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Small);
         progressDialog.show();
         presenter.initPeer();
+        AppHelper.getObservable().register(this);
     }
 
     @Override
@@ -120,10 +112,7 @@ public class MainActivity extends AppCompatActivity implements CoreContracts.IMa
 
     @Override
     public void showSnackbar(@NotNull String message) {
-        runOnUiThread(() -> {
-            Snackbar.make(getRootView(), message, Snackbar.LENGTH_LONG)
-                    .show();
-        });
+        runOnUiThread(() -> Snackbar.make(getRootView(), message, Snackbar.LENGTH_LONG).show());
     }
 
     @Override
@@ -148,5 +137,15 @@ public class MainActivity extends AppCompatActivity implements CoreContracts.IMa
             rootView = getWindow().getDecorView().getRootView();
 
         return rootView;
+    }
+
+    @Override
+    public void handleEvent(JSONObject object) throws JSONException {
+        switch (object.getInt("action")) {
+            case ObservableActions.NEW_CHAT_CREATED: {
+                showProgressBar(false);
+                break;
+            }
+        }
     }
 }
