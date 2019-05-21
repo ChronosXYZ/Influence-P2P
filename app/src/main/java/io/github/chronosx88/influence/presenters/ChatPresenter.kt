@@ -13,7 +13,6 @@ import io.github.chronosx88.influence.contracts.CoreContracts
 import io.github.chronosx88.influence.helpers.AppHelper
 import io.github.chronosx88.influence.helpers.LocalDBWrapper
 import io.github.chronosx88.influence.logic.ChatLogic
-import io.github.chronosx88.influence.models.GenericDialog
 import io.github.chronosx88.influence.models.GenericMessage
 import io.github.chronosx88.influence.models.roomEntities.ChatEntity
 import io.github.chronosx88.influence.models.roomEntities.MessageEntity
@@ -23,7 +22,7 @@ class ChatPresenter(private val view: CoreContracts.IChatViewContract, private v
     private val chatEntity: ChatEntity?
     private val gson: Gson
     private val chatAdapter: MessagesListAdapter<GenericMessage>
-    private val newMessageReceiver: BroadcastReceiver
+    private lateinit var newMessageReceiver: BroadcastReceiver
 
     init {
         this.logic = ChatLogic(LocalDBWrapper.getChatByChatID(chatID)!!)
@@ -32,17 +31,7 @@ class ChatPresenter(private val view: CoreContracts.IChatViewContract, private v
         chatAdapter = MessagesListAdapter(AppHelper.getJid(), ImageLoader { imageView, _, _ -> imageView.setImageResource(R.mipmap.ic_launcher) })
         view.setAdapter(chatAdapter)
 
-        newMessageReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) {
-                if(intent.getStringExtra(XMPPConnectionService.MESSAGE_CHATID).equals(chatEntity.jid)) {
-                    val messageID = intent.getLongExtra(XMPPConnectionService.MESSAGE_ID, -1)
-                    chatAdapter.addToStart(GenericMessage(LocalDBWrapper.getMessageByID(messageID)), true)
-                }
-            }
-        }
-        val filter = IntentFilter()
-        filter.addAction(XMPPConnectionService.INTENT_NEW_MESSAGE)
-        AppHelper.getContext().registerReceiver(newMessageReceiver, filter)
+        setupIncomingMessagesReceiver()
     }
 
     override fun sendMessage(text: String): Boolean {
@@ -70,7 +59,17 @@ class ChatPresenter(private val view: CoreContracts.IChatViewContract, private v
     }
 
     private fun setupIncomingMessagesReceiver() {
-
+        newMessageReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                if(intent.getStringExtra(XMPPConnectionService.MESSAGE_CHATID).equals(chatEntity!!.jid)) {
+                    val messageID = intent.getLongExtra(XMPPConnectionService.MESSAGE_ID, -1)
+                    chatAdapter.addToStart(GenericMessage(LocalDBWrapper.getMessageByID(messageID)), true)
+                }
+            }
+        }
+        val filter = IntentFilter()
+        filter.addAction(XMPPConnectionService.INTENT_NEW_MESSAGE)
+        AppHelper.getContext().registerReceiver(newMessageReceiver, filter)
     }
 
 }
