@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import net.tomp2p.dht.PeerDHT;
-
 import androidx.multidex.MultiDexApplication;
 import androidx.room.Room;
 
