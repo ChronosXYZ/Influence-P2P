@@ -15,10 +15,16 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.github.chronosx88.influence;
+package io.github.chronosx88.influence.models.appEvents;
 
-public class LoginCredentials {
-    public String username = "";
-    public String password = "";
-    public String jabberHost = "";
+public class AuthenticationStatusEvent {
+    public static final int NETWORK_ERROR = 0x0;
+    public static final int INCORRECT_LOGIN_OR_PASSWORD = 0x1;
+    public static final int CONNECT_AND_LOGIN_SUCCESSFUL = 0x2;
+
+    public final int authenticationStatus;
+
+    public AuthenticationStatusEvent(int authenticationStatus) {
+        this.authenticationStatus = authenticationStatus;
+    }
 }

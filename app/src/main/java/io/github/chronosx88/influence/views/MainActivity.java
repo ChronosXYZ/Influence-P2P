@@ -18,20 +18,15 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import io.github.chronosx88.influence.R;
 import io.github.chronosx88.influence.contracts.CoreContracts;
-import io.github.chronosx88.influence.contracts.observer.IObserver;
-import io.github.chronosx88.influence.helpers.AppHelper;
-import io.github.chronosx88.influence.helpers.ObservableActions;
 import io.github.chronosx88.influence.presenters.MainPresenter;
 import io.github.chronosx88.influence.views.fragments.DialogListFragment;
 import io.github.chronosx88.influence.views.fragments.SettingsFragment;
 import kotlin.Pair;
 
-public class MainActivity extends AppCompatActivity implements CoreContracts.IMainViewContract, IObserver {
+public class MainActivity extends AppCompatActivity implements CoreContracts.IMainViewContract {
 
     private CoreContracts.IMainPresenterContract presenter;
     private ProgressDialog progressDialog;
@@ -84,15 +79,7 @@ public class MainActivity extends AppCompatActivity implements CoreContracts.IMa
         progressDialog = new ProgressDialog(MainActivity.this, R.style.AlertDialogTheme);
         progressDialog.setCancelable(false);
         progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Small);
-        progressDialog.show();
-        presenter.initPeer();
-        AppHelper.getObservable().register(this);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        presenter.onDestroy();
+        presenter.initConnection();
     }
 
     @Override
@@ -105,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements CoreContracts.IMa
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == R.id.action_reconnect_network) {
             progressDialog.show();
-            presenter.initPeer();
+            presenter.initConnection();
         }
         return true;
     }
@@ -137,15 +124,5 @@ public class MainActivity extends AppCompatActivity implements CoreContracts.IMa
             rootView = getWindow().getDecorView().getRootView();
 
         return rootView;
-    }
-
-    @Override
-    public void handleEvent(JSONObject object) throws JSONException {
-        switch (object.getInt("action")) {
-            case ObservableActions.NEW_CHAT_CREATED: {
-                showProgressBar(false);
-                break;
-            }
-        }
     }
 }

@@ -15,8 +15,8 @@ import io.github.chronosx88.influence.presenters.DialogListPresenter
 
 
 class DialogListFragment : Fragment(), CoreContracts.IChatListViewContract {
-    private var presenter: CoreContracts.IDialogListPresenterContract? = null
-    private var dialogList: DialogsList? = null
+    private lateinit var presenter: CoreContracts.IDialogListPresenterContract
+    private lateinit var dialogList: DialogsList
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -30,10 +30,20 @@ class DialogListFragment : Fragment(), CoreContracts.IChatListViewContract {
     }
 
     override fun setDialogAdapter(adapter: DialogsListAdapter<GenericDialog>) {
-        dialogList!!.setAdapter(adapter)
+        dialogList.setAdapter(adapter)
     }
 
     override fun getActivityContext(): Context? {
         return context
+    }
+
+    override fun onStart() {
+        super.onStart()
+        presenter.onStart()
+    }
+
+    override fun onStop() {
+        presenter.onStop()
+        super.onStop()
     }
 }

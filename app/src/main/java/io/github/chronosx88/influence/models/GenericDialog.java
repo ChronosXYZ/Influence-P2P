@@ -28,7 +28,7 @@ import io.github.chronosx88.influence.models.roomEntities.ChatEntity;
 
 public class GenericDialog implements IDialog {
     private String dialogID;
-    private String dialogPhoto = "";
+    private String dialogPhoto;
     private String dialogName;
     private List<GenericUser> users;
     private IMessage lastMessage;
@@ -36,6 +36,7 @@ public class GenericDialog implements IDialog {
 
     public GenericDialog(ChatEntity chatEntity) {
         dialogID = chatEntity.jid;
+        dialogPhoto = chatEntity.jid;
         dialogName = chatEntity.chatName;
         users = new ArrayList<>();
         unreadMessagesCount = chatEntity.unreadMessagesCount;

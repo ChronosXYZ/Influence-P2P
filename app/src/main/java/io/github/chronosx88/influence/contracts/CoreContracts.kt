@@ -9,21 +9,26 @@ import io.github.chronosx88.influence.models.GenericDialog
 import io.github.chronosx88.influence.models.GenericMessage
 import io.github.chronosx88.influence.models.roomEntities.ChatEntity
 import io.github.chronosx88.influence.models.roomEntities.MessageEntity
+import org.jivesoftware.smack.roster.RosterEntry
 
 interface CoreContracts {
 
-    interface ViewWithLoadingScreen {
-        fun loadingScreen(state: Boolean);
+    interface IGenericView {
+        fun loadingScreen(state: Boolean)
     }
 
     // -----ChatList-----
 
     interface IDialogListLogicContract {
-        fun loadAllChats(): List<ChatEntity>
+        fun loadLocalChats(): List<ChatEntity>
+        fun getRemoteContacts(): Set<RosterEntry>?
     }
 
     interface IDialogListPresenterContract {
         fun openChat(chatID: String)
+        fun onStart()
+        fun onStop()
+        fun loadRemoteContactList()
     }
 
     interface IChatListViewContract {
@@ -35,12 +40,12 @@ interface CoreContracts {
     // -----MainActivity-----
 
     interface IMainLogicContract {
+        fun startService()
     }
 
     interface IMainPresenterContract {
-        fun initPeer()
+        fun initConnection()
         fun startChatWithPeer(username: String)
-        fun onDestroy()
     }
 
     interface IMainViewContract {
@@ -51,7 +56,7 @@ interface CoreContracts {
     // -----ChatActivity-----
 
     interface IChatLogicContract {
-        fun sendMessage(text: String): MessageEntity
+        fun sendMessage(text: String): MessageEntity?
     }
 
     interface IChatPresenterContract {
@@ -66,20 +71,15 @@ interface CoreContracts {
 
     // -----SettingsFragment-----
 
-    interface ISettingsLogic {
-        fun checkUsernameExists(username: String) : Boolean
-    }
+    interface ISettingsLogic // TODO
 
-    interface ISettingsPresenter {
-        fun updateUsername(username: String)
-    }
+    interface ISettingsPresenter // TODO
 
     interface ISettingsView {
         fun loadingScreen(state: Boolean)
         fun showMessage(message: String)
-        fun refreshScreen()
     }
 
     // -----LoginActivity-----
-    interface ILoginViewContract : ViewWithLoadingScreen
+    interface ILoginViewContract : IGenericView
 }

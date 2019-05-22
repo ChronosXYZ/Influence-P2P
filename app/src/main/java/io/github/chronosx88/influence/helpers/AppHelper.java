@@ -3,6 +3,8 @@ package io.github.chronosx88.influence.helpers;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 
 import androidx.multidex.MultiDexApplication;
@@ -12,44 +14,38 @@ import com.instacart.library.truetime.TrueTime;
 
 import java.io.IOException;
 
-import io.github.chronosx88.influence.observable.MainObservable;
+import io.github.chronosx88.influence.LoginCredentials;
+import io.github.chronosx88.influence.XMPPConnection;
 
 /**
  * Extended Application class which designed for centralized getting various objects from anywhere in the application.
  */
-
 public class AppHelper extends MultiDexApplication {
     private static Application instance;
-    private static MainObservable observable;
     public final static String APP_NAME = "Influence";
 
     private static String jid;
     private static RoomHelper chatDB;
     private static SharedPreferences preferences;
+    private static XMPPConnection xmppConnection;
+    private static LoginCredentials currentLoginCredentials;
+    private static Handler mainUIThreadHandler;
 
     @Override
     public void onCreate() {
         super.onCreate();
         instance = this;
-        observable = new MainObservable();
-        chatDB = Room.databaseBuilder(getApplicationContext(), RoomHelper.class, "chatDB")
-                    .allowMainThreadQueries()
-                    .build();
+
+        mainUIThreadHandler = new Handler(Looper.getMainLooper());
+        initChatDB();
         preferences = PreferenceManager.getDefaultSharedPreferences(instance);
-        new Thread(() -> {
-            try {
-                TrueTime.build().initialize();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }).start();
+        initTrueTime();
+        loadLoginCredentials();
     }
 
     public static Context getContext() {
         return instance.getApplicationContext();
     }
-
-    public static MainObservable getObservable() { return observable; }
 
     public static String getJid() { return jid; }
 
@@ -59,5 +55,51 @@ public class AppHelper extends MultiDexApplication {
 
     public static SharedPreferences getPreferences() {
         return preferences;
+    }
+
+    public static XMPPConnection getXmppConnection() {
+        return xmppConnection;
+    }
+
+    public static void setXmppConnection(XMPPConnection xmppConnection) {
+        AppHelper.xmppConnection = xmppConnection;
+    }
+
+    private static void loadLoginCredentials() {
+        currentLoginCredentials = new LoginCredentials();
+        String jid = preferences.getString("jid", null);
+        String password = preferences.getString("pass", null);
+        if(jid != null && password != null) {
+            String username = jid.split("@")[0];
+            String jabberHost = jid.split("@")[1];
+            currentLoginCredentials.username = username;
+            currentLoginCredentials.jabberHost = jabberHost;
+            currentLoginCredentials.password = password;
+        }
+        AppHelper.setJid(currentLoginCredentials.username + "@" + currentLoginCredentials.jabberHost);
+    }
+
+    private static void initTrueTime() {
+        new Thread(() -> {
+            boolean isTrueTimeIsOn = false;
+            while(!isTrueTimeIsOn) {
+                try {
+                    TrueTime.build().initialize();
+                    isTrueTimeIsOn = true;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    private void initChatDB() {
+        chatDB = Room.databaseBuilder(getApplicationContext(), RoomHelper.class, "chatDB")
+                .allowMainThreadQueries()
+                .build();
+    }
+
+    public static Handler getMainUIThread() {
+        return mainUIThreadHandler;
     }
 }

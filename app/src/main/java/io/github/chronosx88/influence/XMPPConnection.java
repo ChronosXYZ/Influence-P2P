@@ -17,15 +17,13 @@
 
 package io.github.chronosx88.influence;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.preference.PreferenceManager;
 
+import org.greenrobot.eventbus.EventBus;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.ReconnectionManager;
@@ -34,16 +32,19 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.ChatManager;
 import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.roster.Roster;
+import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+import org.jivesoftware.smackx.vcardtemp.VCardManager;
 import org.jxmpp.jid.EntityBareJid;
-import org.jxmpp.jid.impl.JidCreate;
-import org.jxmpp.stringprep.XmppStringprepException;
 
 import java.io.IOException;
+import java.util.Set;
 
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.NetworkHandler;
+import io.github.chronosx88.influence.models.appEvents.AuthenticationStatusEvent;
 
 public class XMPPConnection implements ConnectionListener {
     private final static String LOG_TAG = "XMPPConnection";
@@ -51,8 +52,8 @@ public class XMPPConnection implements ConnectionListener {
     private XMPPTCPConnection connection = null;
     private SharedPreferences prefs;
     private NetworkHandler networkHandler;
-    private BroadcastReceiver sendMessageReceiver = null;
     private Context context;
+    private Roster roster;
 
     public enum ConnectionState {
         CONNECTED,
@@ -76,10 +77,10 @@ public class XMPPConnection implements ConnectionListener {
             credentials.jabberHost = jabberHost;
             credentials.password = password;
         }
-        networkHandler = new NetworkHandler(context);
+        networkHandler = new NetworkHandler();
     }
 
-    public void connect() throws XMPPException, SmackException, IOException {
+    public void connect() throws XMPPException, IOException, SmackException {
         if(connection == null) {
             XMPPTCPConnectionConfiguration conf = XMPPTCPConnectionConfiguration.builder()
                     .setXmppDomain(credentials.jabberHost)
@@ -89,8 +90,6 @@ public class XMPPConnection implements ConnectionListener {
                     .setSecurityMode(ConnectionConfiguration.SecurityMode.required)
                     .setCompressionEnabled(true)
                     .build();
-
-            setupSendMessageReceiver();
 
             connection = new XMPPTCPConnection(conf);
             connection.addConnectionListener(this);
@@ -108,6 +107,7 @@ public class XMPPConnection implements ConnectionListener {
             ReconnectionManager reconnectionManager = ReconnectionManager.getInstanceFor(connection);
             ReconnectionManager.setEnabledPerDefault(true);
             reconnectionManager.enableAutomaticReconnection();
+            roster = roster.getInstanceFor(connection);
         }
     }
 
@@ -128,8 +128,7 @@ public class XMPPConnection implements ConnectionListener {
     public void authenticated(org.jivesoftware.smack.XMPPConnection connection, boolean resumed) {
         XMPPConnectionService.SESSION_STATE = SessionState.LOGGED_IN;
         prefs.edit().putBoolean("logged_in", true).apply();
-        context.sendBroadcast(new Intent(XMPPConnectionService.INTENT_AUTHENTICATED));
-        AppHelper.setJid(credentials.username + "@" + credentials.jabberHost);
+        EventBus.getDefault().post(new AuthenticationStatusEvent(AuthenticationStatusEvent.CONNECT_AND_LOGIN_SUCCESSFUL));
     }
 
     @Override
@@ -148,36 +147,10 @@ public class XMPPConnection implements ConnectionListener {
         e.printStackTrace();
     }
 
-    private void setupSendMessageReceiver() {
-        sendMessageReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                switch (action) {
-                    case XMPPConnectionService.INTENT_SEND_MESSAGE: {
-                        String recipientJid = intent.getStringExtra(XMPPConnectionService.MESSAGE_RECIPIENT);
-                        String messageText = intent.getStringExtra(XMPPConnectionService.MESSAGE_BODY);
-                        sendMessage(recipientJid, messageText);
-                        break;
-                    }
-                }
-            }
-        };
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(XMPPConnectionService.INTENT_SEND_MESSAGE);
-        context.registerReceiver(sendMessageReceiver, intentFilter);
-    }
-
-    private void sendMessage(String recipientJid, String messageText) {
-        EntityBareJid jid = null;
+    public void sendMessage(EntityBareJid recipientJid, String messageText) {
+        Chat chat = ChatManager.getInstanceFor(connection).chatWith(recipientJid);
         try {
-            jid = JidCreate.entityBareFrom(recipientJid);
-        } catch (XmppStringprepException e) {
-            e.printStackTrace();
-        }
-        Chat chat = ChatManager.getInstanceFor(connection).chatWith(jid);
-        try {
-            Message message = new Message(jid, Message.Type.chat);
+            Message message = new Message(recipientJid, Message.Type.chat);
             message.setBody(messageText);
             chat.send(message);
         } catch (SmackException.NotConnectedException e) {
@@ -189,5 +162,41 @@ public class XMPPConnection implements ConnectionListener {
 
     public XMPPTCPConnection getConnection() {
         return connection;
+    }
+
+    public byte[] getAvatar(EntityBareJid jid) {
+        if(isConnectionAlive()) {
+            VCardManager manager = VCardManager.getInstanceFor(connection);
+            byte[] avatar = null;
+            try {
+                avatar = manager.loadVCard(jid).getAvatar();
+            } catch (SmackException.NoResponseException e) {
+                e.printStackTrace();
+            } catch (XMPPException.XMPPErrorException e) {
+                e.printStackTrace();
+            } catch (SmackException.NotConnectedException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return avatar;
+        }
+        return null;
+    }
+
+    public Set<RosterEntry> getContactList() {
+        if(isConnectionAlive()) {
+            while (roster == null);
+            return roster.getEntries();
+        }
+        return null;
+    }
+
+    public boolean isConnectionAlive() {
+        if(XMPPConnectionService.CONNECTION_STATE.equals(ConnectionState.CONNECTED) && XMPPConnectionService.SESSION_STATE.equals(SessionState.LOGGED_IN)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

@@ -1,11 +1,11 @@
 package io.github.chronosx88.influence.logic;
 
-import android.content.Intent;
-
 import com.instacart.library.truetime.TrueTime;
 
-import io.github.chronosx88.influence.XMPPConnection;
-import io.github.chronosx88.influence.XMPPConnectionService;
+import org.jxmpp.jid.EntityBareJid;
+import org.jxmpp.jid.impl.JidCreate;
+import org.jxmpp.stringprep.XmppStringprepException;
+
 import io.github.chronosx88.influence.contracts.CoreContracts;
 import io.github.chronosx88.influence.helpers.AppHelper;
 import io.github.chronosx88.influence.helpers.LocalDBWrapper;
@@ -25,11 +25,14 @@ public class ChatLogic implements CoreContracts.IChatLogicContract {
 
     @Override
     public MessageEntity sendMessage(String text) {
-        if (XMPPConnectionService.CONNECTION_STATE.equals(XMPPConnection.ConnectionState.CONNECTED)) {
-            Intent intent = new Intent(XMPPConnectionService.INTENT_SEND_MESSAGE);
-            intent.putExtra(XMPPConnectionService.MESSAGE_BODY, text);
-            intent.putExtra(XMPPConnectionService.MESSAGE_RECIPIENT, chatEntity.jid);
-            AppHelper.getContext().sendBroadcast(intent);
+        if (AppHelper.getXmppConnection().isConnectionAlive()) {
+            EntityBareJid jid;
+            try {
+                jid = JidCreate.entityBareFrom(chatEntity.jid);
+            } catch (XmppStringprepException e) {
+                return null;
+            }
+            AppHelper.getXmppConnection().sendMessage(jid, text);
             long messageID = LocalDBWrapper.createMessageEntry(chatID, AppHelper.getJid(), TrueTime.now().getTime(), text, false, false);
             return LocalDBWrapper.getMessageByID(messageID);
         } else {

@@ -510,7 +510,7 @@ covered work in a country, or your recipient's use of the covered work
 in a country, would infringe one or more identifiable patents in that
 country that you have reason to believe are valid.
 
-  If, pursuant to or in connection with a single transaction or
+  If, pursuant to or in xmppConnection with a single transaction or
 arrangement, you convey, or propagate by procuring conveyance of, a
 covered work, and grant a patent license to some of the parties
 receiving the covered work authorizing them to use, propagate, modify
@@ -527,9 +527,9 @@ in the business of distributing software, under which you make payment
 to the third party based on the extent of your activity of conveying
 the work, and under which the third party grants, to any of the
 parties who would receive the covered work from you, a discriminatory
-patent license (a) in connection with copies of the covered work
+patent license (a) in xmppConnection with copies of the covered work
 conveyed by you (or copies made from those copies), or (b) primarily
-for and in connection with specific products or compilations that
+for and in xmppConnection with specific products or compilations that
 contain the covered work, unless you entered into that arrangement,
 or that patent license was granted, prior to 28 March 2007.
 
@@ -614,7 +614,7 @@ SUCH DAMAGES.
   If the disclaimer of warranty and limitation of liability provided
 above cannot be given local legal effect according to their terms,
 reviewing courts shall apply local law that most closely approximates
-an absolute waiver of all civil liability in connection with the
+an absolute waiver of all civil liability in xmppConnection with the
 Program, unless a warranty or assumption of liability accompanies a
 copy of the Program in return for a fee.
 

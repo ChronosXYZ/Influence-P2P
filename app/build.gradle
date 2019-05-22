@@ -63,7 +63,8 @@ dependencies {
 
     implementation 'com.github.stfalcon:chatkit:0.3.3'
     implementation 'net.sourceforge.streamsupport:streamsupport:1.7.0'
-
+    implementation 'org.greenrobot:eventbus:3.1.1'
+    implementation 'net.sourceforge.streamsupport:android-retrofuture:1.7.0'
 }
 repositories {
     mavenCentral()

@@ -18,10 +18,7 @@
 package io.github.chronosx88.influence.views;
 
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -30,24 +27,40 @@ import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.textfield.TextInputLayout;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import io.github.chronosx88.influence.R;
 import io.github.chronosx88.influence.XMPPConnectionService;
 import io.github.chronosx88.influence.contracts.CoreContracts;
 import io.github.chronosx88.influence.helpers.AppHelper;
+import io.github.chronosx88.influence.helpers.HashUtils;
+import io.github.chronosx88.influence.models.appEvents.AuthenticationStatusEvent;
 
 public class LoginActivity extends AppCompatActivity implements CoreContracts.ILoginViewContract {
     private EditText jidEditText;
     private EditText passwordEditText;
+    private TextInputLayout jidInputLayout;
+    private TextInputLayout passwordInputLayout;
     private Button signInButton;
-    private BroadcastReceiver broadcastReceiver;
     private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
         jidEditText = findViewById(R.id.login_jid);
         passwordEditText = findViewById(R.id.login_password);
+
+        jidInputLayout = findViewById(R.id.jid_input_layout);
+        passwordInputLayout = findViewById(R.id.password_input_layout);
+        jidInputLayout.setErrorEnabled(true);
+        passwordInputLayout.setErrorEnabled(true);
+
         signInButton = findViewById(R.id.sign_in_button);
         progressDialog = new ProgressDialog(LoginActivity.this);
         progressDialog.setCancelable(false);
@@ -66,39 +79,6 @@ public class LoginActivity extends AppCompatActivity implements CoreContracts.IL
             progressDialog.show();
         else
             progressDialog.dismiss();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                switch (action) {
-                    case XMPPConnectionService.INTENT_AUTHENTICATED: {
-                        loadingScreen(false);
-                        finish();
-                        break;
-                    }
-                    case XMPPConnectionService.INTENT_AUTHENTICATION_FAILED: {
-                        loadingScreen(false);
-                        jidEditText.setError("Invalid JID/Password/Server");
-                        break;
-                    }
-                }
-            }
-        };
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(XMPPConnectionService.INTENT_AUTHENTICATED);
-        filter.addAction(XMPPConnectionService.INTENT_AUTHENTICATION_FAILED);
-        this.registerReceiver(broadcastReceiver, filter);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        this.unregisterReceiver(broadcastReceiver);
     }
 
     private boolean checkLoginCredentials() {
@@ -121,7 +101,7 @@ public class LoginActivity extends AppCompatActivity implements CoreContracts.IL
             jidEditText.setError("Field is required!");
             focusView = jidEditText;
             cancel = true;
-        } else if (!isEmailValid(jid)) {
+        } else if (!isJidValid(jid)) {
             jidEditText.setError("Invalid JID");
             focusView = jidEditText;
             cancel = true;
@@ -135,8 +115,8 @@ public class LoginActivity extends AppCompatActivity implements CoreContracts.IL
         }
     }
 
-    private boolean isEmailValid(String email) {
-        return email.contains("@");
+    private boolean isJidValid(String jid) {
+        return jid.contains("@");
     }
 
     private boolean isPasswordValid(String password) {
@@ -146,7 +126,7 @@ public class LoginActivity extends AppCompatActivity implements CoreContracts.IL
     private void saveLoginCredentials() {
         AppHelper.getPreferences().edit()
                 .putString("jid", jidEditText.getText().toString())
-                .putString("pass", passwordEditText.getText().toString())
+                .putString("pass", HashUtils.sha1(passwordEditText.getText().toString()))
                 .putBoolean("logged_in", true)
                 .apply();
     }
@@ -154,5 +134,38 @@ public class LoginActivity extends AppCompatActivity implements CoreContracts.IL
     private void doLogin() {
         loadingScreen(true);
         startService(new Intent(this, XMPPConnectionService.class));
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onAuthenticate(AuthenticationStatusEvent event) {
+        switch (event.authenticationStatus) {
+            case AuthenticationStatusEvent.CONNECT_AND_LOGIN_SUCCESSFUL: {
+                loadingScreen(false);
+                finish();
+                break;
+            }
+            case AuthenticationStatusEvent.INCORRECT_LOGIN_OR_PASSWORD: {
+                loadingScreen(false);
+                passwordInputLayout.setError("Invalid JID/Password");
+                break;
+            }
+            case AuthenticationStatusEvent.NETWORK_ERROR: {
+                loadingScreen(false);
+                jidInputLayout.setError("Network error");
+                break;
+            }
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
     }
 }

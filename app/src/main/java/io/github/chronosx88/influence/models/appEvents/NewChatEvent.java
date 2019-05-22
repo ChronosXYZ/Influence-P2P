@@ -15,10 +15,12 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.github.chronosx88.influence;
+package io.github.chronosx88.influence.models.appEvents;
 
-public class LoginCredentials {
-    public String username = "";
-    public String password = "";
-    public String jabberHost = "";
+public class NewChatEvent {
+    public final String chatID;
+
+    public NewChatEvent(String chatID) {
+        this.chatID = chatID;
+    }
 }

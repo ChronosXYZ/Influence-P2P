@@ -20,28 +20,21 @@ package io.github.chronosx88.influence;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 
+import org.greenrobot.eventbus.EventBus;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPException;
 
 import java.io.IOException;
 
 import io.github.chronosx88.influence.helpers.AppHelper;
+import io.github.chronosx88.influence.models.appEvents.AuthenticationStatusEvent;
 
 public class XMPPConnectionService extends Service {
-    public static final String INTENT_NEW_MESSAGE = "io.github.chronosx88.intents.new_message";
-    public static final String INTENT_SEND_MESSAGE = "io.github.chronosx88.intents.send_message";
-    public static final String INTENT_AUTHENTICATED = "io.github.chronosx88.intents.authenticated";
-    public static final String INTENT_AUTHENTICATION_FAILED = "io.github.chronosx88.intents.authentication_failed";
-
-    public static final String MESSAGE_CHATID = "chat_jid";
-    public static final String MESSAGE_ID = "message_id";
-    public static final String MESSAGE_BODY = "message_body";
-    public static final String MESSAGE_RECIPIENT = "message_recipient";
-
     public static XMPPConnection.ConnectionState CONNECTION_STATE = XMPPConnection.ConnectionState.DISCONNECTED;
     public static XMPPConnection.SessionState SESSION_STATE = XMPPConnection.SessionState.LOGGED_OUT;
 
@@ -50,11 +43,14 @@ public class XMPPConnectionService extends Service {
     private boolean isThreadAlive = false;
     private XMPPConnection connection;
     private Context context = AppHelper.getContext();
+    private XMPPServiceBinder binder = new XMPPServiceBinder();
 
     public XMPPConnectionService() { }
 
     @Override
-    public IBinder onBind(Intent intent) { return null; }
+    public IBinder onBind(Intent intent) {
+        return binder;
+    }
 
     public void onServiceStart() {
         if(!isThreadAlive)
@@ -77,6 +73,7 @@ public class XMPPConnectionService extends Service {
         threadHandler.post(() -> {
             if(connection != null) {
                 connection.disconnect();
+                connection = null;
             }
         });
     }
@@ -87,9 +84,12 @@ public class XMPPConnectionService extends Service {
         }
         try {
             connection.connect();
-        } catch (IOException | SmackException | XMPPException e) {
-            Intent intent = new Intent(INTENT_AUTHENTICATION_FAILED);
-            context.sendBroadcast(intent);
+        } catch (IOException | SmackException e) {
+            EventBus.getDefault().post(new AuthenticationStatusEvent(AuthenticationStatusEvent.NETWORK_ERROR));
+            e.printStackTrace();
+            stopSelf();
+        } catch (XMPPException e) {
+            EventBus.getDefault().post(new AuthenticationStatusEvent(AuthenticationStatusEvent.INCORRECT_LOGIN_OR_PASSWORD));
             e.printStackTrace();
             stopSelf();
         }
@@ -105,5 +105,11 @@ public class XMPPConnectionService extends Service {
     public void onDestroy() {
         super.onDestroy();
         onServiceStop();
+    }
+
+    public class XMPPServiceBinder extends Binder {
+        public XMPPConnection getConnection() {
+            return connection;
+        }
     }
 }
