@@ -23,6 +23,7 @@ import io.github.chronosx88.influence.XMPPConnection;
 public class AppHelper extends MultiDexApplication {
     private static Application instance;
     public final static String APP_NAME = "Influence";
+    public final static String DEFAULT_NTP_SERVER = "0.europe.pool.ntp.org";
 
     private static String jid;
     private static RoomHelper chatDB;
@@ -84,7 +85,7 @@ public class AppHelper extends MultiDexApplication {
             boolean isTrueTimeIsOn = false;
             while(!isTrueTimeIsOn) {
                 try {
-                    TrueTime.build().initialize();
+                    TrueTime.build().withNtpHost(DEFAULT_NTP_SERVER).initialize();
                     isTrueTimeIsOn = true;
                 } catch (IOException e) {
                     e.printStackTrace();
