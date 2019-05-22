@@ -16,11 +16,5 @@
   ~ along with this program. If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item
-        android:id="@+id/action_reconnect_network"
-        app:showAsAction="always"
-        android:icon="@drawable/ic_autorenew_white_24dp"
-        android:title="@string/reconnect_network"/>
+<menu>
 </menu>

@@ -60,7 +60,6 @@ public class MainActivity extends AppCompatActivity implements CoreContracts.IMa
         fab.setOnClickListener((v) -> {
             Pair<AlertDialog.Builder, EditText> pair = ViewUtils.INSTANCE.setupEditTextDialog(MainActivity.this, getString(R.string.input_companion_username));
             pair.getFirst().setPositiveButton(getString(R.string.ok), (dialog, which) -> {
-                showProgressBar(true);
                 presenter.startChatWithPeer(pair.getSecond().getText().toString());
             });
             pair.getFirst().setNegativeButton(getString(R.string.cancel), (dialog, which) -> {
@@ -85,15 +84,6 @@ public class MainActivity extends AppCompatActivity implements CoreContracts.IMa
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_actionbar_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == R.id.action_reconnect_network) {
-            progressDialog.show();
-            presenter.initConnection();
-        }
         return true;
     }
 
