@@ -23,6 +23,8 @@ import android.graphics.BitmapFactory;
 
 import androidx.appcompat.app.AlertDialog;
 
+import com.amulyakhare.textdrawable.TextDrawable;
+import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
 
 import org.greenrobot.eventbus.EventBus;
@@ -52,7 +54,12 @@ public class DialogListPresenter implements CoreContracts.IDialogListPresenterCo
     private CoreContracts.IChatListViewContract view;
     private CoreContracts.IDialogListLogicContract logic;
     private DialogsListAdapter<GenericDialog> dialogListAdapter = new DialogsListAdapter<>((imageView, url, payload) -> {
-        imageView.setImageResource(R.mipmap.ic_launcher);
+        imageView.setImageDrawable(TextDrawable.builder()
+                .beginConfig()
+                .width(32)
+                .height(32)
+                .endConfig()
+                .buildRound(Character.toString(url.charAt(0)), ColorGenerator.MATERIAL.getColor(Character.toString(url.charAt(0)))));
         CompletableFuture.supplyAsync(() -> {
             while (AppHelper.getXmppConnection() == null);
             while (AppHelper.getXmppConnection().isConnectionAlive() != true);

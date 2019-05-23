@@ -65,6 +65,7 @@ dependencies {
     implementation 'net.sourceforge.streamsupport:streamsupport:1.7.0'
     implementation 'org.greenrobot:eventbus:3.1.1'
     implementation 'net.sourceforge.streamsupport:android-retrofuture:1.7.0'
+    implementation 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
 }
 repositories {
     mavenCentral()
