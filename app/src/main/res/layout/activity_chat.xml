@@ -21,7 +21,6 @@
             <de.hdodenhof.circleimageview.CircleImageView
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:src="@mipmap/ic_launcher"
                 android:id="@+id/profile_image_chat_activity"/>
 
             <TextView

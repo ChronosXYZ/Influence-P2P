@@ -36,6 +36,7 @@ import org.jxmpp.stringprep.XmppStringprepException;
 
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import io.github.chronosx88.influence.R;
 import io.github.chronosx88.influence.contracts.CoreContracts;
@@ -51,6 +52,7 @@ import java8.util.stream.StreamSupport;
 import java9.util.concurrent.CompletableFuture;
 
 public class DialogListPresenter implements CoreContracts.IDialogListPresenterContract {
+    private ConcurrentHashMap<String, byte[]> avatarsMap = new ConcurrentHashMap<>();
     private CoreContracts.IChatListViewContract view;
     private CoreContracts.IDialogListLogicContract logic;
     private DialogsListAdapter<GenericDialog> dialogListAdapter = new DialogsListAdapter<>((imageView, url, payload) -> {
@@ -75,6 +77,7 @@ public class DialogListPresenter implements CoreContracts.IDialogListPresenterCo
                 if(avatarBytes != null) {
                     Bitmap avatar = BitmapFactory.decodeByteArray(avatarBytes, 0, avatarBytes.length);
                     imageView.setImageBitmap(avatar);
+                    avatarsMap.put(url, avatarBytes);
                 }
             });
         });
@@ -120,6 +123,7 @@ public class DialogListPresenter implements CoreContracts.IDialogListPresenterCo
         Intent intent = new Intent(AppHelper.getContext(), ChatActivity.class);
         intent.putExtra("chatID", chatID);
         intent.putExtra("chatName", LocalDBWrapper.getChatByChatID(chatID).chatName);
+        intent.putExtra("chatAvatar", avatarsMap.get(chatID));
         view.startActivity(intent);
     }
 

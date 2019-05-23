@@ -41,7 +41,6 @@ import io.github.chronosx88.influence.R;
 import io.github.chronosx88.influence.XMPPConnectionService;
 import io.github.chronosx88.influence.contracts.CoreContracts;
 import io.github.chronosx88.influence.helpers.AppHelper;
-import io.github.chronosx88.influence.helpers.HashUtils;
 import io.github.chronosx88.influence.models.appEvents.AuthenticationStatusEvent;
 
 public class LoginActivity extends AppCompatActivity implements CoreContracts.ILoginViewContract {
