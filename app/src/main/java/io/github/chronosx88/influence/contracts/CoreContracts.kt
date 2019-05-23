@@ -41,11 +41,15 @@ interface CoreContracts {
 
     interface IMainLogicContract {
         fun startService()
+        fun logout()
     }
 
     interface IMainPresenterContract {
         fun initConnection()
         fun startChatWithPeer(username: String)
+        fun logoutFromAccount()
+        fun onStart()
+        fun onStop()
     }
 
     interface IMainViewContract {

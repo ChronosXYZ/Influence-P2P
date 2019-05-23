@@ -72,10 +72,10 @@ public class XMPPConnectionService extends Service {
         isThreadAlive = false;
         threadHandler.post(() -> {
             if(connection != null) {
-                connection.disconnect();
-                connection = null;
                 thread.interrupt();
                 thread = null;
+                connection.disconnect();
+                connection = null;
             }
         });
     }

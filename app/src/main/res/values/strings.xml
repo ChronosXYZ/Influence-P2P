@@ -1,13 +1,9 @@
 <resources>
     <string name="app_name">Influence</string>
-    <string name="username_saved">Your username saved successfully!</string>
-    <string name="username_isnt_saved">Sorry, this username is busy.</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
-    <string name="username_settings">Your username</string>
-    <string name="username_hint">Username</string>
-    <string name="reconnect_network">Reconnect to the network</string>
-    <string name="node_already_running">Node already running</string>
-    <string name="input_companion_username">Input interlocutor\'s username</string>
+    <string name="input_companion_username">Input interlocutor\'s JID</string>
     <string name="hint_enter_a_message">Enter message...</string>
+    <string name="logout">Log out from account</string>
+    <string name="sign_in_button">Sign In</string>
 </resources>

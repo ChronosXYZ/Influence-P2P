@@ -25,4 +25,7 @@ public interface ChatDao {
 
     @Update
     void updateChat(ChatEntity chat);
+
+    @Query("DELETE FROM chats")
+    void clearChats();
 }

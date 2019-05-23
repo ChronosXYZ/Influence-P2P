@@ -9,6 +9,7 @@ import android.os.IBinder;
 import io.github.chronosx88.influence.XMPPConnectionService;
 import io.github.chronosx88.influence.contracts.CoreContracts;
 import io.github.chronosx88.influence.helpers.AppHelper;
+import io.github.chronosx88.influence.helpers.LocalDBWrapper;
 
 public class MainLogic implements CoreContracts.IMainLogicContract {
     private static final String LOG_TAG = MainLogic.class.getName();
@@ -34,6 +35,15 @@ public class MainLogic implements CoreContracts.IMainLogicContract {
                 AppHelper.setXmppConnection(null);
             }
         };
+        AppHelper.setServiceConnection(connection);
         context.bindService(new Intent(context, XMPPConnectionService.class), connection,Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    public void logout() {
+        LocalDBWrapper.clearDatabase();
+        AppHelper.resetLoginCredentials();
+        context.unbindService(AppHelper.getServiceConnection());
+        context.stopService(new Intent(context, XMPPConnectionService.class));
     }
 }

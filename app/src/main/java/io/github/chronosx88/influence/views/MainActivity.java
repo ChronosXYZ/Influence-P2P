@@ -1,6 +1,7 @@
 package io.github.chronosx88.influence.views;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -88,6 +89,21 @@ public class MainActivity extends AppCompatActivity implements CoreContracts.IMa
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        super.onOptionsItemSelected(item);
+        switch (item.getItemId()) {
+            case R.id.menu_logout_item: {
+                presenter.logoutFromAccount();
+                startActivity(new Intent(this, LoginActivity.class));
+                finish();
+                break;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
     public void showSnackbar(@NotNull String message) {
         runOnUiThread(() -> Snackbar.make(getRootView(), message, Snackbar.LENGTH_LONG).show());
     }
@@ -114,5 +130,17 @@ public class MainActivity extends AppCompatActivity implements CoreContracts.IMa
             rootView = getWindow().getDecorView().getRootView();
 
         return rootView;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        presenter.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        presenter.onStop();
     }
 }

@@ -15,10 +15,6 @@ import org.greenrobot.eventbus.ThreadMode
 class MainPresenter(private val view: CoreContracts.IMainViewContract) : CoreContracts.IMainPresenterContract {
     private val logic: CoreContracts.IMainLogicContract = MainLogic()
 
-    init {
-        EventBus.getDefault().register(this)
-    }
-
     override fun initConnection() {
         logic.startService()
     }
@@ -37,5 +33,17 @@ class MainPresenter(private val view: CoreContracts.IMainViewContract) : CoreCon
                 AppHelper.getContext().startActivity(intent)
             }
         }
+    }
+
+    override fun logoutFromAccount() {
+        logic.logout()
+    }
+
+    override fun onStart() {
+        EventBus.getDefault().register(this)
+    }
+
+    override fun onStop() {
+        EventBus.getDefault().unregister(this)
     }
 }

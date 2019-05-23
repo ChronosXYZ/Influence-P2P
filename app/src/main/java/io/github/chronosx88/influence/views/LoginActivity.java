@@ -166,11 +166,13 @@ public class LoginActivity extends AppCompatActivity implements CoreContracts.IL
             case AuthenticationStatusEvent.INCORRECT_LOGIN_OR_PASSWORD: {
                 loadingScreen(false);
                 passwordInputLayout.setError("Invalid JID/Password");
+                AppHelper.resetLoginCredentials();
                 break;
             }
             case AuthenticationStatusEvent.NETWORK_ERROR: {
                 loadingScreen(false);
                 jidInputLayout.setError("Network error");
+                AppHelper.resetLoginCredentials();
                 break;
             }
         }

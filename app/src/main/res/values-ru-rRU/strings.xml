@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Influence</string>
-    <string name="username_saved">Ваше имя пользователя успешно сохранено!</string>
-    <string name="username_isnt_saved">К сожалению, это имя пользователя занято.</string>
     <string name="ok">OK</string>
     <string name="cancel">Отмена</string>
-    <string name="username_settings">Ваше имя пользователя</string>
-    <string name="username_hint">Имя пользователя</string>
-    <string name="reconnect_network">Переподключиться к сети</string>
-    <string name="node_already_running">Узел уже запущен</string>
-    <string name="input_companion_username">Введите имя пользователя собеседника</string>
+    <string name="input_companion_username">Введите JID собеседника</string>
     <string name="hint_enter_a_message">Введите сообщение...</string>
+    <string name="logout">Выйти из аккаунта</string>
+    <string name="sign_in_button">Войти</string>
 </resources>

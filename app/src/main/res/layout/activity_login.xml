@@ -26,7 +26,8 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/jid_input_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:paddingTop="5dp">
 
         <EditText
             android:id="@+id/login_jid"
@@ -42,7 +43,8 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/password_input_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp">
 
         <EditText
             android:id="@+id/login_password"
@@ -63,7 +65,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="SIGN IN"
-        android:textStyle="bold" />
+        android:text="@string/sign_in_button"/>
 
 </LinearLayout>

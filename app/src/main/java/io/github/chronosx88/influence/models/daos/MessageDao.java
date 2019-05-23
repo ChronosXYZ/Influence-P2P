@@ -28,4 +28,7 @@ public interface MessageDao {
 
     @Update
     void updateMessage(MessageEntity message);
+
+    @Query("DELETE FROM messages")
+    void clearMessages();
 }

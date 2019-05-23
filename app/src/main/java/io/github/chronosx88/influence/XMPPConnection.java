@@ -92,6 +92,7 @@ public class XMPPConnection implements ConnectionListener {
                     .setKeystoreType(null)
                     .setSecurityMode(ConnectionConfiguration.SecurityMode.required)
                     .setCompressionEnabled(true)
+                    .setConnectTimeout(7000)
                     .build();
 
             connection = new XMPPTCPConnection(conf);
@@ -104,6 +105,8 @@ public class XMPPConnection implements ConnectionListener {
                 connection.login(credentials.username, credentials.password);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+            } catch (NullPointerException e) {
+                throw new IOException();
             }
 
             ChatManager.getInstanceFor(connection).addIncomingListener(networkHandler);

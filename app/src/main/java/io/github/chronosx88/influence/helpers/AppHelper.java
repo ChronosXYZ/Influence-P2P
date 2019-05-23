@@ -82,6 +82,12 @@ public class AppHelper extends MultiDexApplication {
         AppHelper.setJid(currentLoginCredentials.username + "@" + currentLoginCredentials.jabberHost);
     }
 
+    public static void resetLoginCredentials() {
+        currentLoginCredentials = new LoginCredentials();
+        preferences.edit().remove("jid").apply();
+        preferences.edit().remove("pass").apply();
+    }
+
     private static void initTrueTime() {
         new Thread(() -> {
             boolean isTrueTimeIsOn = false;
@@ -106,11 +112,11 @@ public class AppHelper extends MultiDexApplication {
         return mainUIThreadHandler;
     }
 
-    public static ServiceConnection getServiceConnection() {
-        return serviceConnection;
-    }
-
     public static void setServiceConnection(ServiceConnection serviceConnection) {
         AppHelper.serviceConnection = serviceConnection;
+    }
+
+    public static ServiceConnection getServiceConnection() {
+        return serviceConnection;
     }
 }

@@ -58,4 +58,9 @@ public class LocalDBWrapper {
     public static void updateMessage(MessageEntity messageEntity) {
         dbInstance.messageDao().updateMessage(messageEntity);
     }
+
+    public static void clearDatabase() {
+        dbInstance.messageDao().clearMessages();
+        dbInstance.chatDao().clearChats();
+    }
 }
