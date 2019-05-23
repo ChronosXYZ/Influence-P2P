@@ -16,6 +16,7 @@ import io.github.chronosx88.influence.models.roomEntities.MessageEntity
 import java9.util.concurrent.CompletableFuture
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import org.jxmpp.jid.EntityBareJid
 import org.jxmpp.jid.impl.JidCreate
 import org.jxmpp.stringprep.XmppStringprepException
@@ -77,7 +78,7 @@ class ChatPresenter(private val view: CoreContracts.IChatViewContract, private v
         //
     }
 
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public fun onNewMessage(event: NewMessageEvent) {
         if(event.chatID.equals(chatEntity!!.jid)) {
             val messageID = event.messageID

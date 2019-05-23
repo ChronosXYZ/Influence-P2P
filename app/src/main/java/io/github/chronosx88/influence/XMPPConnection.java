@@ -80,7 +80,10 @@ public class XMPPConnection implements ConnectionListener {
         networkHandler = new NetworkHandler();
     }
 
-    public void connect() throws XMPPException, IOException, SmackException {
+    public void connect() throws XMPPException, IOException, SmackException, EmptyLoginCredentialsException {
+        if(credentials.isEmpty()) {
+            throw new EmptyLoginCredentialsException();
+        }
         if(connection == null) {
             XMPPTCPConnectionConfiguration conf = XMPPTCPConnectionConfiguration.builder()
                     .setXmppDomain(credentials.jabberHost)

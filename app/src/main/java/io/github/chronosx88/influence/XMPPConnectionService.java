@@ -74,6 +74,8 @@ public class XMPPConnectionService extends Service {
             if(connection != null) {
                 connection.disconnect();
                 connection = null;
+                thread.interrupt();
+                thread = null;
             }
         });
     }
@@ -87,10 +89,12 @@ public class XMPPConnectionService extends Service {
         } catch (IOException | SmackException e) {
             EventBus.getDefault().post(new AuthenticationStatusEvent(AuthenticationStatusEvent.NETWORK_ERROR));
             e.printStackTrace();
+            onServiceStop();
             stopSelf();
-        } catch (XMPPException e) {
+        } catch (XMPPException | EmptyLoginCredentialsException e) {
             EventBus.getDefault().post(new AuthenticationStatusEvent(AuthenticationStatusEvent.INCORRECT_LOGIN_OR_PASSWORD));
             e.printStackTrace();
+            onServiceStop();
             stopSelf();
         }
     }

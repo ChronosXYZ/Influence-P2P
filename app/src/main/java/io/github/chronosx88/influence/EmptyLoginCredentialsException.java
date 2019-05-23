@@ -17,12 +17,5 @@
 
 package io.github.chronosx88.influence;
 
-public class LoginCredentials {
-    public String username = "";
-    public String password = "";
-    public String jabberHost = "";
-
-    public boolean isEmpty() {
-        return username.equals("") && password.equals("") && jabberHost.equals("");
-    }
+public class EmptyLoginCredentialsException extends Exception {
 }

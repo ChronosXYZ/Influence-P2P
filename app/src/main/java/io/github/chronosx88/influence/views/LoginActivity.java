@@ -18,8 +18,12 @@
 package io.github.chronosx88.influence.views;
 
 import android.app.ProgressDialog;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -62,7 +66,7 @@ public class LoginActivity extends AppCompatActivity implements CoreContracts.IL
         passwordInputLayout.setErrorEnabled(true);
 
         signInButton = findViewById(R.id.sign_in_button);
-        progressDialog = new ProgressDialog(LoginActivity.this);
+        progressDialog = new ProgressDialog(LoginActivity.this, R.style.AlertDialogTheme);
         progressDialog.setCancelable(false);
         progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Small);
         signInButton.setOnClickListener((v) -> {
@@ -71,6 +75,7 @@ public class LoginActivity extends AppCompatActivity implements CoreContracts.IL
                 doLogin();
             }
         });
+        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -126,7 +131,7 @@ public class LoginActivity extends AppCompatActivity implements CoreContracts.IL
     private void saveLoginCredentials() {
         AppHelper.getPreferences().edit()
                 .putString("jid", jidEditText.getText().toString())
-                .putString("pass", HashUtils.sha1(passwordEditText.getText().toString()))
+                .putString("pass", passwordEditText.getText().toString())
                 .putBoolean("logged_in", true)
                 .apply();
     }
@@ -134,6 +139,20 @@ public class LoginActivity extends AppCompatActivity implements CoreContracts.IL
     private void doLogin() {
         loadingScreen(true);
         startService(new Intent(this, XMPPConnectionService.class));
+        ServiceConnection connection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                XMPPConnectionService.XMPPServiceBinder binder = (XMPPConnectionService.XMPPServiceBinder) service;
+                AppHelper.setXmppConnection(binder.getConnection());
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                AppHelper.setXmppConnection(null);
+            }
+        };
+        AppHelper.setServiceConnection(connection);
+        bindService(new Intent(this, XMPPConnectionService.class), connection, Context.BIND_AUTO_CREATE);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -158,14 +177,8 @@ public class LoginActivity extends AppCompatActivity implements CoreContracts.IL
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        EventBus.getDefault().register(this);
-    }
-
-    @Override
-    protected void onStop() {
+    protected void onDestroy() {
+        super.onDestroy();
         EventBus.getDefault().unregister(this);
-        super.onStop();
     }
 }

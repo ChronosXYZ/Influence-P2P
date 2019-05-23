@@ -2,6 +2,7 @@ package io.github.chronosx88.influence.helpers;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
@@ -31,6 +32,7 @@ public class AppHelper extends MultiDexApplication {
     private static XMPPConnection xmppConnection;
     private static LoginCredentials currentLoginCredentials;
     private static Handler mainUIThreadHandler;
+    private static ServiceConnection serviceConnection;
 
     @Override
     public void onCreate() {
@@ -102,5 +104,13 @@ public class AppHelper extends MultiDexApplication {
 
     public static Handler getMainUIThread() {
         return mainUIThreadHandler;
+    }
+
+    public static ServiceConnection getServiceConnection() {
+        return serviceConnection;
+    }
+
+    public static void setServiceConnection(ServiceConnection serviceConnection) {
+        AppHelper.serviceConnection = serviceConnection;
     }
 }
