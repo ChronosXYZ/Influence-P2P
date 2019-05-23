@@ -70,14 +70,16 @@ public class XMPPConnectionService extends Service {
 
     private void onServiceStop() {
         isThreadAlive = false;
-        threadHandler.post(() -> {
-            if(connection != null) {
-                thread.interrupt();
-                thread = null;
-                connection.disconnect();
-                connection = null;
-            }
-        });
+        if(threadHandler != null) {
+            threadHandler.post(() -> {
+                if(connection != null) {
+                    thread.interrupt();
+                    thread = null;
+                    connection.disconnect();
+                    connection = null;
+                }
+            });
+        }
     }
 
     private void createConnection() {
