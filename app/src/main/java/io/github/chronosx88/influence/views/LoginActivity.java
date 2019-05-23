@@ -90,6 +90,9 @@ public class LoginActivity extends AppCompatActivity implements CoreContracts.IL
         jidEditText.setError(null);
         passwordEditText.setError(null);
 
+        jidInputLayout.setError(null);
+        passwordInputLayout.setError(null);
+
         String jid = jidEditText.getText().toString();
         String password = passwordEditText.getText().toString();
 
@@ -161,6 +164,7 @@ public class LoginActivity extends AppCompatActivity implements CoreContracts.IL
             case AuthenticationStatusEvent.CONNECT_AND_LOGIN_SUCCESSFUL: {
                 loadingScreen(false);
                 finish();
+                startActivity(new Intent(LoginActivity.this, MainActivity.class));
                 break;
             }
             case AuthenticationStatusEvent.INCORRECT_LOGIN_OR_PASSWORD: {

@@ -31,6 +31,7 @@ class MainPresenter(private val view: CoreContracts.IMainViewContract) : CoreCon
                 val intent = Intent(AppHelper.getContext(), LoginActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 AppHelper.getContext().startActivity(intent)
+                view.finishActivity()
             }
         }
     }

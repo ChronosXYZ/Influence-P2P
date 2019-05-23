@@ -55,6 +55,7 @@ interface CoreContracts {
     interface IMainViewContract {
         fun showSnackbar(message: String)
         fun showProgressBar(state: Boolean)
+        fun finishActivity()
     }
 
     // -----ChatActivity-----

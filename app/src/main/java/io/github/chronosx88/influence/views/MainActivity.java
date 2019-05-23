@@ -143,4 +143,9 @@ public class MainActivity extends AppCompatActivity implements CoreContracts.IMa
         super.onStop();
         presenter.onStop();
     }
+
+    @Override
+    public void finishActivity() {
+        finish();
+    }
 }
